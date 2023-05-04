@@ -1,8 +1,22 @@
 version: "3"
 services:
+  postgres:
+    image: postgres:13.1-alpine
+    ports:
+      - 127.0.0.1:5433:5432
+    environment:
+      POSTGRES_USER: schoolsystem
+      POSTGRES_PASSWORD: schoolsystem
+      POSTGRES_DB: schoolsystem
   rest-api:
     build:
       context: ./server
       dockerfile: Dockerfile.backend
+    depends_on:
+      - postgres
+    environment:
+      POSTGRES_USER: schoolsystem
+      POSTGRES_PASSWORD: schoolsystem
+      POSTGRES_DB: schoolsystem
     ports:
       - "127.0.0.1:8080:8080"
