@@ -1,0 +1,4 @@
+FROM amazoncorretto:17.0.0-alpine
+ADD build/libs/school-system-1.jar school-system.jar
+ENTRYPOINT ["java","-jar","school-system.jar"]
+EXPOSE 8080
