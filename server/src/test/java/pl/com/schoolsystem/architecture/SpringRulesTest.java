@@ -1,6 +1,7 @@
 package pl.com.schoolsystem.architecture;
 
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.*;
+import static com.tngtech.archunit.library.GeneralCodingRules.NO_CLASSES_SHOULD_USE_FIELD_INJECTION;
 
 import com.tngtech.archunit.core.domain.JavaClass;
 import com.tngtech.archunit.core.domain.JavaClasses;
@@ -36,11 +37,7 @@ public class SpringRulesTest {
 
   @ArchTest
   void noFieldsShouldBeAnnotatedByAutowired(JavaClasses javaClasses) {
-    noFields()
-        .should()
-        .beAnnotatedWith(Autowired.class)
-        .because("We should inject dependencies through constructor")
-        .check(javaClasses);
+    NO_CLASSES_SHOULD_USE_FIELD_INJECTION.check(javaClasses);
   }
 
   @ArchTest
