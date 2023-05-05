@@ -32,4 +32,12 @@ Every opened pull request should have a title which consists of prefix followed 
 | `Refactor:`|    Refactoring code    | `Refactor: Replaced user queries with specifications` |
 |  `Docs:`   |  Update documentation  |              `Docs: User CRUD enpoints`               |
 
-###
+### Flyway schema migration file name convention
+`V[yyyyMMddHHmm]__name.sql`
+
+### Code format
+We follow rules for `google-java-format`\
+To format code run command
+```
+gradle googleJavaFormat
+```
