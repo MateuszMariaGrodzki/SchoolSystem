@@ -41,3 +41,9 @@ To format code run command
 ```
 gradle googleJavaFormat
 ```
+
+### Database configuration
+It's recommended to use external database tool such as DBeaver. Below image provides database connection credentials:
+<p align="center">
+  <img src="./img/database.png" width="300">
+</p>
