@@ -15,7 +15,7 @@
   gradle build -x test
   ```
   * this should create jar in `/build/libs` directory
-* Go to [main](./) directory and run command
+* Go to [main](https://github.com/MateuszMariaGrodzki/SchoolSystem) directory and run command
 ```
 docker-compose up
 ```
