@@ -15,9 +15,12 @@ repositories {
 }
 
 dependencies {
+	def archUnitVersion = '1.0.1'
+
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+	testImplementation "com.tngtech.archunit:archunit-junit5:${archUnitVersion}"
 
 	runtimeOnly "org.postgresql:postgresql"
 }
@@ -33,5 +36,8 @@ bootJar {
 
 tasks.named('test') {
 	useJUnitPlatform()
-	dependsOn verifyGoogleJavaFormat
+}
+
+tasks.register('testFormat', GradleBuild) {
+	tasks = ['test', 'verifyGoogleJavaFormat']
 }

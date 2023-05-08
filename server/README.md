@@ -42,6 +42,10 @@ To format code run command
 gradle googleJavaFormat
 ```
 
+### DTO's
+Request DTO should have name ending with command
+Response DTO should have name ending with view
+
 ### Database configuration
 It's recommended to use external database tool such as DBeaver. Below image provides database connection credentials:
 <p align="center">
