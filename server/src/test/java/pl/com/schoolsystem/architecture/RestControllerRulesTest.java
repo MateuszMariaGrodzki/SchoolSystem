@@ -39,5 +39,5 @@ public class RestControllerRulesTest {
         .because("We want consistent names")
         .check(javaClasses);
   }
-  //TODO [MG] po dodaniu security warto rozważyć dodanie testu na adnotację @PreAutohirze na każdym kontrolerze aby api było bezpieczne
+  //TODO [MG] after add security dependency add test for @PreAuthorize annotation on every controller.
 }
