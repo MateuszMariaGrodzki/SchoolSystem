@@ -36,5 +36,8 @@ bootJar {
 
 tasks.named('test') {
 	useJUnitPlatform()
-	dependsOn verifyGoogleJavaFormat
+}
+
+tasks.register('testFormat', GradleBuild) {
+	tasks = ['test', 'verifyGoogleJavaFormat']
 }
