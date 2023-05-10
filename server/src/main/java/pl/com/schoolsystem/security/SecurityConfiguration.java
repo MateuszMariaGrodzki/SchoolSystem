@@ -1,5 +1,6 @@
 package pl.com.schoolsystem.security;
 
+import static org.springframework.http.HttpMethod.POST;
 import static org.springframework.security.config.http.SessionCreationPolicy.STATELESS;
 
 import lombok.RequiredArgsConstructor;
@@ -23,20 +24,33 @@ public class SecurityConfiguration {
 
   @Bean
   public SecurityFilterChain getSecurityFilterChain(HttpSecurity http) throws Exception {
-    http.csrf()
-        .disable()
-        .authorizeHttpRequests()
-        .requestMatchers("")
-        .permitAll()
-        .anyRequest()
-        .authenticated()
-        .and()
-        .sessionManagement()
-        .sessionCreationPolicy(STATELESS)
-        .and()
-        .authenticationProvider(authenticationProvider)
-        .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+    http.csrf().disable();
+
+    configureEndpoints(http);
+    disableSessionCreation(http);
+    addJwtFilter(http);
+    addAuthenticationProvider(http);
 
     return http.build();
+  }
+
+  private void configureEndpoints(HttpSecurity http) throws Exception {
+    http.authorizeHttpRequests()
+        .requestMatchers(POST, "/")
+        .permitAll()
+        .anyRequest()
+        .authenticated();
+  }
+
+  private void disableSessionCreation(HttpSecurity http) throws Exception {
+    http.sessionManagement().sessionCreationPolicy(STATELESS);
+  }
+
+  private void addJwtFilter(HttpSecurity http) throws Exception {
+    http.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+  }
+
+  private void addAuthenticationProvider(HttpSecurity http) throws Exception {
+    http.authenticationProvider(authenticationProvider);
   }
 }
