@@ -1,4 +1,4 @@
-package pl.com.schoolsystem.security;
+package pl.com.schoolsystem.security.authentication.api;
 
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 import static pl.com.schoolsystem.security.configuration.SecurityConstants.TOKEN_ENDPOINT;
@@ -9,6 +9,8 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import pl.com.schoolsystem.security.authentication.AuthCommand;
+import pl.com.schoolsystem.security.authentication.AuthenticationService;
 
 @RestController
 @RequiredArgsConstructor

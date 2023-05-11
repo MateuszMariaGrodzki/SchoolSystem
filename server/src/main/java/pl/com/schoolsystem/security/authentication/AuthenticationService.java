@@ -1,4 +1,4 @@
-package pl.com.schoolsystem.security;
+package pl.com.schoolsystem.security.authentication;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
