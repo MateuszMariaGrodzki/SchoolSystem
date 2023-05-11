@@ -1,4 +1,4 @@
-package pl.com.schoolsystem.security;
+package pl.com.schoolsystem.security.configuration;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -8,23 +8,19 @@ import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import pl.com.schoolsystem.security.user.ApplicationUserRepository;
+import pl.com.schoolsystem.security.user.ApplicationUserService;
 
 @Configuration
 @RequiredArgsConstructor
 public class ApplicationConfig {
 
-  private final ApplicationUserRepository applicationUserRepository;
+  private final ApplicationUserService applicationUserService;
 
   @Bean
   public UserDetailsService userDetailsService() {
-    return username ->
-        applicationUserRepository
-            .findByEmail(username)
-            .orElseThrow(() -> new UsernameNotFoundException("Nie ma go"));
+    return applicationUserService::getByEmailsOrElseThrowApplicationUserNotFoundException;
   }
 
   @Bean

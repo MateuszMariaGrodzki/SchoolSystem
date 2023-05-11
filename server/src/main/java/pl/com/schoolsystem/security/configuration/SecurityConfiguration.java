@@ -1,4 +1,4 @@
-package pl.com.schoolsystem.security;
+package pl.com.schoolsystem.security.configuration;
 
 import static org.springframework.http.HttpMethod.POST;
 import static org.springframework.security.config.http.SessionCreationPolicy.STATELESS;
@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationProvider;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.web.SecurityFilterChain;
@@ -16,6 +17,7 @@ import pl.com.schoolsystem.security.authentication.JwtAuthenticationFilter;
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
+@EnableMethodSecurity
 public class SecurityConfiguration {
 
   private final JwtAuthenticationFilter jwtAuthenticationFilter;
@@ -36,7 +38,7 @@ public class SecurityConfiguration {
 
   private void configureEndpoints(HttpSecurity http) throws Exception {
     http.authorizeHttpRequests()
-        .requestMatchers(POST, "/")
+        .requestMatchers(POST, "/api/v1/token")
         .permitAll()
         .anyRequest()
         .authenticated();
@@ -46,11 +48,11 @@ public class SecurityConfiguration {
     http.sessionManagement().sessionCreationPolicy(STATELESS);
   }
 
-  private void addJwtFilter(HttpSecurity http) throws Exception {
+  private void addJwtFilter(HttpSecurity http) {
     http.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
   }
 
-  private void addAuthenticationProvider(HttpSecurity http) throws Exception {
+  private void addAuthenticationProvider(HttpSecurity http) {
     http.authenticationProvider(authenticationProvider);
   }
 }

@@ -1,6 +1,7 @@
 package pl.com.schoolsystem.security.authentication;
 
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
+import static pl.com.schoolsystem.security.configuration.SecurityConstants.TOKEN_PREFIX;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -54,7 +55,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
   private Optional<String> extractTokenFromRequest(HttpServletRequest request) {
     return Optional.ofNullable(request.getHeader(AUTHORIZATION))
-        .filter(header -> header.startsWith("Bearer "))
-        .map(header -> header.replace("Bearer ", ""));
+        .filter(header -> header.startsWith(TOKEN_PREFIX))
+        .map(header -> header.replace(TOKEN_PREFIX, ""));
   }
 }
