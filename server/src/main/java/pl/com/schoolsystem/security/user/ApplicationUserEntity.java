@@ -20,10 +20,9 @@ public class ApplicationUserEntity implements UserDetails {
   @Id
   @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "application_user_id_seq")
   @SequenceGenerator(
-    name = "application_user_id_seq",
-    sequenceName = "application_user_id_seq",
-    allocationSize = 1
-  )
+      name = "application_user_id_seq",
+      sequenceName = "application_user_id_seq",
+      allocationSize = 1)
   private Long id;
 
   private String firstName;

@@ -17,13 +17,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
 @AnalyzeClasses(
-  packages = "pl.com.schoolsystem",
-  importOptions = {
-    ImportOption.DoNotIncludeTests.class,
-    ImportOption.DoNotIncludeArchives.class,
-    ImportOption.DoNotIncludeJars.class,
-  }
-)
+    packages = "pl.com.schoolsystem",
+    importOptions = {
+      ImportOption.DoNotIncludeTests.class,
+      ImportOption.DoNotIncludeArchives.class,
+      ImportOption.DoNotIncludeJars.class,
+    })
 public class SpringRulesTest {
 
   @ArchTest

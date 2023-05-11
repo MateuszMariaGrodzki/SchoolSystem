@@ -42,7 +42,7 @@ dependencies {
 }
 
 googleJavaFormat {
-	toolVersion = "1.1"
+	toolVersion = '1.12.0'
 }
 
 bootJar {

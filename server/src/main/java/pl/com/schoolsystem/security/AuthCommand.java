@@ -1,9 +1,3 @@
 package pl.com.schoolsystem.security;
 
-import lombok.Value;
-
-@Value
-public class AuthCommand {
-  String username;
-  String password;
-}
+public record AuthCommand(String email, String password) {}
