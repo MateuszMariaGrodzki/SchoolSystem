@@ -14,6 +14,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import pl.com.schoolsystem.security.user.ApplicationUserEntity;
@@ -21,8 +22,8 @@ import pl.com.schoolsystem.security.user.ApplicationUserEntity;
 @Service
 public class JWTService {
 
-  private static final String SECRET_KEY =
-      "404D635166546A576D5A7134743777217A25432A462D4A614E645267556B5870";
+  @Value("${jwt.secret.key}")
+  private String SECRET_KEY;
 
   private static final long HOURS_OF_TOKEN_VALIDITY = 8;
 
