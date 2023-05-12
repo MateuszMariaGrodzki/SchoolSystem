@@ -27,6 +27,17 @@ import pl.com.schoolsystem.security.token.JWTService;
 @RequiredArgsConstructor
 public class EndpointLoggingFilter extends OncePerRequestFilter {
 
+  private static final String REQUEST_LOGGING_PATTERN =
+      "\n"
+          + "---------------------------------------------------------"
+          + "\nIncoming request\n"
+          + "HttpMethod={}\n"
+          + "URI={}\n"
+          + "Content-Type={}\n"
+          + "Headers={}\n"
+          + "UserEmail={}\n"
+          + "---------------------------------------------------------";
+
   private final JWTService jwtService;
 
   @Override
@@ -51,21 +62,7 @@ public class EndpointLoggingFilter extends OncePerRequestFilter {
         Optional.ofNullable(token).map(jwtService::extractUserEmail).orElse(EMPTY);
     final var headers = new ServletServerHttpRequest(request).getHeaders();
 
-    log.info(
-        "\n"
-            + "---------------------------------------------------------"
-            + "\nIncoming request\n"
-            + "HttpMethod={}\n"
-            + "URI={}\n"
-            + "Content-Type={}\n"
-            + "Headers={}\n"
-            + "UserEmail={}\n"
-            + "---------------------------------------------------------",
-        httpMethod,
-        url,
-        contentType,
-        headers,
-        userEmail);
+    log.info(REQUEST_LOGGING_PATTERN, httpMethod, url, contentType, headers, userEmail);
     filterChain.doFilter(request, response);
   }
 }

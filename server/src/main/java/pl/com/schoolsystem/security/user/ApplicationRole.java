@@ -2,8 +2,7 @@ package pl.com.schoolsystem.security.user;
 
 public enum ApplicationRole {
   ADMIN,
-  OWNER,
+  DIRECTOR,
   TEACHER,
-  STUDENT,
-  PARENT
+  STUDENT
 }
