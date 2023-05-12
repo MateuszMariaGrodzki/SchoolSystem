@@ -22,10 +22,13 @@ import pl.com.schoolsystem.security.user.ApplicationUserEntity;
 @Service
 public class JWTService {
 
-  @Value("${jwt.secret.key}")
-  private String SECRET_KEY;
+  private final String SECRET_KEY;
 
   private static final long HOURS_OF_TOKEN_VALIDITY = 8;
+
+  public JWTService(@Value("${jwt.secret.key}") String secretKey) {
+    SECRET_KEY = secretKey;
+  }
 
   public String extractUserEmail(String token) {
     return extractClaim(token, Claims::getSubject);

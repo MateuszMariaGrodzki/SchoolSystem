@@ -25,7 +25,7 @@ public class AuthenticationController {
     final var token = authenticationService.authenticate(command);
     final var headers = new HttpHeaders();
     headers.add(AUTHORIZATION, TOKEN_PREFIX + token);
-    return ResponseEntity.noContent().headers(headers).build();
+    return ResponseEntity.ok().headers(headers).build();
   }
 
   @GetMapping("/info")
