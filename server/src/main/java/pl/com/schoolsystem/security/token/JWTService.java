@@ -1,23 +1,30 @@
 package pl.com.schoolsystem.security.token;
 
+import static java.time.temporal.ChronoUnit.HOURS;
+import static pl.com.schoolsystem.security.token.JwtClaim.*;
+
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import java.security.Key;
+import java.time.Instant;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
+import pl.com.schoolsystem.security.user.ApplicationUserEntity;
 
 @Service
 public class JWTService {
 
   private static final String SECRET_KEY =
       "404D635166546A576D5A7134743777217A25432A462D4A614E645267556B5870";
+
+  private static final long HOURS_OF_TOKEN_VALIDITY = 8;
 
   public String extractUserEmail(String token) {
     return extractClaim(token, Claims::getSubject);
@@ -37,15 +44,17 @@ public class JWTService {
   }
 
   public String generateToken(UserDetails userDetails) {
-    return generateToken(new HashMap<>(), userDetails);
+    final var additionalClaims = getAdditionalClaims(userDetails);
+    return generateToken(additionalClaims, userDetails, Instant.now());
   }
 
-  public String generateToken(Map<String, Object> additionalClaims, UserDetails userDetails) {
+  public String generateToken(
+      Map<String, Object> additionalClaims, UserDetails userDetails, Instant issuedAt) {
     return Jwts.builder()
         .setClaims(additionalClaims)
         .setSubject(userDetails.getUsername())
-        .setIssuedAt(new Date(System.currentTimeMillis()))
-        .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 24))
+        .setIssuedAt(Date.from(issuedAt))
+        .setExpiration(Date.from(issuedAt.plus(HOURS_OF_TOKEN_VALIDITY, HOURS)))
         .signWith(getSignInKey(), SignatureAlgorithm.HS256)
         .compact();
   }
@@ -66,5 +75,14 @@ public class JWTService {
   private Key getSignInKey() {
     byte[] keyBytes = Decoders.BASE64.decode(SECRET_KEY);
     return Keys.hmacShaKeyFor(keyBytes);
+  }
+
+  private Map<String, Object> getAdditionalClaims(UserDetails userDetails) {
+    final var applicationUserEntity = (ApplicationUserEntity) userDetails;
+    final var claims = new HashMap<String, Object>();
+    claims.put(AUTHORITY, applicationUserEntity.getRole());
+    claims.put(FIRSTNAME, applicationUserEntity.getFirstName());
+    claims.put(LASTNAME, applicationUserEntity.getLastName());
+    return claims;
   }
 }
