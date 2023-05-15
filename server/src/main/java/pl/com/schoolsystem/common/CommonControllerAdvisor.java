@@ -1,18 +1,22 @@
 package pl.com.schoolsystem.common;
 
-import static org.springframework.http.HttpStatus.BAD_REQUEST;
+import static java.util.Collections.*;
+import static org.springframework.http.HttpStatus.*;
+import static pl.com.schoolsystem.common.CommonError.INTERNAL_SERVER_ERROR;
 import static pl.com.schoolsystem.common.CommonError.INVALID_REQUEST;
 
 import java.time.Instant;
 import java.util.function.BinaryOperator;
 import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
+import pl.com.schoolsystem.common.exception.NotFoundException;
 
 @Slf4j
 @ResponseBody
@@ -37,5 +41,24 @@ public class CommonControllerAdvisor {
 
   private BinaryOperator<String> resolveDuplicatedKey() {
     return (k1, k2) -> k1;
+  }
+
+  @ResponseStatus(NOT_FOUND)
+  @ExceptionHandler(NotFoundException.class)
+  public ErrorResponse handleNotFoundException(NotFoundException exception) {
+    log.warn("Entity not found exception occurred: {}", exception.getMessage());
+    return new ErrorResponse(
+        Instant.now(), exception.getCode(), exception.getMessage(), emptyMap());
+  }
+
+  @ExceptionHandler(Exception.class)
+  @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+  public ErrorResponse internalServerError(Exception exception) {
+    log.error("Internal Server Error: {}", exception.getMessage(), exception);
+    return new ErrorResponse(
+        Instant.now(),
+        INTERNAL_SERVER_ERROR.getCode(),
+        INTERNAL_SERVER_ERROR.getMessage(),
+        emptyMap());
   }
 }

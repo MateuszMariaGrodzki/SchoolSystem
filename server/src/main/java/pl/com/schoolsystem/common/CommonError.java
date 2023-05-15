@@ -6,7 +6,8 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 @Getter
 public enum CommonError {
-  INVALID_REQUEST("VALIDATION_ERROR", "Invalid request");
+  INVALID_REQUEST("VALIDATION_ERROR", "Invalid request"),
+  INTERNAL_SERVER_ERROR("INTERNAL_SERVER_ERROR", "Something went wrong");
 
   private final String code;
   private final String message;
