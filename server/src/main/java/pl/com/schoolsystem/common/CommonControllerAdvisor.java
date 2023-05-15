@@ -5,7 +5,6 @@ import static org.springframework.http.HttpStatus.*;
 import static pl.com.schoolsystem.common.CommonError.*;
 import static pl.com.schoolsystem.common.CommonError.INTERNAL_SERVER_ERROR;
 
-import java.time.Instant;
 import java.util.function.BinaryOperator;
 import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
@@ -31,7 +30,6 @@ public class CommonControllerAdvisor {
     log.warn("Method argument not valid: {}", exception.getMessage());
 
     return new ErrorResponse(
-        Instant.now(),
         INVALID_REQUEST.getCode(),
         INVALID_REQUEST.getMessage(),
         exception.getBindingResult().getFieldErrors().stream()
@@ -50,18 +48,14 @@ public class CommonControllerAdvisor {
       InternalAuthenticationServiceException exception) {
     log.warn("Authorization failed: {}", exception.getMessage());
     return new ErrorResponse(
-        Instant.now(),
-        FAILED_AUTHORIZATION.getCode(),
-        FAILED_AUTHORIZATION.getMessage(),
-        emptyMap());
+        FAILED_AUTHORIZATION.getCode(), FAILED_AUTHORIZATION.getMessage(), emptyMap());
   }
 
   @ResponseStatus(NOT_FOUND)
   @ExceptionHandler(NotFoundException.class)
   public ErrorResponse handleNotFoundException(NotFoundException exception) {
     log.warn("Entity not found exception occurred: {}", exception.getMessage());
-    return new ErrorResponse(
-        Instant.now(), exception.getCode(), exception.getMessage(), emptyMap());
+    return new ErrorResponse(exception.getCode(), exception.getMessage(), emptyMap());
   }
 
   @ExceptionHandler(Exception.class)
@@ -69,9 +63,6 @@ public class CommonControllerAdvisor {
   public ErrorResponse internalServerError(Exception exception) {
     log.error("Internal Server Error: {}", exception.getMessage(), exception);
     return new ErrorResponse(
-        Instant.now(),
-        INTERNAL_SERVER_ERROR.getCode(),
-        INTERNAL_SERVER_ERROR.getMessage(),
-        emptyMap());
+        INTERNAL_SERVER_ERROR.getCode(), INTERNAL_SERVER_ERROR.getMessage(), emptyMap());
   }
 }
