@@ -20,10 +20,7 @@ public class AuthenticationService {
   private final ApplicationUserService applicationUserService;
 
   public String authenticate(AuthCommand command) {
-    log.info(
-        "Authenticating user with credentials\n email: {} \n password: {}",
-        command.email(),
-        command.password());
+    log.info("Authenticating user: {}", command.email());
     authenticationManager.authenticate(
         new UsernamePasswordAuthenticationToken(command.email(), command.password()));
     log.info("Authentication successful for user with email {}", command.email());

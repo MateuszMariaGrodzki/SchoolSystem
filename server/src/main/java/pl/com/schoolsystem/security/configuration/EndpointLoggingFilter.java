@@ -12,7 +12,6 @@ import java.io.IOException;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.server.ServletServerHttpRequest;
@@ -46,19 +45,15 @@ public class EndpointLoggingFilter extends OncePerRequestFilter {
       @NonNull HttpServletResponse response,
       @NonNull FilterChain filterChain)
       throws ServletException, IOException {
-    final String url =
-        Optional.ofNullable(request.getQueryString())
-            .filter(StringUtils::isNotEmpty)
-            .map(query -> "?" + query)
-            .orElse(EMPTY);
-    final String httpMethod = request.getMethod();
-    final String contentType = request.getContentType();
+    final var url = request.getRequestURL();
+    final var httpMethod = request.getMethod();
+    final var contentType = request.getContentType();
     final var token =
         Optional.ofNullable(request.getHeader(AUTHORIZATION))
             .filter(header -> header.startsWith(TOKEN_PREFIX))
             .map(header -> header.replace(TOKEN_PREFIX, ""))
             .orElse(null);
-    final String userEmail =
+    final var userEmail =
         Optional.ofNullable(token).map(jwtService::extractUserEmail).orElse(EMPTY);
     final var headers = new ServletServerHttpRequest(request).getHeaders();
 
