@@ -1,3 +1,7 @@
 package pl.com.schoolsystem.security.authentication;
 
-public record AuthCommand(String email, String password) {}
+import jakarta.validation.constraints.NotBlank;
+
+public record AuthCommand(
+    @NotBlank(message = "email is mandatory") String email,
+    @NotBlank(message = "password is mandatory") String password) {}

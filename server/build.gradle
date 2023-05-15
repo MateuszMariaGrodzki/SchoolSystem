@@ -25,6 +25,7 @@ dependencies {
 	implementation "org.flywaydb:flyway-core"
 	implementation "io.jsonwebtoken:jjwt-api:${jwtVersion}"
 	implementation group: 'org.apache.commons', name: 'commons-lang3', version: '3.0'
+	implementation "org.hibernate.validator:hibernate-validator"
 
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testImplementation "com.tngtech.archunit:archunit-junit5:${archUnitVersion}"

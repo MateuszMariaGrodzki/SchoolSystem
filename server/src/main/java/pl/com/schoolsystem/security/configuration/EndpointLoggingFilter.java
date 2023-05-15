@@ -1,6 +1,5 @@
 package pl.com.schoolsystem.security.configuration;
 
-import static org.apache.commons.lang3.StringUtils.EMPTY;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 import static pl.com.schoolsystem.security.configuration.SecurityConstants.TOKEN_PREFIX;
 
@@ -53,8 +52,7 @@ public class EndpointLoggingFilter extends OncePerRequestFilter {
             .filter(header -> header.startsWith(TOKEN_PREFIX))
             .map(header -> header.replace(TOKEN_PREFIX, ""))
             .orElse(null);
-    final var userEmail =
-        Optional.ofNullable(token).map(jwtService::extractUserEmail).orElse(EMPTY);
+    final var userEmail = Optional.ofNullable(token).map(jwtService::extractUserEmail).orElse(null);
     final var headers = new ServletServerHttpRequest(request).getHeaders();
 
     log.info(REQUEST_LOGGING_PATTERN, httpMethod, url, contentType, headers, userEmail);

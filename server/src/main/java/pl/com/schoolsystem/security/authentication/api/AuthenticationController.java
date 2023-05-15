@@ -4,6 +4,7 @@ import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 import static pl.com.schoolsystem.security.configuration.SecurityConstants.TOKEN_ENDPOINT;
 import static pl.com.schoolsystem.security.configuration.SecurityConstants.TOKEN_PREFIX;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
@@ -21,16 +22,10 @@ public class AuthenticationController {
   private final AuthenticationService authenticationService;
 
   @PostMapping(TOKEN_ENDPOINT)
-  public ResponseEntity<Void> token(@RequestBody AuthCommand command) {
+  public ResponseEntity<Void> token(@RequestBody @Valid AuthCommand command) {
     final var token = authenticationService.authenticate(command);
     final var headers = new HttpHeaders();
     headers.add(AUTHORIZATION, TOKEN_PREFIX + token);
     return ResponseEntity.ok().headers(headers).build();
-  }
-
-  @GetMapping("/info")
-  @PreAuthorize("hasAnyAuthority('ADMIN')")
-  public String get() {
-    return "okv2";
   }
 }
