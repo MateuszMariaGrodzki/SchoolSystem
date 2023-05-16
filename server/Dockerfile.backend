@@ -1,4 +1,5 @@
 FROM amazoncorretto:17.0.0-alpine
+ENV JAVA_TOOL_OPTIONS -agentlib:jdwp=transport=dt_socket,address=*:8000,server=y,suspend=n
 ADD build/libs/school-system-1.jar school-system.jar
 ENTRYPOINT ["java","-jar","school-system.jar"]
-EXPOSE 8080
+EXPOSE 8080 8000
