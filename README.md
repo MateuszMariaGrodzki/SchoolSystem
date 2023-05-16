@@ -5,6 +5,7 @@
 ### Requirements
 
 - `Running docker daemon`
+- `Java` **&ge;17**
 - `Gradle` **&ge;7.6**
 
 ### How to

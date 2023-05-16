@@ -51,3 +51,6 @@ It's recommended to use external database tool such as DBeaver. Below image prov
 <p align="center">
   <img src="./img/database.png" width="500">
 </p>
+
+### Debuger 
+In Intellij choose remote JVM debug with host `localhost` and port `8000`
