@@ -1,7 +1,5 @@
 package pl.com.schoolsystem.admin;
 
-import static lombok.AccessLevel.PACKAGE;
-
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -10,7 +8,7 @@ import pl.com.schoolsystem.security.user.ApplicationUserEntity;
 @Entity
 @Table(name = "administrator")
 @Getter
-@Setter(PACKAGE)
+@Setter
 public class AdministratorEntity {
 
   @Id
@@ -24,8 +22,4 @@ public class AdministratorEntity {
   @OneToOne
   @JoinColumn(name = "application_user_id")
   private ApplicationUserEntity applicationUser;
-
-  void assignApplicationUser(ApplicationUserEntity applicationUser) {
-    this.applicationUser = applicationUser;
-  }
 }

@@ -6,7 +6,6 @@ import static org.mapstruct.factory.Mappers.getMapper;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import pl.com.schoolsystem.admin.AddAdministratorCommand;
-import pl.com.schoolsystem.admin.AddAdministratorView;
 
 @Mapper(unmappedTargetPolicy = ERROR)
 public interface ApplicationUserMapper {
@@ -19,6 +18,4 @@ public interface ApplicationUserMapper {
   @Mapping(target = "id", ignore = true)
   @Mapping(target = "authorities", ignore = true)
   ApplicationUserEntity toApplicationUserEntity(AddApplicationUserCommand command);
-
-  AddAdministratorView toAdministratorView(ApplicationUserEntity entity);
 }
