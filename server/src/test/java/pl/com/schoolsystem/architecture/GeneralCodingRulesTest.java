@@ -8,13 +8,12 @@ import com.tngtech.archunit.junit.AnalyzeClasses;
 import com.tngtech.archunit.junit.ArchTest;
 
 @AnalyzeClasses(
-  packages = "pl.com.schoolsystem",
-  importOptions = {
-    ImportOption.DoNotIncludeTests.class,
-    ImportOption.DoNotIncludeArchives.class,
-    ImportOption.DoNotIncludeJars.class,
-  }
-)
+    packages = "pl.com.schoolsystem",
+    importOptions = {
+      ImportOption.DoNotIncludeTests.class,
+      ImportOption.DoNotIncludeArchives.class,
+      ImportOption.DoNotIncludeJars.class,
+    })
 public class GeneralCodingRulesTest {
 
   @ArchTest

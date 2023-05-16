@@ -9,13 +9,12 @@ import com.tngtech.archunit.junit.ArchTest;
 import org.springframework.stereotype.Repository;
 
 @AnalyzeClasses(
-  packages = "pl.com.schoolsystem",
-  importOptions = {
-    ImportOption.DoNotIncludeTests.class,
-    ImportOption.DoNotIncludeArchives.class,
-    ImportOption.DoNotIncludeJars.class,
-  }
-)
+    packages = "pl.com.schoolsystem",
+    importOptions = {
+      ImportOption.DoNotIncludeTests.class,
+      ImportOption.DoNotIncludeArchives.class,
+      ImportOption.DoNotIncludeJars.class,
+    })
 class RepositoriesRulesTest {
 
   @ArchTest

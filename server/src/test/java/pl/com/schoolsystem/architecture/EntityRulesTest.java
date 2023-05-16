@@ -9,13 +9,12 @@ import com.tngtech.archunit.junit.ArchTest;
 import jakarta.persistence.Entity;
 
 @AnalyzeClasses(
-  packages = "pl.com.schoolsystem",
-  importOptions = {
-    ImportOption.DoNotIncludeTests.class,
-    ImportOption.DoNotIncludeArchives.class,
-    ImportOption.DoNotIncludeJars.class,
-  }
-)
+    packages = "pl.com.schoolsystem",
+    importOptions = {
+      ImportOption.DoNotIncludeTests.class,
+      ImportOption.DoNotIncludeArchives.class,
+      ImportOption.DoNotIncludeJars.class,
+    })
 public class EntityRulesTest {
 
   @ArchTest

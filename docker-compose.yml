@@ -8,6 +8,8 @@ services:
       POSTGRES_USER: schoolsystem
       POSTGRES_PASSWORD: schoolsystem
       POSTGRES_DB: schoolsystem
+    volumes:
+       - postgres_data_ss:/var/lib/postgresql/data
   rest-api:
     build:
       context: ./server
@@ -20,3 +22,7 @@ services:
       POSTGRES_DB: schoolsystem
     ports:
       - "127.0.0.1:8080:8080"
+      - "127.0.0.1:8000:8000"
+
+volumes:
+  postgres_data_ss:
