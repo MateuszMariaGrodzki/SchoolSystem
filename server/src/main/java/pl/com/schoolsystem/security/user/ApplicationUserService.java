@@ -16,4 +16,11 @@ public class ApplicationUserService {
         .findByEmail(email)
         .orElseThrow(() -> new ApplicationUserNotFoundException(email));
   }
+
+  public ApplicationUserEntity create(AddApplicationUserCommand command) {
+    final var entity =
+        ApplicationUserMapper.APPLICATION_USER_MAPPER.toApplicationUserEntity(command);
+    final var x = applicationUserRepository.save(entity);
+    return x;
+  }
 }

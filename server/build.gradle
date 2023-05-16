@@ -18,6 +18,7 @@ dependencies {
 	def archUnitVersion = '1.0.1'
 	def lombokVersion = '1.18.24'
 	def jwtVersion = '0.11.2'
+	def mapstructVersion = "1.5.5.Final"
 
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
 	implementation 'org.springframework.boot:spring-boot-starter-web'
@@ -26,6 +27,7 @@ dependencies {
 	implementation "io.jsonwebtoken:jjwt-api:${jwtVersion}"
 	implementation group: 'org.apache.commons', name: 'commons-lang3', version: '3.0'
 	implementation "org.hibernate.validator:hibernate-validator"
+	implementation "org.mapstruct:mapstruct:${mapstructVersion}"
 
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testImplementation "com.tngtech.archunit:archunit-junit5:${archUnitVersion}"
@@ -37,6 +39,8 @@ dependencies {
 	runtimeOnly "io.jsonwebtoken:jjwt-jackson:${jwtVersion}"
 
 	annotationProcessor "org.projectlombok:lombok:${lombokVersion}"
+	annotationProcessor "org.projectlombok:lombok-mapstruct-binding:0.2.0"
+	annotationProcessor "org.mapstruct:mapstruct-processor:${mapstructVersion}"
 
 	testAnnotationProcessor "org.projectlombok:lombok:${lombokVersion}"
 
