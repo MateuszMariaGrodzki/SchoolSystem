@@ -11,7 +11,7 @@ import pl.com.schoolsystem.admin.AddAdministratorView;
 import pl.com.schoolsystem.admin.AdministratorService;
 
 @RestController
-@RequestMapping("/v1")
+@RequestMapping("/v1/administrators")
 @RequiredArgsConstructor
 @PreAuthorize("hasAnyAuthority('ADMIN')")
 public class AdministratorController {
@@ -19,7 +19,7 @@ public class AdministratorController {
   private final AdministratorService administratorService;
 
   @ResponseStatus(CREATED)
-  @PostMapping()
+  @PostMapping
   public AddAdministratorView create(@RequestBody @Valid AddAdministratorCommand command) {
     return administratorService.create(command);
   }
