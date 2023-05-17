@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import pl.com.schoolsystem.common.exception.NotFoundException;
+import pl.com.schoolsystem.common.exception.ValidationException;
 
 @Slf4j
 @ResponseBody
@@ -64,5 +65,15 @@ public class CommonControllerAdvisor {
     log.error("Internal Server Error: {}", exception.getMessage(), exception);
     return new ErrorResponse(
         INTERNAL_SERVER_ERROR.getCode(), INTERNAL_SERVER_ERROR.getMessage(), emptyMap());
+  }
+
+  @ExceptionHandler(ValidationException.class)
+  @ResponseStatus(BAD_REQUEST)
+  public ErrorResponse handleValidationException(ValidationException validationException) {
+    log.warn("Validation exception occurred: {}", validationException.getMessage());
+    return new ErrorResponse(
+        validationException.getCode(),
+        validationException.getMessage(),
+        validationException.getDetails());
   }
 }
