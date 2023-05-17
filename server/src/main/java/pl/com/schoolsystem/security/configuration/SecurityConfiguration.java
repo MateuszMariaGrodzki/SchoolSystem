@@ -38,7 +38,7 @@ public class SecurityConfiguration {
 
   private void configureEndpoints(HttpSecurity http) throws Exception {
     http.authorizeHttpRequests()
-        .requestMatchers(POST, "/api/v1/token")
+        .requestMatchers(POST, "/v1/token")
         .permitAll()
         .anyRequest()
         .authenticated();
