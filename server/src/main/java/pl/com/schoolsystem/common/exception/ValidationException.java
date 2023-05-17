@@ -9,7 +9,7 @@ import lombok.Getter;
 public class ValidationException extends RuntimeException {
   private final String displayMessage;
   private final String code;
-  private Map<String, String> details;
+  private final Map<String, String> details;
 
   public ValidationException(String code, String displayMessage, Map<String, String> details) {
     this.displayMessage = displayMessage;

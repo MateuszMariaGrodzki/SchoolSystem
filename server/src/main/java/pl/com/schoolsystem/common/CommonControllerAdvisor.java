@@ -70,10 +70,10 @@ public class CommonControllerAdvisor {
   @ExceptionHandler(ValidationException.class)
   @ResponseStatus(BAD_REQUEST)
   public ErrorResponse handleValidationException(ValidationException validationException) {
-    log.warn("Validation exception occurred: {}", validationException.getMessage());
+    log.warn("Validation exception occurred: {}", validationException.getDisplayMessage());
     return new ErrorResponse(
         validationException.getCode(),
-        validationException.getMessage(),
+        validationException.getDisplayMessage(),
         validationException.getDetails());
   }
 }
