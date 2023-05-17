@@ -15,7 +15,7 @@ import pl.com.schoolsystem.security.authentication.AuthenticationService;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/v1")
+@RequestMapping("/v1")
 @PreAuthorize("permitAll()")
 public class AuthenticationController {
 

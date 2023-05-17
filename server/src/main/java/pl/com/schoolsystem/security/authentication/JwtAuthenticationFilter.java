@@ -47,7 +47,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
       Optional.ofNullable(userEmail)
           .ifPresent(
               email -> {
-                log.debug("Authenticating user with email: {}", email);
+                log.info("Authenticating user with email: {}", email);
                 final var userDetails = userDetailsService.loadUserByUsername(email);
                 if (jWTService.isTokenValid(token, userDetails)) {
                   final var authToken =
@@ -55,7 +55,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                           userDetails, null, userDetails.getAuthorities());
                   authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                   SecurityContextHolder.getContext().setAuthentication(authToken);
-                  log.debug("Authentication successful. User email: {}", email);
+                  log.info("Authentication successful. User email: {}", email);
                 }
               });
     } catch (Exception e) {
