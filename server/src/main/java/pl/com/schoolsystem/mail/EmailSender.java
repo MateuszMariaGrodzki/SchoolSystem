@@ -16,6 +16,8 @@ import pl.com.schoolsystem.security.user.ApplicationUserEntity;
 @Slf4j
 public class EmailSender {
 
+  private static final String SCHOOL_EMAIL = "SchoolSchool@gmail.com";
+
   private final JavaMailSender javaMailSender;
 
   public void sendNewUserEmail(ApplicationUserEntity user, String password) {
@@ -23,7 +25,7 @@ public class EmailSender {
       MimeMessage mimeMessage = javaMailSender.createMimeMessage();
       MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, "utf-8");
       helper.setTo(user.getEmail());
-      helper.setFrom("SchoolSchool@gmail.com");
+      helper.setFrom(SCHOOL_EMAIL);
       helper.setSubject("New account");
       helper.setText(
           format(
