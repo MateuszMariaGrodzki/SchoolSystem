@@ -5,7 +5,7 @@ import lombok.experimental.UtilityClass;
 @UtilityClass
 public class ApplicationUserValidationConstants {
 
-  public final String PHONE_NUMBER_REGEX = "//d{9}";
+  public final String PHONE_NUMBER_REGEX = "\\d{9}";
 
   public final String PHONE_NUMBER_MESSAGE = "Phone number must have exactly 9 digits";
 
@@ -14,7 +14,8 @@ public class ApplicationUserValidationConstants {
   public final String NAME_MESSAGE =
       "Invalid characters. Name can have only letters, space and dash";
 
-  public final String EMAIL_REGEX = "^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\\\.[A-Za-z]{2,}$";
+  public final String EMAIL_REGEX =
+      "^[a-zA-Z0-9_+&*-]+(?:\\.[a-zA-Z0-9_+&*-]+)*@(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,7}$";
 
   public final String EMAIL_MESSAGE = "Email has bad format";
 
