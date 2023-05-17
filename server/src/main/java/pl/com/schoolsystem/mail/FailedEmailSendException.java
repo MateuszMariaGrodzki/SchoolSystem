@@ -1,5 +1,3 @@
 package pl.com.schoolsystem.mail;
 
-public class FailedEmailSendException extends RuntimeException {
-  public FailedEmailSendException() {}
-}
+public class FailedEmailSendException extends RuntimeException {}

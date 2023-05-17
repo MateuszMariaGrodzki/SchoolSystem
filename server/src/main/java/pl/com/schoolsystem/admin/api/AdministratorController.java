@@ -13,7 +13,7 @@ import pl.com.schoolsystem.admin.AdministratorService;
 @RestController
 @RequestMapping("/v1/administrators")
 @RequiredArgsConstructor
-@PreAuthorize("hasAnyAuthority('ADMIN')")
+@PreAuthorize("hasAnyRole('ADMIN')")
 public class AdministratorController {
 
   private final AdministratorService administratorService;
