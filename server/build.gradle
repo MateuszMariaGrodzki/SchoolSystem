@@ -15,10 +15,14 @@ repositories {
 }
 
 dependencies {
-	def archUnitVersion = '1.0.1'
+
 	def lombokVersion = '1.18.24'
 	def jwtVersion = '0.11.2'
 	def mapstructVersion = "1.5.5.Final"
+
+	def testContainersVersion = '1.17.3'
+	def archUnitVersion = '1.0.1'
+	def greenmailVersion = '1.6.11'
 
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
 	implementation 'org.springframework.boot:spring-boot-starter-web'
@@ -45,6 +49,13 @@ dependencies {
 
 	testAnnotationProcessor "org.projectlombok:lombok:${lombokVersion}"
 
+	testImplementation "org.testcontainers:testcontainers:${testContainersVersion}"
+	testImplementation "org.testcontainers:postgresql:${testContainersVersion}"
+	testImplementation "org.testcontainers:junit-jupiter:1.18.1"
+	testImplementation "com.icegreen:greenmail:${greenmailVersion}"
+	testImplementation "com.icegreen:greenmail-junit5:${greenmailVersion}"
+
+
 	testCompileOnly "org.projectlombok:lombok:${lombokVersion}"
 }
 
@@ -57,8 +68,22 @@ bootJar {
 	mainClassName = 'pl.com.schoolsystem.SchoolSystemApplication'
 }
 
+task integrationTests(type: Test, description: 'Runs the integration tests.', group: 'Verification') {
+	useJUnitPlatform {
+		includeTags "integration"
+	}
+	testLogging {
+		exceptionFormat = 'full'
+	}
+}
+
 tasks.named('test') {
-	useJUnitPlatform()
+	useJUnitPlatform {
+		excludeTags "integration"
+	}
+	testLogging {
+		exceptionFormat = 'full'
+	}
 }
 
 tasks.register('testFormat', GradleBuild) {
