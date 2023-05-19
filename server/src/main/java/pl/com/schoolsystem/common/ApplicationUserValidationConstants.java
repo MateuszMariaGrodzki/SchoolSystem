@@ -19,11 +19,11 @@ public class ApplicationUserValidationConstants {
 
   public final String EMAIL_MESSAGE = "Email has bad format";
 
-  public final String FIRST_NAME_MANDATORY_MESSAGE = "first name is mandatory";
+  public final String FIRST_NAME_MANDATORY_MESSAGE = "First name is mandatory";
 
-  public final String LAST_NAME_MANDATORY_MESSAGE = "second name is mandatory";
+  public final String LAST_NAME_MANDATORY_MESSAGE = "Second name is mandatory";
 
-  public final String PHONE_NUMBER_MANDATORY_MESSAGE = "phone number is mandatory";
+  public final String PHONE_NUMBER_MANDATORY_MESSAGE = "Phone number is mandatory";
 
-  public final String EMAIL_MANDATORY_MESSAGE = "email is mandatory";
+  public final String EMAIL_MANDATORY_MESSAGE = "Email is mandatory";
 }

@@ -34,9 +34,6 @@ dependencies {
 	implementation "org.mapstruct:mapstruct:${mapstructVersion}"
 	implementation "org.springframework.boot:spring-boot-starter-mail"
 
-	testImplementation 'org.springframework.boot:spring-boot-starter-test'
-	testImplementation "com.tngtech.archunit:archunit-junit5:${archUnitVersion}"
-
 	compileOnly "org.projectlombok:lombok:${lombokVersion}"
 
 	runtimeOnly "org.postgresql:postgresql"
@@ -54,7 +51,9 @@ dependencies {
 	testImplementation "org.testcontainers:junit-jupiter:1.18.1"
 	testImplementation "com.icegreen:greenmail:${greenmailVersion}"
 	testImplementation "com.icegreen:greenmail-junit5:${greenmailVersion}"
-
+	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+	testImplementation "com.tngtech.archunit:archunit-junit5:${archUnitVersion}"
+	testImplementation "org.springframework.security:spring-security-test"
 
 	testCompileOnly "org.projectlombok:lombok:${lombokVersion}"
 }

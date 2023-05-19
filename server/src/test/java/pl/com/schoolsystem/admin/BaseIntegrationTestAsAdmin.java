@@ -1,5 +1,7 @@
 package pl.com.schoolsystem.admin;
 
-import pl.com.schoolsystem.base.PostgresSqlTestContainer;
+import org.springframework.security.test.context.support.WithUserDetails;
+import pl.com.schoolsystem.base.BaseIntegrationTest;
 
-public class BaseIntegrationTestAsAdmin extends PostgresSqlTestContainer {}
+@WithUserDetails("Admin@admin.pl")
+public class BaseIntegrationTestAsAdmin extends BaseIntegrationTest {}
