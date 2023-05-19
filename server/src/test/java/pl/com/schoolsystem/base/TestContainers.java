@@ -30,12 +30,6 @@ public class TestContainers {
     registry.add("spring.datasource.password", postgresSQLContainer::getPassword);
   }
 
-  //  @RegisterExtension
-  //  static GreenMailExtension greenMail =
-  //      new GreenMailExtension(ServerSetupTest.SMTP)
-  //          .withConfiguration(GreenMailConfiguration.aConfig().withUser("mateusz", "password"))
-  //          .withPerMethodLifecycle(false);
-
   @Container
   static GenericContainer greenMailContainer =
       new GenericContainer<>(DockerImageName.parse("greenmail/standalone:1.6.1"))

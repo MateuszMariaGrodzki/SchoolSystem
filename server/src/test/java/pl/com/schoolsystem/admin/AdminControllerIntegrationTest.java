@@ -42,6 +42,10 @@ public class AdminControllerIntegrationTest extends BaseIntegrationTestAsAdmin {
         .containsEntry("role", "ADMIN")
         .containsKey("password")
         .isNotNull();
+
+    final var administratorEntity =
+        jdbcTemplate.queryForMap("select * from administrator where application_user_id = 2");
+    assertThat(administratorEntity.containsKey("administrator_id")).isNotNull();
   }
 
   @Test
