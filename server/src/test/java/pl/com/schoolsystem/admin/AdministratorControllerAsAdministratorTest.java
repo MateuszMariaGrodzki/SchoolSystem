@@ -10,7 +10,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;
 
-public class AdminControllerIntegrationTest extends BaseIntegrationTestAsAdmin {
+public class AdministratorControllerAsAdministratorTest extends BaseIntegrationTestAsAdministrator {
 
   @Test
   @SneakyThrows
