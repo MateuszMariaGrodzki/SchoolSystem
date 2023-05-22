@@ -3,6 +3,7 @@ package pl.com.schoolsystem.admin;
 import static pl.com.schoolsystem.admin.AdministratorMapper.ADMINISTRATOR_MAPPER;
 import static pl.com.schoolsystem.security.user.ApplicationRole.ADMIN;
 import static pl.com.schoolsystem.security.user.ApplicationUserMapper.APPLICATION_USER_MAPPER;
+import static pl.com.schoolsystem.security.user.PasswordGenerator.generatePassword;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -11,7 +12,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pl.com.schoolsystem.mail.EmailSender;
 import pl.com.schoolsystem.security.user.ApplicationUserService;
-import pl.com.schoolsystem.security.user.PasswordGenerator;
 
 @Service
 @RequiredArgsConstructor
@@ -28,7 +28,7 @@ public class AdministratorService {
 
   @Transactional
   public AddAdministratorView create(AddAdministratorCommand command) {
-    final var password = PasswordGenerator.generatePassword();
+    final var password = generatePassword();
     final var applicationUserCommand =
         APPLICATION_USER_MAPPER.toApplicationUserCommand(
             command, passwordEncoder.encode(password), ADMIN);
