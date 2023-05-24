@@ -27,7 +27,7 @@ public class PasswordValidatorTest {
     assertThat(result.isLeft()).isTrue();
     final var eitherExtracted = result.getLeft();
     assertThat(eitherExtracted).hasSize(1);
-    assertThat(eitherExtracted.get(0)).isEqualTo("password and retyped password dose not match");
+    assertThat(eitherExtracted.get(0)).isEqualTo("password and retyped password doesn't match");
   }
 
   @Test
@@ -65,7 +65,7 @@ public class PasswordValidatorTest {
     assertThat(result.isLeft()).isTrue();
     final var eitherExtracted = result.getLeft();
     assertThat(eitherExtracted).hasSize(2);
-    assertThat(eitherExtracted.get(0)).isEqualTo("password and retyped password dose not match");
+    assertThat(eitherExtracted.get(0)).isEqualTo("password and retyped password doesn't match");
     assertThat(eitherExtracted.get(1)).isEqualTo("old password is incorrect");
   }
 
@@ -74,12 +74,12 @@ public class PasswordValidatorTest {
     // given
     final var command =
         new ChangePasswordCommand("old password", "strong password", "strong password");
-    final var applicatonUser = mock(ApplicationUserEntity.class);
+    final var applicationUser = mock(ApplicationUserEntity.class);
 
-    given(applicatonUser.getPassword()).willReturn("old password");
+    given(applicationUser.getPassword()).willReturn("old password");
     given(passwordEncoder.matches(command.oldPassword(), "old password")).willReturn(true);
     // when
-    final var result = passwordValidator.validatePassword(command, applicatonUser);
+    final var result = passwordValidator.validatePassword(command, applicationUser);
     // then
     assertThat(result.isRight()).isTrue();
     assertThat(result.get()).isEqualTo("strong password");

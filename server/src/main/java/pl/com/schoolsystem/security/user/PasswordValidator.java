@@ -12,7 +12,7 @@ import org.springframework.stereotype.Service;
 public class PasswordValidator {
 
   private static final String NEW_PASSWORD_AND_RETYPED_NEW_PASSWORD_DIFFERENT_MESSAGE =
-      "password and retyped password dose not match";
+      "password and retyped password doesn't match";
 
   private static final String WRONG_OLD_PASSWORD_MESSAGE = "old password is incorrect";
 
@@ -24,7 +24,9 @@ public class PasswordValidator {
     return Either.<List<String>, ChangePasswordCommand>right(command)
         .flatMap(createCommand -> validateRetypedPassword(createCommand, errors))
         .flatMap(createCommand -> validateOldPassword(createCommand, user.getPassword(), errors))
-        .map(ChangePasswordCommand::newPassword);
+        .flatMap(
+            createCommand ->
+                errors.isEmpty() ? Either.right(createCommand.newPassword()) : Either.left(errors));
   }
 
   private Either<List<String>, ChangePasswordCommand> validateRetypedPassword(
@@ -33,7 +35,7 @@ public class PasswordValidator {
       return Either.right(command);
     }
     errors.add(NEW_PASSWORD_AND_RETYPED_NEW_PASSWORD_DIFFERENT_MESSAGE);
-    return Either.left(errors);
+    return Either.right(command);
   }
 
   private Either<List<String>, ChangePasswordCommand> validateOldPassword(
@@ -42,7 +44,7 @@ public class PasswordValidator {
       return Either.right(command);
     }
     errors.add(WRONG_OLD_PASSWORD_MESSAGE);
-    return Either.left(errors);
+    return Either.right(command);
   }
 
   private boolean validateRetypedPassword(ChangePasswordCommand command) {
