@@ -1,7 +1,6 @@
 package pl.com.schoolsystem.security.user.api;
 
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
-import static org.springframework.http.HttpStatus.OK;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -20,7 +19,6 @@ public class ApplicationUserController {
   private final ApplicationUserService applicationUserService;
 
   @PostMapping("/change")
-  @ResponseStatus(OK)
   public ResponseEntity<?> changePassword(@Valid @RequestBody ChangePasswordCommand command) {
     final var eitherErrorsOrResponse = applicationUserService.changePassword(command);
 

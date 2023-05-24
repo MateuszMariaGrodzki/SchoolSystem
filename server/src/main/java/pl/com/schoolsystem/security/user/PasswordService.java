@@ -26,4 +26,8 @@ public class PasswordService {
     }
     return Either.left(eitherValidationErrorsOrRawPassword.getLeft());
   }
+
+  public String encodePassword(String rawPassword) {
+    return passwordEncoder.encode(rawPassword);
+  }
 }
