@@ -9,10 +9,10 @@ import static pl.com.schoolsystem.security.user.ApplicationRole.ADMIN;
 
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import pl.com.schoolsystem.mail.EmailSender;
 import pl.com.schoolsystem.security.user.ApplicationUserEntity;
 import pl.com.schoolsystem.security.user.ApplicationUserService;
+import pl.com.schoolsystem.security.user.PasswordService;
 
 public class AdministratorServiceTest {
 
@@ -21,13 +21,13 @@ public class AdministratorServiceTest {
   private final AdministratorRepository administratorRepository =
       mock(AdministratorRepository.class);
 
-  private final PasswordEncoder passwordEncoder = mock(PasswordEncoder.class);
+  private final PasswordService passwordService = mock(PasswordService.class);
 
   private final EmailSender emailSender = mock(EmailSender.class);
 
   private final AdministratorService administratorService =
       new AdministratorService(
-          applicationUserService, administratorRepository, passwordEncoder, emailSender);
+          applicationUserService, administratorRepository, passwordService, emailSender);
 
   @Test
   void shouldRegisterNewAdministrator() {
@@ -38,7 +38,7 @@ public class AdministratorServiceTest {
     final var applicationUserEntity = provideApplicationUserEntity(command, encodedPassword);
     final var administratorEntity = provideAdministratorEntity();
 
-    given(passwordEncoder.encode(command.phoneNumber())).willReturn(encodedPassword);
+    given(passwordService.encodePassword(command.phoneNumber())).willReturn(encodedPassword);
     given(applicationUserService.create(any())).willReturn(applicationUserEntity);
     given(administratorRepository.save(any())).willReturn(administratorEntity);
     doNothing().when(emailSender).sendNewUserEmail(any(), any());

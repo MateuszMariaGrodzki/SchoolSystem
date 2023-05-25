@@ -1,5 +1,6 @@
 package pl.com.schoolsystem.security.user;
 
+import static java.util.Map.entry;
 import static java.util.Optional.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
@@ -7,9 +8,10 @@ import static org.junit.Assert.assertThrows;
 import static org.mockito.ArgumentCaptor.forClass;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.*;
 
+import io.vavr.control.Either;
+import java.util.Map;
 import java.util.Optional;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -22,9 +24,11 @@ public class ApplicationUserServiceTest {
 
   private final ApplicationUserRepository applicationUserRepository =
       mock(ApplicationUserRepository.class);
+  private final PasswordService passwordService = mock(PasswordService.class);
+  private final AuthenticationFacade authenticationFacade = mock(AuthenticationFacade.class);
 
   private final ApplicationUserService applicationUserService =
-      new ApplicationUserService(applicationUserRepository);
+      new ApplicationUserService(applicationUserRepository, passwordService, authenticationFacade);
 
   @Test
   void shouldThorApplicationUserNotFoundExceptionOnGetByEmailMethod() {
@@ -116,5 +120,75 @@ public class ApplicationUserServiceTest {
     assertThat(applicationUserEntity.getPhoneNumber()).isEqualTo("123698745");
     assertThat(applicationUserEntity.getFirstName()).isEqualTo("User");
     assertThat(applicationUserEntity.getLastName()).isEqualTo("Userowski");
+  }
+
+  @Test
+  void shouldNotChangeUserPasswordWhenThereAreViolationInPasswordCommand() {
+    // given
+    final var command = new ChangePasswordCommand("abcdef", "gdijk", "sdadadada");
+    final var applicationUser = mock(ApplicationUserEntity.class);
+    final Map<String, String> violationsList =
+        Map.ofEntries(
+            entry("password and retyped password", "doesn't match"),
+            entry("old password", "is incorrect"));
+
+    given(authenticationFacade.getAuthenticatedUser()).willReturn(applicationUser);
+    given(passwordService.changePassword(command, applicationUser))
+        .willReturn(Either.left(violationsList));
+    // when
+    final var result = applicationUserService.changePassword(command);
+    // then
+    assertThat(result.isLeft()).isTrue();
+    final var violationResult = result.getLeft();
+    assertThat(violationResult).hasSize(2);
+    assertThat(violationResult)
+        .containsEntry("password and retyped password", "doesn't match")
+        .containsEntry("old password", "is incorrect");
+    verify(applicationUser, times(0)).setPassword(any());
+  }
+
+  @Test
+  void shouldSetUpNewPasswordForUser() {
+    // given
+    final var command =
+        new ChangePasswordCommand("AlamaKota123!", "AlamaKota123!", "Alaniemakota1");
+    final var applicationUser = mock(ApplicationUserEntity.class);
+    given(applicationUser.getEmail()).willReturn("applicationUser1@gmail.com");
+    final var encryptedPassword = "encryptedAlamaKota123!";
+
+    given(authenticationFacade.getAuthenticatedUser()).willReturn(applicationUser);
+    given(applicationUserRepository.findByEmail(applicationUser.getEmail()))
+        .willReturn(Optional.of(applicationUser));
+    given(passwordService.changePassword(command, applicationUser))
+        .willReturn(Either.right(encryptedPassword));
+    // when
+    final var result = applicationUserService.changePassword(command);
+    // then
+    assertThat(result.isRight()).isTrue();
+    verify(applicationUser, times(1)).setPassword(encryptedPassword);
+  }
+
+  @Test
+  void shouldThrowApplicationUserNotFoundExceptionInChangePasswordMethod() {
+    // given
+    final var command =
+        new ChangePasswordCommand("AlamaKota123!", "AlamaKota123!", "Alaniemakota1");
+    final var applicationUser = mock(ApplicationUserEntity.class);
+    given(applicationUser.getEmail()).willReturn("applicationUser2@gmail.com");
+    final var encryptedPassword = "dsajghdsjghshgskjdghsjkghsjkd";
+
+    given(authenticationFacade.getAuthenticatedUser()).willReturn(applicationUser);
+    given(passwordService.changePassword(command, applicationUser))
+        .willReturn(Either.right(encryptedPassword));
+    given(applicationUserRepository.findByEmail(applicationUser.getEmail())).willReturn(empty());
+    // when
+    final var exception =
+        assertThrows(
+            ApplicationUserNotFoundException.class,
+            () -> applicationUserService.changePassword(command));
+    // then
+    assertThat(exception.getCode()).isEqualTo("USER_NOT_FOUND");
+    assertThat(exception.getMessage())
+        .isEqualTo("User with email applicationUser2@gmail.com not found");
   }
 }
