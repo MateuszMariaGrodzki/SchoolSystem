@@ -148,9 +148,12 @@ public class ApplicationUserServiceTest {
     final var command =
         new ChangePasswordCommand("AlamaKota123!", "AlamaKota123!", "Alaniemakota1");
     final var applicationUser = mock(ApplicationUserEntity.class);
+    given(applicationUser.getEmail()).willReturn("applicationUser1@gmail.com");
     final var encryptedPassword = "encryptedAlamaKota123!";
 
     given(authenticationFacade.getAuthenticatedUser()).willReturn(applicationUser);
+    given(applicationUserRepository.findByEmail(applicationUser.getEmail()))
+        .willReturn(Optional.of(applicationUser));
     given(passwordService.changePassword(command, applicationUser))
         .willReturn(Either.right(encryptedPassword));
     // when
@@ -158,5 +161,29 @@ public class ApplicationUserServiceTest {
     // then
     assertThat(result.isRight()).isTrue();
     verify(applicationUser, times(1)).setPassword(encryptedPassword);
+  }
+
+  @Test
+  void shouldThrowApplicationUserNotFoundExceptionInChangePasswordMethod() {
+    // given
+    final var command =
+        new ChangePasswordCommand("AlamaKota123!", "AlamaKota123!", "Alaniemakota1");
+    final var applicationUser = mock(ApplicationUserEntity.class);
+    given(applicationUser.getEmail()).willReturn("applicationUser2@gmail.com");
+    final var encryptedPassword = "dsajghdsjghshgskjdghsjkghsjkd";
+
+    given(authenticationFacade.getAuthenticatedUser()).willReturn(applicationUser);
+    given(passwordService.changePassword(command, applicationUser))
+        .willReturn(Either.right(encryptedPassword));
+    given(applicationUserRepository.findByEmail(applicationUser.getEmail())).willReturn(empty());
+    // when
+    final var exception =
+        assertThrows(
+            ApplicationUserNotFoundException.class,
+            () -> applicationUserService.changePassword(command));
+    // then
+    assertThat(exception.getCode()).isEqualTo("USER_NOT_FOUND");
+    assertThat(exception.getMessage())
+        .isEqualTo("User with email applicationUser2@gmail.com not found");
   }
 }
