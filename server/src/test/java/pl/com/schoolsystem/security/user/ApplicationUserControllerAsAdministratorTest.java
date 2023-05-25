@@ -56,4 +56,22 @@ public class ApplicationUserControllerAsAdministratorTest
         .andExpect(jsonPath("$.message").value("Invalid request"))
         .andExpect(jsonPath("$.details", hasEntry("newPassword", "Password too weak")));
   }
+
+  @Test
+  @SneakyThrows
+  public void shouldFailPasswordValidationInValidator() {
+    // given
+    final var requestBody =
+        new ChangePasswordCommand("Avoca1!", "Administrator1!", "Administrator23!");
+    // when
+    mvc.perform(
+            post("/v1/passwords/change")
+                .accept(APPLICATION_JSON)
+                .contentType(APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(requestBody)))
+        // then
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.0").value("password and retyped password doesn't match"))
+        .andExpect(jsonPath("$.1").value("old password is incorrect"));
+  }
 }
