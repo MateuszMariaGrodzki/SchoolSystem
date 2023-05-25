@@ -7,11 +7,11 @@ import static pl.com.schoolsystem.security.user.PasswordGenerator.generatePasswo
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pl.com.schoolsystem.mail.EmailSender;
 import pl.com.schoolsystem.security.user.ApplicationUserService;
+import pl.com.schoolsystem.security.user.PasswordService;
 
 @Service
 @RequiredArgsConstructor
@@ -22,7 +22,7 @@ public class AdministratorService {
 
   private final AdministratorRepository administratorRepository;
 
-  private final PasswordEncoder passwordEncoder;
+  private final PasswordService passwordService;
 
   private final EmailSender emailSender;
 
@@ -31,7 +31,7 @@ public class AdministratorService {
     final var password = generatePassword();
     final var applicationUserCommand =
         APPLICATION_USER_MAPPER.toApplicationUserCommand(
-            command, passwordEncoder.encode(password), ADMIN);
+            command, passwordService.encodePassword(password), ADMIN);
     final var applicationUserEntity = applicationUserService.create(applicationUserCommand);
     final var administratorEntity =
         ADMINISTRATOR_MAPPER.toAdministratorEntity(applicationUserEntity);
