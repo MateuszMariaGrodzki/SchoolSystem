@@ -10,7 +10,6 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.SqlGroup;
 import org.springframework.test.web.servlet.MockMvc;
-import org.testcontainers.junit.jupiter.Container;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -25,6 +24,4 @@ public class BaseIntegrationTest extends Containers {
   @Autowired protected JdbcTemplate jdbcTemplate;
 
   @Autowired protected ObjectMapper objectMapper;
-
-  @Container public static Containers containers = Containers.getInstance();
 }
