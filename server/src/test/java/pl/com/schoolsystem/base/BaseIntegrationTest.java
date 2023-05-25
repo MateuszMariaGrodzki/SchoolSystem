@@ -17,7 +17,7 @@ import org.springframework.test.web.servlet.MockMvc;
   @Sql(executionPhase = BEFORE_TEST_METHOD, scripts = "classpath:init.sql"),
   @Sql(executionPhase = AFTER_TEST_METHOD, scripts = "classpath:delete.sql")
 })
-public class BaseIntegrationTest extends TestContainers {
+public class BaseIntegrationTest extends Containers {
 
   @Autowired protected MockMvc mvc;
 
