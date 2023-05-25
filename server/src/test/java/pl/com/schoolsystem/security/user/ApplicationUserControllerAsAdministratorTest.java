@@ -70,8 +70,11 @@ public class ApplicationUserControllerAsAdministratorTest
                 .contentType(APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(requestBody)))
         // then
-        .andExpect(status().isOk())
-        .andExpect(jsonPath("$.0").value("password and retyped password doesn't match"))
-        .andExpect(jsonPath("$.1").value("old password is incorrect"));
+        .andExpect(status().isBadRequest())
+        .andExpect(jsonPath("$.code").value("VALIDATION_EXCEPTION"))
+        .andExpect(jsonPath("$.displayMessage").value("password validation failed"))
+        .andExpect(
+            jsonPath("$.details", hasEntry("new password and retyped password", "doesn't match")))
+        .andExpect(jsonPath("$.details", hasEntry("old password", "is incorrect")));
   }
 }

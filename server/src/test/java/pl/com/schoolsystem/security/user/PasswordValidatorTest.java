@@ -27,7 +27,7 @@ public class PasswordValidatorTest {
     assertThat(result.isLeft()).isTrue();
     final var eitherExtracted = result.getLeft();
     assertThat(eitherExtracted).hasSize(1);
-    assertThat(eitherExtracted.get(0)).isEqualTo("password and retyped password doesn't match");
+    assertThat(eitherExtracted).containsEntry("new password and retyped password", "doesn't match");
   }
 
   @Test
@@ -46,7 +46,7 @@ public class PasswordValidatorTest {
     assertThat(result.isLeft()).isTrue();
     final var eitherExtracted = result.getLeft();
     assertThat(eitherExtracted).hasSize(1);
-    assertThat(eitherExtracted.get(0)).isEqualTo("old password is incorrect");
+    assertThat(eitherExtracted).containsEntry("old password", "is incorrect");
   }
 
   @Test
@@ -65,8 +65,9 @@ public class PasswordValidatorTest {
     assertThat(result.isLeft()).isTrue();
     final var eitherExtracted = result.getLeft();
     assertThat(eitherExtracted).hasSize(2);
-    assertThat(eitherExtracted.get(0)).isEqualTo("password and retyped password doesn't match");
-    assertThat(eitherExtracted.get(1)).isEqualTo("old password is incorrect");
+    assertThat(eitherExtracted)
+        .containsEntry("new password and retyped password", "doesn't match")
+        .containsEntry("old password", "is incorrect");
   }
 
   @Test

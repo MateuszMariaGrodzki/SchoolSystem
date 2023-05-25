@@ -1,7 +1,7 @@
 package pl.com.schoolsystem.security.user;
 
 import io.vavr.control.Either;
-import java.util.List;
+import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -16,7 +16,7 @@ public class PasswordService {
 
   private final PasswordEncoder passwordEncoder;
 
-  public Either<List<String>, String> changePassword(
+  public Either<Map<String, String>, String> changePassword(
       ChangePasswordCommand command, ApplicationUserEntity applicationUser) {
     final var eitherValidationErrorsOrRawPassword =
         passwordValidator.validatePassword(command, applicationUser);

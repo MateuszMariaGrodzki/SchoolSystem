@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import pl.com.schoolsystem.common.exception.ValidationException;
 import pl.com.schoolsystem.security.user.ApplicationUserService;
 import pl.com.schoolsystem.security.user.ChangePasswordCommand;
 
@@ -23,7 +24,12 @@ public class ApplicationUserController {
     final var eitherErrorsOrResponse = applicationUserService.changePassword(command);
 
     if (eitherErrorsOrResponse.isLeft()) {
-      return ResponseEntity.status(BAD_REQUEST).body(eitherErrorsOrResponse.getLeft());
+      return ResponseEntity.status(BAD_REQUEST)
+          .body(
+              new ValidationException(
+                  "VALIDATION_EXCEPTION",
+                  "password validation failed",
+                  eitherErrorsOrResponse.getLeft()));
     }
     return ResponseEntity.ok().build();
   }

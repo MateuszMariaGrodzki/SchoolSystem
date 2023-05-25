@@ -1,5 +1,6 @@
 package pl.com.schoolsystem.security.user;
 
+import static java.util.Map.entry;
 import static java.util.Optional.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
@@ -10,7 +11,7 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.*;
 
 import io.vavr.control.Either;
-import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -126,7 +127,10 @@ public class ApplicationUserServiceTest {
     // given
     final var command = new ChangePasswordCommand("abcdef", "gdijk", "sdadadada");
     final var applicationUser = mock(ApplicationUserEntity.class);
-    final var violationsList = List.of("no niestety złe hasło :(", "tak to bywa");
+    final Map<String, String> violationsList =
+        Map.ofEntries(
+            entry("password and retyped password", "doesn't match"),
+            entry("old password", "is incorrect"));
 
     given(authenticationFacade.getAuthenticatedUser()).willReturn(applicationUser);
     given(passwordService.changePassword(command, applicationUser))
@@ -137,8 +141,9 @@ public class ApplicationUserServiceTest {
     assertThat(result.isLeft()).isTrue();
     final var violationResult = result.getLeft();
     assertThat(violationResult).hasSize(2);
-    assertThat(violationResult.get(0)).isEqualTo("no niestety złe hasło :(");
-    assertThat(violationResult.get(1)).isEqualTo("tak to bywa");
+    assertThat(violationResult)
+        .containsEntry("password and retyped password", "doesn't match")
+        .containsEntry("old password", "is incorrect");
     verify(applicationUser, times(0)).setPassword(any());
   }
 

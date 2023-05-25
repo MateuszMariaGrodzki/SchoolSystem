@@ -1,11 +1,12 @@
 package pl.com.schoolsystem.security.user;
 
+import static java.util.Map.entry;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.*;
 
 import io.vavr.control.Either;
-import java.util.List;
+import java.util.Map;
 import org.junit.jupiter.api.Test;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
@@ -23,18 +24,22 @@ public class PasswordServiceTest {
     // given
     final var command = new ChangePasswordCommand("AlamaKota1!", "AlamaKota1!", "AlaNieMaKota1!");
     final var applicationUser = mock(ApplicationUserEntity.class);
-    final var violationsList = List.of("wrong password", "incorrect old password");
+    final var violations =
+        Map.ofEntries(
+            entry("password and retyped password", "doesn't match"),
+            entry("old password", "is incorrect"));
 
     given(passwordValidator.validatePassword(command, applicationUser))
-        .willReturn(Either.left(violationsList));
+        .willReturn(Either.left(violations));
     // when
     final var result = passwordService.changePassword(command, applicationUser);
     // then
     assertThat(result.isLeft()).isTrue();
     final var extractedEither = result.getLeft();
     assertThat(extractedEither).hasSize(2);
-    assertThat(extractedEither.get(0)).isEqualTo("wrong password");
-    assertThat(extractedEither.get(1)).isEqualTo("incorrect old password");
+    assertThat(extractedEither)
+        .containsEntry("password and retyped password", "doesn't match")
+        .containsEntry("old password", "is incorrect");
     verify(applicationUser, times(0)).setPassword(any());
   }
 

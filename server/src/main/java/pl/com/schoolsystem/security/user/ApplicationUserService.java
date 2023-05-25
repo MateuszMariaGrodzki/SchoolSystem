@@ -3,7 +3,7 @@ package pl.com.schoolsystem.security.user;
 import static pl.com.schoolsystem.security.user.ApplicationUserMapper.APPLICATION_USER_MAPPER;
 
 import io.vavr.control.Either;
-import java.util.List;
+import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -43,7 +43,7 @@ public class ApplicationUserService {
   }
 
   @Transactional
-  public Either<List<String>, Void> changePassword(ChangePasswordCommand command) {
+  public Either<Map<String, String>, Void> changePassword(ChangePasswordCommand command) {
     final var applicationUser = authenticationFacade.getAuthenticatedUser();
     final var eitherValidationErrorsOrEncryptedPassword =
         passwordService.changePassword(command, applicationUser);
