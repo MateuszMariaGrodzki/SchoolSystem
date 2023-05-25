@@ -10,6 +10,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.SqlGroup;
 import org.springframework.test.web.servlet.MockMvc;
+import org.testcontainers.junit.jupiter.Container;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -17,11 +18,13 @@ import org.springframework.test.web.servlet.MockMvc;
   @Sql(executionPhase = BEFORE_TEST_METHOD, scripts = "classpath:init.sql"),
   @Sql(executionPhase = AFTER_TEST_METHOD, scripts = "classpath:delete.sql")
 })
-public class BaseIntegrationTest extends TestContainers {
+public class BaseIntegrationTest extends Containers {
 
   @Autowired protected MockMvc mvc;
 
   @Autowired protected JdbcTemplate jdbcTemplate;
 
   @Autowired protected ObjectMapper objectMapper;
+
+  @Container public static Containers containers = Containers.getInstance();
 }

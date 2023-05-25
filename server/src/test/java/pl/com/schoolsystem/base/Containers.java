@@ -1,7 +1,6 @@
 package pl.com.schoolsystem.base;
 
 import org.junit.jupiter.api.Tag;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.testcontainers.containers.GenericContainer;
@@ -12,23 +11,32 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.utility.DockerImageName;
 
 @Testcontainers
-@SpringBootTest
 @Tag("integration")
-public class TestContainers {
+public class Containers extends PostgreSQLContainer<Containers> {
 
-  @Container
-  public static PostgreSQLContainer<?> postgresSQLContainer =
-      new PostgreSQLContainer<>("postgres:13.1-alpine")
-          .withDatabaseName("schoolsystem")
-          .withUsername("schoolsystem")
-          .withPassword("schoolsystem");
+  private static Containers container;
 
-  @DynamicPropertySource
-  public static void containerConfig(DynamicPropertyRegistry registry) {
-    registry.add("spring.datasource.url", postgresSQLContainer::getJdbcUrl);
-    registry.add("spring.datasource.username", postgresSQLContainer::getUsername);
-    registry.add("spring.datasource.password", postgresSQLContainer::getPassword);
+  public Containers() {
+    super("postgres:13.1-alpine");
   }
+
+  public static Containers getInstance() {
+    if (container == null) {
+      container = new Containers();
+    }
+    return container;
+  }
+
+  @Override
+  public void start() {
+    super.start();
+    System.setProperty("DB_URL", container.getJdbcUrl());
+    System.setProperty("DB_USERNAME", container.getUsername());
+    System.setProperty("DB_PASSWORD", container.getPassword());
+  }
+
+  @Override
+  public void stop() {}
 
   @Container
   static GenericContainer greenMailContainer =
