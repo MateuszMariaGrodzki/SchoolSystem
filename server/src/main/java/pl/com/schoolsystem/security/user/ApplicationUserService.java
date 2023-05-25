@@ -48,7 +48,13 @@ public class ApplicationUserService {
     final var eitherValidationErrorsOrEncryptedPassword =
         passwordService.changePassword(command, applicationUser);
     if (eitherValidationErrorsOrEncryptedPassword.isRight()) {
-      applicationUser.setPassword(eitherValidationErrorsOrEncryptedPassword.get());
+      applicationUserRepository
+          .findByEmail(applicationUser.getEmail())
+          .ifPresentOrElse(
+              user -> user.setPassword(eitherValidationErrorsOrEncryptedPassword.get()),
+              () -> {
+                throw new ApplicationUserNotFoundException(applicationUser.getEmail());
+              });
       return Either.right(null);
     }
     return Either.left(eitherValidationErrorsOrEncryptedPassword.getLeft());
