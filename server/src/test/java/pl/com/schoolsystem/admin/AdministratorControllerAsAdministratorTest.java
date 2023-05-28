@@ -1,8 +1,10 @@
 package pl.com.schoolsystem.admin;
 
+import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.hasEntry;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -91,5 +93,33 @@ public class AdministratorControllerAsAdministratorTest extends BaseIntegrationT
             jsonPath(
                 "$.details", hasEntry("phoneNumber", "Phone number must have exactly 9 digits")))
         .andExpect(jsonPath("$.details", hasEntry("email", "Email has bad format")));
+  }
+
+  @Test
+  @SneakyThrows
+  public void shouldGetAdministratorData() {
+    // given
+    final var administratorId = 1;
+    // when
+    mvc.perform(get(format("/v1/administrators/%s", administratorId)))
+        // then
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.firstName").value("Admin"))
+        .andExpect(jsonPath("$.lastName").value("Admin"))
+        .andExpect(jsonPath("$.email").value("Admin@admin.pl"))
+        .andExpect(jsonPath("$.phoneNumber").value("000000000"));
+  }
+
+  @Test
+  @SneakyThrows
+  public void shouldNotFindNotExistingAdministrator() {
+    // given
+    final var administratorId = 254564;
+    // when
+    mvc.perform(get(format("/v1/administrators/%s", administratorId)))
+        // then
+        .andExpect(status().isNotFound())
+        .andExpect(jsonPath("$.code").value("USER_NOT_FOUND"))
+        .andExpect(jsonPath("$.message").value("User with id 254564 not found"));
   }
 }

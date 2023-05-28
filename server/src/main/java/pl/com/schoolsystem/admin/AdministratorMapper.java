@@ -15,5 +15,5 @@ public interface AdministratorMapper {
   AdministratorEntity toAdministratorEntity(ApplicationUserEntity applicationUser);
 
   @Mapping(source = "id", target = "id")
-  AddAdministratorView toAdministratorView(Long id, ApplicationUserEntity entity);
+  AdministratorView toAdministratorView(Long id, ApplicationUserEntity entity);
 }
