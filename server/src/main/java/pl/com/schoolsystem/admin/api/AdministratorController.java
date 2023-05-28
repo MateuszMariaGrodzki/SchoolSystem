@@ -6,7 +6,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-import pl.com.schoolsystem.admin.AddAdministratorCommand;
+import pl.com.schoolsystem.admin.AdministratorCommand;
 import pl.com.schoolsystem.admin.AdministratorService;
 import pl.com.schoolsystem.admin.AdministratorView;
 
@@ -20,12 +20,18 @@ public class AdministratorController {
 
   @ResponseStatus(CREATED)
   @PostMapping
-  public AdministratorView create(@RequestBody @Valid AddAdministratorCommand command) {
+  public AdministratorView create(@RequestBody @Valid AdministratorCommand command) {
     return administratorService.create(command);
   }
 
   @GetMapping("/{id}")
   public AdministratorView getById(@PathVariable long id) {
     return administratorService.getById(id);
+  }
+
+  @PutMapping("/{id}")
+  public AdministratorView updateById(
+      @PathVariable long id, @RequestBody @Valid AdministratorCommand command) {
+    return administratorService.updateById(id, command);
   }
 }

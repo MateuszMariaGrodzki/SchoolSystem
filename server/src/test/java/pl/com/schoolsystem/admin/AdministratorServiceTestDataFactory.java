@@ -9,7 +9,7 @@ import pl.com.schoolsystem.security.user.ApplicationUserEntity;
 public class AdministratorServiceTestDataFactory {
 
   public ApplicationUserEntity provideApplicationUserEntity(
-      AddAdministratorCommand command, String password) {
+      AdministratorCommand command, String password) {
     final var applicationUserEntity = new ApplicationUserEntity();
     applicationUserEntity.setEmail(command.email());
     applicationUserEntity.setPassword(password);

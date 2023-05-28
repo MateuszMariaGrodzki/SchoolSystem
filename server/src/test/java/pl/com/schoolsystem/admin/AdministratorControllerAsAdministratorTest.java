@@ -19,7 +19,7 @@ public class AdministratorControllerAsAdministratorTest extends BaseIntegrationT
   public void shouldAddNewAdministrator() {
     // given
     final var requestBody =
-        new AddAdministratorCommand(
+        new AdministratorCommand(
             "Zdenerwowana", "Agnieszka", "789123546", "zdenerwowana.aga@onet.pl");
     // when
     mvc.perform(
@@ -55,7 +55,7 @@ public class AdministratorControllerAsAdministratorTest extends BaseIntegrationT
   public void shouldNotAddAdminWithExistingEmail() {
     // given
     final var requestBody =
-        new AddAdministratorCommand("Już", "istnieje", "789123546", "Admin@admin.pl");
+        new AdministratorCommand("Już", "istnieje", "789123546", "Admin@admin.pl");
     // when
     mvc.perform(
             post("/v1/administrators")
@@ -72,7 +72,7 @@ public class AdministratorControllerAsAdministratorTest extends BaseIntegrationT
   @SneakyThrows
   public void shouldFailValidation() {
     // given
-    final var requestBody = new AddAdministratorCommand("", "Jag123mfds", "159", "Adminadmin.pl");
+    final var requestBody = new AdministratorCommand("", "Jag123mfds", "159", "Adminadmin.pl");
     // when
     mvc.perform(
             post("/v1/administrators")

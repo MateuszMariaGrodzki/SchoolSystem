@@ -10,6 +10,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pl.com.schoolsystem.common.exception.ApplicationUserNotFoundException;
+import pl.com.schoolsystem.common.exception.DuplicatedApplicationUserEmailException;
 import pl.com.schoolsystem.mail.EmailSender;
 import pl.com.schoolsystem.security.user.ApplicationUserService;
 import pl.com.schoolsystem.security.user.PasswordService;
@@ -28,7 +29,7 @@ public class AdministratorService {
   private final EmailSender emailSender;
 
   @Transactional
-  public AdministratorView create(AddAdministratorCommand command) {
+  public AdministratorView create(AdministratorCommand command) {
     final var password = generatePassword();
     final var applicationUserCommand =
         APPLICATION_USER_MAPPER.toApplicationUserCommand(
@@ -52,5 +53,23 @@ public class AdministratorService {
         .map(AdministratorEntity::getApplicationUser)
         .map(user -> ADMINISTRATOR_MAPPER.toAdministratorView(id, user))
         .orElseThrow(() -> new ApplicationUserNotFoundException(id));
+  }
+
+  @Transactional
+  public AdministratorView updateById(long id, AdministratorCommand command) {
+    final var administrator =
+        administratorRepository
+            .findById(id)
+            .orElseThrow(() -> new ApplicationUserNotFoundException(id));
+    final var applicationUser = administrator.getApplicationUser();
+    if (!applicationUser.getEmail().equals(command.email())
+        && applicationUserService.existsByEmail(command.email())) {
+      throw new DuplicatedApplicationUserEmailException(command.email());
+    }
+    applicationUser.setPhoneNumber(command.phoneNumber());
+    applicationUser.setFirstName(command.firstName());
+    applicationUser.setLastName(command.lastName());
+    applicationUser.setEmail(command.email());
+    return ADMINISTRATOR_MAPPER.toAdministratorView(id, applicationUser);
   }
 }

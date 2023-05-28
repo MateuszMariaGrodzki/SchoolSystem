@@ -5,7 +5,7 @@ import static org.mapstruct.factory.Mappers.getMapper;
 
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
-import pl.com.schoolsystem.admin.AddAdministratorCommand;
+import pl.com.schoolsystem.admin.AdministratorCommand;
 
 @Mapper(unmappedTargetPolicy = ERROR)
 public interface ApplicationUserMapper {
@@ -13,7 +13,7 @@ public interface ApplicationUserMapper {
   ApplicationUserMapper APPLICATION_USER_MAPPER = getMapper(ApplicationUserMapper.class);
 
   AddApplicationUserCommand toApplicationUserCommand(
-      AddAdministratorCommand command, String password, ApplicationRole role);
+      AdministratorCommand command, String password, ApplicationRole role);
 
   @Mapping(target = "id", ignore = true)
   @Mapping(target = "authorities", ignore = true)

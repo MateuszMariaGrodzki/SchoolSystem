@@ -39,7 +39,7 @@ public class AdministratorServiceTest {
   void shouldRegisterNewAdministrator() {
     // given
     final var command =
-        new AddAdministratorCommand("Admin", "Adminowski", "456987123", "admin@admin.pl");
+        new AdministratorCommand("Admin", "Adminowski", "456987123", "admin@admin.pl");
     final var encodedPassword = "jkdsjflsdjflsdjfskldjfsldfjsldfj";
     final var applicationUserEntity = provideApplicationUserEntity(command, encodedPassword);
     final var administratorEntity = provideAdministratorEntity(123L, 245L);
