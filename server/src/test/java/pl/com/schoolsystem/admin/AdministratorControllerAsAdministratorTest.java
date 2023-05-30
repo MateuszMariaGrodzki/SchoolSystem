@@ -4,8 +4,7 @@ import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.hasEntry;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -121,5 +120,80 @@ public class AdministratorControllerAsAdministratorTest extends BaseIntegrationT
         .andExpect(status().isNotFound())
         .andExpect(jsonPath("$.code").value("USER_NOT_FOUND"))
         .andExpect(jsonPath("$.message").value("User with id 254564 not found"));
+  }
+
+  @Test
+  @SneakyThrows
+  public void shouldUpdateAdministrator() {
+    // given
+    final var administratorId = 1;
+    final var requestBody =
+        new AdministratorCommand("Administrator", "AfterChanges", "999999999", "changed@email.com");
+    // when
+    mvc.perform(
+            put(format("/v1/administrators/%s", administratorId))
+                .accept(APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(requestBody))
+                .contentType(APPLICATION_JSON))
+        // then
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.firstName").value("Administrator"))
+        .andExpect(jsonPath("$.lastName").value("AfterChanges"))
+        .andExpect(jsonPath("$.email").value("changed@email.com"))
+        .andExpect(jsonPath("$.phoneNumber").value("999999999"));
+
+    final var applicationUserEntity =
+        jdbcTemplate.queryForMap("select * from application_user where id = 1");
+    assertThat(applicationUserEntity)
+        .containsEntry("first_name", "Administrator")
+        .containsEntry("last_name", "AfterChanges")
+        .containsEntry("phone_number", "999999999")
+        .containsEntry("email", "changed@email.com")
+        .containsEntry("role", "ADMIN")
+        .containsKey("password")
+        .isNotNull();
+  }
+
+  @Test
+  @SneakyThrows
+  public void shouldThrowValidationExceptionWhenRequestBodyHasBadDataInUpdateMethod() {
+    // given
+    final var administratorId = 1;
+    final var requestBody = new AdministratorCommand(null, "", "99g99999", "@email.com");
+    // when
+    mvc.perform(
+            put(format("/v1/administrators/%s", administratorId))
+                .accept(APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(requestBody))
+                .contentType(APPLICATION_JSON))
+        // then
+        .andExpect(status().isBadRequest())
+        .andExpect(jsonPath("$.code").value("VALIDATION_ERROR"))
+        .andExpect(jsonPath("$.message").value("Invalid request"))
+        .andExpect(jsonPath("$.details", hasEntry("firstName", "First name is mandatory")))
+        .andExpect(jsonPath("$.details", hasEntry("lastName", "Last name is mandatory")))
+        .andExpect(
+            jsonPath(
+                "$.details", hasEntry("phoneNumber", "Phone number must have exactly 9 digits")))
+        .andExpect(jsonPath("$.details", hasEntry("email", "Email has bad format")));
+  }
+
+  @Test
+  @SneakyThrows
+  public void shouldReturnBadRequestWhenThereIsAnotherUserWithProvidedEmail() {
+    // given
+    final var administratorId = 1;
+    final var requestBody =
+        new AdministratorCommand("Administrator", "AfterChanges", "999999999", "admin@test.pl");
+    // when
+    mvc.perform(
+            put(format("/v1/administrators/%s", administratorId))
+                .accept(APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(requestBody))
+                .contentType(APPLICATION_JSON))
+        // then
+        .andExpect(status().isBadRequest())
+        .andExpect(jsonPath("$.code").value("DUPLICATED_EMAIL"))
+        .andExpect(jsonPath("$.message").value("Email: admin@test.pl already exists in system"));
   }
 }

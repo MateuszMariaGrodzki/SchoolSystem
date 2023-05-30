@@ -12,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 import pl.com.schoolsystem.common.exception.ApplicationUserNotFoundException;
 import pl.com.schoolsystem.common.exception.DuplicatedApplicationUserEmailException;
 import pl.com.schoolsystem.mail.EmailSender;
+import pl.com.schoolsystem.security.user.ApplicationUserEntity;
 import pl.com.schoolsystem.security.user.ApplicationUserService;
 import pl.com.schoolsystem.security.user.PasswordService;
 
@@ -62,14 +63,25 @@ public class AdministratorService {
             .findById(id)
             .orElseThrow(() -> new ApplicationUserNotFoundException(id));
     final var applicationUser = administrator.getApplicationUser();
-    if (!applicationUser.getEmail().equals(command.email())
-        && applicationUserService.existsByEmail(command.email())) {
-      throw new DuplicatedApplicationUserEmailException(command.email());
+    if (isEmailValid(applicationUser, command.email())) {
+      applicationUser.setPhoneNumber(command.phoneNumber());
+      applicationUser.setFirstName(command.firstName());
+      applicationUser.setLastName(command.lastName());
+      applicationUser.setEmail(command.email());
+      return ADMINISTRATOR_MAPPER.toAdministratorView(id, applicationUser);
     }
-    applicationUser.setPhoneNumber(command.phoneNumber());
-    applicationUser.setFirstName(command.firstName());
-    applicationUser.setLastName(command.lastName());
-    applicationUser.setEmail(command.email());
-    return ADMINISTRATOR_MAPPER.toAdministratorView(id, applicationUser);
+    throw new DuplicatedApplicationUserEmailException(command.email());
+  }
+
+  private boolean isEmailValid(ApplicationUserEntity applicationUser, String email) {
+    if (!isEmailFromRequestEqualToEmailFromDatabase(email, applicationUser.getEmail())) {
+      return !applicationUserService.existsByEmail(email);
+    }
+    return true;
+  }
+
+  private boolean isEmailFromRequestEqualToEmailFromDatabase(
+      String requestEmail, String databaseEmail) {
+    return requestEmail.equals(databaseEmail);
   }
 }
