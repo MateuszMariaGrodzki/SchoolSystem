@@ -31,7 +31,7 @@ public class ApplicationUserServiceTest {
       new ApplicationUserService(applicationUserRepository, passwordService, authenticationFacade);
 
   @Test
-  void shouldThorApplicationUserNotFoundExceptionOnGetByEmailMethod() {
+  void shouldThrowApplicationUserNotFoundExceptionOnGetByEmailMethod() {
     // given
     final var email = "qwerty@onet.pl";
     given(applicationUserRepository.findByEmail(email)).willReturn(empty());
