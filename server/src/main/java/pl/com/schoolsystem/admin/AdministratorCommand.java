@@ -5,7 +5,7 @@ import static pl.com.schoolsystem.common.ApplicationUserValidationConstants.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 
-public record AddAdministratorCommand(
+public record AdministratorCommand(
     @NotBlank(message = FIRST_NAME_MANDATORY_MESSAGE)
         @Pattern(regexp = NAME_REGEX, message = NAME_MESSAGE)
         String firstName,
