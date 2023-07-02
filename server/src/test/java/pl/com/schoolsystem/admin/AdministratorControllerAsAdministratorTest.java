@@ -10,6 +10,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;
+import pl.com.schoolsystem.security.authentication.AuthCommand;
 
 public class AdministratorControllerAsAdministratorTest extends BaseIntegrationTestAsAdministrator {
 
@@ -222,5 +223,25 @@ public class AdministratorControllerAsAdministratorTest extends BaseIntegrationT
     mvc.perform(delete(format("/v1/administrators/%s", administratorId)))
         // then
         .andExpect(status().isNoContent());
+  }
+
+  @Test
+  @SneakyThrows
+  public void shouldDeleteUserAndThenThrowAccountExpiredException() {
+    // given
+    final var administratorId = 1;
+    final var authCommand = new AuthCommand("Admin@admin.pl", "Avocado1!");
+    // when
+    mvc.perform(delete(format("/v1/administrators/%s", administratorId)));
+    mvc.perform(
+            post(("/v1/token"))
+                .content(objectMapper.writeValueAsString(authCommand))
+                .accept(APPLICATION_JSON)
+                .contentType(APPLICATION_JSON))
+        .
+        // then
+        andExpect(status().isForbidden())
+        .andExpect(jsonPath("$.code").value("FORBIDDEN"))
+        .andExpect(jsonPath("$.message").value("Konto zostało usunięte"));
   }
 }

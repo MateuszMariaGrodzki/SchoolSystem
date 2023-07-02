@@ -93,7 +93,7 @@ public class AdministratorService {
         .ifPresent(
             user -> {
               user.setExpired(true);
-              log.info("Ustawiono flagę isExpired na tru administratorowi o id: {}", id);
+              log.info("Set isExpired to administrator with id: {}", id);
             });
   }
 }
