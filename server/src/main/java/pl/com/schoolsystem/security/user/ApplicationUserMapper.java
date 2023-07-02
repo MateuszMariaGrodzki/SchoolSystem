@@ -17,5 +17,6 @@ public interface ApplicationUserMapper {
 
   @Mapping(target = "id", ignore = true)
   @Mapping(target = "authorities", ignore = true)
+  @Mapping(target = "expired", ignore = true)
   ApplicationUserEntity toApplicationUserEntity(AddApplicationUserCommand command);
 }

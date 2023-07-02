@@ -38,6 +38,8 @@ public class ApplicationUserEntity implements UserDetails {
   @Column(updatable = false)
   private ApplicationRole role;
 
+  private boolean isExpired;
+
   @Override
   public Collection<? extends GrantedAuthority> getAuthorities() {
     return Set.of(new SimpleGrantedAuthority("ROLE_" + role.name()));
@@ -50,7 +52,7 @@ public class ApplicationUserEntity implements UserDetails {
 
   @Override
   public boolean isAccountNonExpired() {
-    return true;
+    return !isExpired;
   }
 
   @Override

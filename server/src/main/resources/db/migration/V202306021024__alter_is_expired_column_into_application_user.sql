@@ -1,0 +1,2 @@
+ALTER TABLE application_user
+ADD COLUMN is_expired BOOLEAN DEFAULT FALSE
