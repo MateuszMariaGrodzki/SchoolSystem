@@ -84,4 +84,16 @@ public class AdministratorService {
       String requestEmail, String databaseEmail) {
     return requestEmail.equals(databaseEmail);
   }
+
+  @Transactional
+  public void deleteById(long id) {
+    administratorRepository
+        .findById(id)
+        .map(AdministratorEntity::getApplicationUser)
+        .ifPresent(
+            user -> {
+              user.setExpired(true);
+              log.info("Ustawiono flagę isExpired na tru administratorowi o id: {}", id);
+            });
+  }
 }

@@ -196,4 +196,31 @@ public class AdministratorControllerAsAdministratorTest extends BaseIntegrationT
         .andExpect(jsonPath("$.code").value("DUPLICATED_EMAIL"))
         .andExpect(jsonPath("$.message").value("Email: admin@test.pl already exists in system"));
   }
+
+  @Test
+  @SneakyThrows
+  public void shouldDeleteAdministrator() {
+    // given
+    final var administratorId = 1;
+    // when
+    mvc.perform(delete(format("/v1/administrators/%s", administratorId)))
+        // then
+        .andExpect(status().isNoContent());
+
+    final var expired =
+        jdbcTemplate.queryForObject(
+            "select is_expired from application_user where id = 1", Boolean.class);
+    assertThat(expired).isTrue();
+  }
+
+  @Test
+  @SneakyThrows
+  public void shouldReturnNotContentForNotExistingAdministrator() {
+    // given
+    final var administratorId = 324;
+    // when
+    mvc.perform(delete(format("/v1/administrators/%s", administratorId)))
+        // then
+        .andExpect(status().isNoContent());
+  }
 }

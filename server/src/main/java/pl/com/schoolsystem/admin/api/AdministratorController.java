@@ -1,6 +1,7 @@
 package pl.com.schoolsystem.admin.api;
 
 import static org.springframework.http.HttpStatus.CREATED;
+import static org.springframework.http.HttpStatus.NO_CONTENT;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -33,5 +34,11 @@ public class AdministratorController {
   public AdministratorView updateById(
       @PathVariable long id, @RequestBody @Valid AdministratorCommand command) {
     return administratorService.updateById(id, command);
+  }
+
+  @DeleteMapping("/{id}")
+  @ResponseStatus(NO_CONTENT)
+  public void deleteById(@PathVariable long id) {
+    administratorService.deleteById(id);
   }
 }

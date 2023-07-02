@@ -19,6 +19,7 @@ import org.mockito.ArgumentCaptor;
 import pl.com.schoolsystem.common.exception.ApplicationUserNotFoundException;
 import pl.com.schoolsystem.common.exception.DuplicatedApplicationUserEmailException;
 import pl.com.schoolsystem.mail.EmailSender;
+import pl.com.schoolsystem.security.user.ApplicationUserEntity;
 import pl.com.schoolsystem.security.user.ApplicationUserService;
 import pl.com.schoolsystem.security.user.PasswordService;
 
@@ -187,5 +188,20 @@ public class AdministratorServiceTest {
     assertThat(exception.getCode()).isEqualTo("DUPLICATED_EMAIL");
     assertThat(exception.getDisplayMessage())
         .isEqualTo(format("Email: %s already exists in system", command.email()));
+  }
+
+  @ParameterizedTest
+  @ValueSource(longs = {245, 864})
+  public void shouldDeleteAdministrator(long administratorId) {
+    // given
+    final var applicationUserEntity = mock(ApplicationUserEntity.class);
+    final var administrator = new AdministratorEntity();
+    administrator.setApplicationUser(applicationUserEntity);
+    administrator.setId(administratorId);
+    given(administratorRepository.findById(administratorId)).willReturn(of(administrator));
+    // when
+    administratorService.deleteById(administratorId);
+    // then
+    verify(applicationUserEntity, times(1)).setExpired(true);
   }
 }
