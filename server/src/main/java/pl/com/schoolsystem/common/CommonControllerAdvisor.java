@@ -9,6 +9,7 @@ import java.util.function.BinaryOperator;
 import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.authentication.AccountExpiredException;
 import org.springframework.security.authentication.InternalAuthenticationServiceException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -75,5 +76,13 @@ public class CommonControllerAdvisor {
         validationException.getCode(),
         validationException.getDisplayMessage(),
         validationException.getDetails());
+  }
+
+  @ExceptionHandler(AccountExpiredException.class)
+  @ResponseStatus(FORBIDDEN)
+  public ErrorResponse handleAccountExpiredException(
+      AccountExpiredException accountExpiredException) {
+    log.info("Account expired exception occurred: {}", accountExpiredException.getMessage());
+    return new ErrorResponse(ACCOUNT_EXPIRED.getCode(), ACCOUNT_EXPIRED.getMessage(), emptyMap());
   }
 }

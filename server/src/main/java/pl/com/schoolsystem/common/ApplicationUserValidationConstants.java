@@ -21,7 +21,7 @@ public class ApplicationUserValidationConstants {
 
   public final String FIRST_NAME_MANDATORY_MESSAGE = "First name is mandatory";
 
-  public final String LAST_NAME_MANDATORY_MESSAGE = "Second name is mandatory";
+  public final String LAST_NAME_MANDATORY_MESSAGE = "Last name is mandatory";
 
   public final String PHONE_NUMBER_MANDATORY_MESSAGE = "Phone number is mandatory";
 

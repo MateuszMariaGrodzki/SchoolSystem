@@ -29,6 +29,10 @@ public class ApplicationUserService {
         .orElseThrow(() -> new ApplicationUserNotFoundException(email));
   }
 
+  public boolean existsByEmail(String email) {
+    return applicationUserRepository.existsByEmail(email);
+  }
+
   public ApplicationUserEntity create(AddApplicationUserCommand command) {
     if (applicationUserRepository.existsByEmail(command.email())) {
       throw new DuplicatedApplicationUserEmailException(command.email());

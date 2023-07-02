@@ -8,7 +8,8 @@ import lombok.RequiredArgsConstructor;
 public enum CommonError {
   INVALID_REQUEST("VALIDATION_ERROR", "Invalid request"),
   INTERNAL_SERVER_ERROR("INTERNAL_SERVER_ERROR", "Something went wrong"),
-  FAILED_AUTHORIZATION("UNAUTHORIZED", "Failed authorization");
+  FAILED_AUTHORIZATION("UNAUTHORIZED", "Failed authorization"),
+  ACCOUNT_EXPIRED("FORBIDDEN", "Konto zostało usunięte");
 
   private final String code;
   private final String message;

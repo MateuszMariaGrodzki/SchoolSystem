@@ -1,14 +1,23 @@
 package pl.com.schoolsystem.admin;
 
+import static java.lang.String.format;
+import static java.util.Optional.empty;
+import static java.util.Optional.of;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertThrows;
 import static org.mockito.ArgumentCaptor.forClass;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.*;
+import static pl.com.schoolsystem.admin.AdministratorServiceTestDataFactory.*;
 import static pl.com.schoolsystem.security.user.ApplicationRole.ADMIN;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.ArgumentCaptor;
+import pl.com.schoolsystem.common.exception.ApplicationUserNotFoundException;
+import pl.com.schoolsystem.common.exception.DuplicatedApplicationUserEmailException;
 import pl.com.schoolsystem.mail.EmailSender;
 import pl.com.schoolsystem.security.user.ApplicationUserEntity;
 import pl.com.schoolsystem.security.user.ApplicationUserService;
@@ -33,10 +42,10 @@ public class AdministratorServiceTest {
   void shouldRegisterNewAdministrator() {
     // given
     final var command =
-        new AddAdministratorCommand("Admin", "Adminowski", "456987123", "admin@admin.pl");
+        new AdministratorCommand("Admin", "Adminowski", "456987123", "admin@admin.pl");
     final var encodedPassword = "jkdsjflsdjflsdjfskldjfsldfjsldfj";
     final var applicationUserEntity = provideApplicationUserEntity(command, encodedPassword);
-    final var administratorEntity = provideAdministratorEntity();
+    final var administratorEntity = provideAdministratorEntity(123L, 245L);
 
     given(passwordService.encodePassword(command.phoneNumber())).willReturn(encodedPassword);
     given(applicationUserService.create(any())).willReturn(applicationUserEntity);
@@ -50,40 +59,149 @@ public class AdministratorServiceTest {
     verify(administratorRepository).save(administratorCaptor.capture());
     final var savedAdministrator = administratorCaptor.getValue();
 
-    assertResponse(result);
-    assertEntity(savedAdministrator.getApplicationUser());
-  }
+    assertThat(result.id()).isEqualTo(123L);
+    assertThat(result.email()).isEqualTo(command.email());
+    assertThat(result.firstName()).isEqualTo(command.firstName());
+    assertThat(result.lastName()).isEqualTo(command.lastName());
+    assertThat(result.phoneNumber()).isEqualTo(command.phoneNumber());
 
-  private void assertEntity(ApplicationUserEntity savedApplicationUser) {
-    assertThat(savedApplicationUser.getEmail()).isEqualTo("admin@admin.pl");
-    assertThat(savedApplicationUser.getFirstName()).isEqualTo("Admin");
-    assertThat(savedApplicationUser.getLastName()).isEqualTo("Adminowski");
-    assertThat(savedApplicationUser.getPhoneNumber()).isEqualTo("456987123");
+    final var savedApplicationUser = savedAdministrator.getApplicationUser();
+    assertThat(savedApplicationUser.getEmail()).isEqualTo(command.email());
+    assertThat(savedApplicationUser.getFirstName()).isEqualTo(command.firstName());
+    assertThat(savedApplicationUser.getLastName()).isEqualTo(command.lastName());
+    assertThat(savedApplicationUser.getPhoneNumber()).isEqualTo(command.phoneNumber());
     assertThat(savedApplicationUser.getRole()).isEqualTo(ADMIN);
   }
 
-  private void assertResponse(AddAdministratorView response) {
-    assertThat(response.email()).isEqualTo("admin@admin.pl");
-    assertThat(response.firstName()).isEqualTo("Admin");
-    assertThat(response.lastName()).isEqualTo("Adminowski");
-    assertThat(response.phoneNumber()).isEqualTo("456987123");
+  @Test
+  public void shouldThrowApplicationUserNotFoundExceptionInGetByIdMethod() {
+    // given
+    final var administratorId = 100054L;
+
+    given(administratorRepository.findById(administratorId)).willReturn(empty());
+    // when
+    final var exception =
+        assertThrows(
+            ApplicationUserNotFoundException.class,
+            () -> administratorService.getById(administratorId));
+    // then
+    assertThat(exception.getCode()).isEqualTo("USER_NOT_FOUND");
+    assertThat(exception.getMessage()).isEqualTo("User with id 100054 not found");
   }
 
-  private ApplicationUserEntity provideApplicationUserEntity(
-      AddAdministratorCommand command, String password) {
-    final var applicationUserEntity = new ApplicationUserEntity();
-    applicationUserEntity.setEmail(command.email());
-    applicationUserEntity.setPassword(password);
-    applicationUserEntity.setRole(ADMIN);
-    applicationUserEntity.setPhoneNumber(command.phoneNumber());
-    applicationUserEntity.setFirstName(command.firstName());
-    applicationUserEntity.setLastName(command.lastName());
-    return applicationUserEntity;
+  @ParameterizedTest
+  @ValueSource(longs = {124L, 385L})
+  public void shouldFindAdministratorInGetByIdMethod(long administratorId) {
+    // given
+    final var applicationUserId = 1265L;
+    final var administrator = provideAdministratorEntity(administratorId, applicationUserId);
+
+    given(administratorRepository.findById(administratorId)).willReturn(of(administrator));
+    // when
+    final var result = administratorService.getById(administratorId);
+    // then
+    assertThat(result.id()).isEqualTo(administratorId);
+    assertThat(result.email()).isEqualTo("example@example.com.pl");
+    assertThat(result.firstName()).isEqualTo("FirstName");
+    assertThat(result.lastName()).isEqualTo("LastName");
+    assertThat(result.phoneNumber()).isEqualTo("147896325");
   }
 
-  private AdministratorEntity provideAdministratorEntity() {
-    final var administratorEntity = new AdministratorEntity();
-    administratorEntity.setId(10L);
-    return administratorEntity;
+  @ParameterizedTest
+  @ValueSource(longs = {548L, 5012L})
+  public void shouldUpdateAdministrator(long administratorId) {
+    // given
+    final var applicationUserId = 24L;
+    final var command =
+        new AdministratorCommand(
+            "UpdatedFirstName", "UpdatedLastName", "789635412", "updated.email@email.com");
+    final var administrator = provideAdministratorEntity(administratorId, applicationUserId);
+
+    given(administratorRepository.findById(administratorId)).willReturn(of(administrator));
+    given(applicationUserService.existsByEmail(command.email())).willReturn(false);
+    // when
+    final var result = administratorService.updateById(administratorId, command);
+    // then
+    assertThat(result.email()).isEqualTo(command.email());
+    assertThat(result.id()).isEqualTo(administratorId);
+    assertThat(result.firstName()).isEqualTo(command.firstName());
+    assertThat(result.lastName()).isEqualTo(command.lastName());
+    assertThat(result.phoneNumber()).isEqualTo(command.phoneNumber());
+  }
+
+  @Test
+  public void shouldThrowApplicationUserNotFoundExceptionInUpdateMethod() {
+    // given
+    final var administratorId = 10L;
+    final var command =
+        new AdministratorCommand("FirstName", "LastName", "454545454", "email@onet.pl");
+
+    given(administratorRepository.findById(administratorId)).willReturn(empty());
+    // when
+    final var exception =
+        assertThrows(
+            ApplicationUserNotFoundException.class,
+            () -> administratorService.updateById(administratorId, command));
+    // then
+    assertThat(exception.getCode()).isEqualTo("USER_NOT_FOUND");
+    assertThat(exception.getMessage()).isEqualTo("User with id 10 not found");
+  }
+
+  @Test
+  public void shouldNotMakeAnotherCallToDatabaseWhenEmailIsTheSame() {
+    // given
+    final var administratorId = 325L;
+    final var applicationUserId = 765L;
+    final var command =
+        new AdministratorCommand("FirstName", "LastName", "454545454", "example@example.com.pl");
+    final var administrator = provideAdministratorEntity(administratorId, applicationUserId);
+
+    given(administratorRepository.findById(administratorId)).willReturn(of(administrator));
+    // when
+    final var result = administratorService.updateById(administratorId, command);
+    // then
+    verify(applicationUserService, times(0)).existsByEmail(command.email());
+    assertThat(result.email()).isEqualTo(command.email());
+    assertThat(result.id()).isEqualTo(administratorId);
+    assertThat(result.firstName()).isEqualTo(command.firstName());
+    assertThat(result.lastName()).isEqualTo(command.lastName());
+    assertThat(result.phoneNumber()).isEqualTo(command.phoneNumber());
+  }
+
+  @Test
+  public void shouldThrowDuplicatedApplicationUserEmailExceptionInUpdateMethod() {
+    // given
+    final var administratorId = 14L;
+    final var applicationUserId = 765L;
+    final var command =
+        new AdministratorCommand("FirstName", "LastName", "478512369", "already.in@database.com");
+    final var administrator = provideAdministratorEntity(administratorId, applicationUserId);
+
+    given(administratorRepository.findById(administratorId)).willReturn(of(administrator));
+    given(applicationUserService.existsByEmail(command.email())).willReturn(true);
+    // when
+    final var exception =
+        assertThrows(
+            DuplicatedApplicationUserEmailException.class,
+            () -> administratorService.updateById(administratorId, command));
+    // then
+    assertThat(exception.getCode()).isEqualTo("DUPLICATED_EMAIL");
+    assertThat(exception.getDisplayMessage())
+        .isEqualTo(format("Email: %s already exists in system", command.email()));
+  }
+
+  @ParameterizedTest
+  @ValueSource(longs = {245, 864})
+  public void shouldDeleteAdministrator(long administratorId) {
+    // given
+    final var applicationUserEntity = mock(ApplicationUserEntity.class);
+    final var administrator = new AdministratorEntity();
+    administrator.setApplicationUser(applicationUserEntity);
+    administrator.setId(administratorId);
+    given(administratorRepository.findById(administratorId)).willReturn(of(administrator));
+    // when
+    administratorService.deleteById(administratorId);
+    // then
+    verify(applicationUserEntity, times(1)).setExpired(true);
   }
 }
