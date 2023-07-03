@@ -23,14 +23,13 @@ public class ApplicationUserController {
   public ResponseEntity<?> changePassword(@Valid @RequestBody ChangePasswordCommand command) {
     final var eitherErrorsOrResponse = applicationUserService.changePassword(command);
 
-    if (eitherErrorsOrResponse.isLeft()) {
-      return ResponseEntity.status(BAD_REQUEST)
-          .body(
-              new ValidationException(
-                  "VALIDATION_EXCEPTION",
-                  "password validation failed",
-                  eitherErrorsOrResponse.getLeft()));
-    }
-    return ResponseEntity.ok().build();
+    return eitherErrorsOrResponse
+        .map(a -> ResponseEntity.ok().build())
+        .getOrElseGet(
+            details ->
+                ResponseEntity.status(BAD_REQUEST)
+                    .body(
+                        new ValidationException(
+                            "VALIDATION_EXCEPTION", "password validation failed", details)));
   }
 }

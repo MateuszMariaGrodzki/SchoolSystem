@@ -68,6 +68,7 @@ public class AdministratorService {
       applicationUser.setFirstName(command.firstName());
       applicationUser.setLastName(command.lastName());
       applicationUser.setEmail(command.email());
+      log.info("Updated administrator with id {}", id);
       return ADMINISTRATOR_MAPPER.toAdministratorView(id, applicationUser);
     }
     throw new DuplicatedApplicationUserEmailException(command.email());
