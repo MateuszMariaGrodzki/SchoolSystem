@@ -51,16 +51,23 @@ public class ApplicationUserService {
     final var applicationUser = authenticationFacade.getAuthenticatedUser();
     final var eitherValidationErrorsOrEncryptedPassword =
         passwordService.changePassword(command, applicationUser);
-    if (eitherValidationErrorsOrEncryptedPassword.isRight()) {
-      applicationUserRepository
-          .findByEmail(applicationUser.getEmail())
-          .ifPresentOrElse(
-              user -> user.setPassword(eitherValidationErrorsOrEncryptedPassword.get()),
-              () -> {
-                throw new ApplicationUserNotFoundException(applicationUser.getEmail());
-              });
-      return Either.right(null);
-    }
-    return Either.left(eitherValidationErrorsOrEncryptedPassword.getLeft());
+
+    return eitherValidationErrorsOrEncryptedPassword
+        .map(password -> changePassword(applicationUser.getEmail(), password))
+        .orElse(() -> Either.left(eitherValidationErrorsOrEncryptedPassword.getLeft()));
+  }
+
+  private Void changePassword(String email, String password) {
+    applicationUserRepository
+        .findByEmail(email)
+        .ifPresentOrElse(
+            user -> {
+              user.setPassword(password);
+              log.info("Changing password for user with email {}", email);
+            },
+            () -> {
+              throw new ApplicationUserNotFoundException(email);
+            });
+    return null;
   }
 }

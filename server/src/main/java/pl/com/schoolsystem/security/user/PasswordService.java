@@ -20,11 +20,10 @@ public class PasswordService {
       ChangePasswordCommand command, ApplicationUserEntity applicationUser) {
     final var eitherValidationErrorsOrRawPassword =
         passwordValidator.validatePassword(command, applicationUser);
-    if (eitherValidationErrorsOrRawPassword.isRight()) {
-      log.info("Password changed for user with email {}", applicationUser.getEmail());
-      return Either.right(passwordEncoder.encode(command.newPassword()));
-    }
-    return Either.left(eitherValidationErrorsOrRawPassword.getLeft());
+
+    return eitherValidationErrorsOrRawPassword
+        .map(this::encodePassword)
+        .orElse(() -> Either.left(eitherValidationErrorsOrRawPassword.getLeft()));
   }
 
   public String encodePassword(String rawPassword) {
