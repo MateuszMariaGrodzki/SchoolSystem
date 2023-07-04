@@ -47,6 +47,7 @@ There are 3 different simple ways to execute queries on database:
   * Connect to database (example is in `README` in `server` directory)
   * copy and execute insert queries
 * Go inside database container and execute inserts
+  * Tutaj dopisać w wolnej chwili
 
 After adding administrator you can log in:
 ```
