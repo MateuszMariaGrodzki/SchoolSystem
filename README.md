@@ -60,3 +60,10 @@ Body: {
 }
 ```
 successful log in results with code `200` and header `AUTHORIZATION` with jwt-token. 
+
+### Api documentation: 
+We use swagger to provide api documentation. 
+After application start documentation is available for everyone on endpoint:
+```
+http://localhost:8080/api/swagger-ui/index.html
+```

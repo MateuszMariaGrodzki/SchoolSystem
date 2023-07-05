@@ -1,5 +1,6 @@
 package pl.com.schoolsystem.security.configuration;
 
+import static org.springframework.http.HttpMethod.GET;
 import static org.springframework.http.HttpMethod.POST;
 import static org.springframework.security.config.http.SessionCreationPolicy.STATELESS;
 
@@ -39,6 +40,10 @@ public class SecurityConfiguration {
   private void configureEndpoints(HttpSecurity http) throws Exception {
     http.authorizeHttpRequests()
         .requestMatchers(POST, "/v1/token")
+        .permitAll()
+        .requestMatchers(GET, "/swagger-ui/**")
+        .permitAll()
+        .requestMatchers(GET, "/v3/api-docs/**")
         .permitAll()
         .anyRequest()
         .authenticated();
