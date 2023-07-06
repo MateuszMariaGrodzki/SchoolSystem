@@ -47,7 +47,12 @@ There are 3 different simple ways to execute queries on database:
   * Connect to database (example is in `README` in `server` directory)
   * copy and execute insert queries
 * Go inside database container and execute inserts
-  * Tutaj dopisać w wolnej chwili
+  * First execute command `docker ps` and find `CONTAINER ID` associated with postgres container
+  * Next insert your `CONTAINER ID` to command `docker exec -it CONTAINERID psql -U schoolsystem -W schoolsystem` and execute it
+  * You will be asked for password for user `schoolsystem` (password is the same as user)
+  * You are now connected to database `schoolsystem` as user `schoolsystem`
+  * From here you can execute insert statements from command line (don't forget of semicolon at the end of statement)
+  * To exit type and execute command `\q`
 
 After adding administrator you can log in:
 ```
