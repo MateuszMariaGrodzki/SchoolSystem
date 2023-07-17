@@ -35,7 +35,7 @@ public class AdministratorControllerAsAdministratorTest extends BaseIntegrationT
         .andExpect(jsonPath("$.phoneNumber").value("789123546"));
 
     final var applicationUserEntity =
-        jdbcTemplate.queryForMap("select * from application_user where id = 2");
+        jdbcTemplate.queryForMap("select * from application_user where id = 1");
     assertThat(applicationUserEntity)
         .containsEntry("first_name", "Zdenerwowana")
         .containsEntry("last_name", "Agnieszka")
@@ -46,7 +46,7 @@ public class AdministratorControllerAsAdministratorTest extends BaseIntegrationT
         .isNotNull();
 
     final var administratorEntity =
-        jdbcTemplate.queryForMap("select * from administrator where application_user_id = 2");
+        jdbcTemplate.queryForMap("select * from administrator where application_user_id = 1");
     assertThat(administratorEntity.containsKey("administrator_id")).isNotNull();
   }
 
@@ -99,7 +99,7 @@ public class AdministratorControllerAsAdministratorTest extends BaseIntegrationT
   @SneakyThrows
   public void shouldGetAdministratorData() {
     // given
-    final var administratorId = 1;
+    final var administratorId = 40532;
     // when
     mvc.perform(get(format("/v1/administrators/%s", administratorId)))
         // then
@@ -127,7 +127,7 @@ public class AdministratorControllerAsAdministratorTest extends BaseIntegrationT
   @SneakyThrows
   public void shouldUpdateAdministrator() {
     // given
-    final var administratorId = 1;
+    final var administratorId = 40532;
     final var requestBody =
         new AdministratorCommand("Administrator", "AfterChanges", "999999999", "changed@email.com");
     // when
@@ -144,7 +144,7 @@ public class AdministratorControllerAsAdministratorTest extends BaseIntegrationT
         .andExpect(jsonPath("$.phoneNumber").value("999999999"));
 
     final var applicationUserEntity =
-        jdbcTemplate.queryForMap("select * from application_user where id = 1");
+        jdbcTemplate.queryForMap("select * from application_user where id = 20345");
     assertThat(applicationUserEntity)
         .containsEntry("first_name", "Administrator")
         .containsEntry("last_name", "AfterChanges")
@@ -159,7 +159,7 @@ public class AdministratorControllerAsAdministratorTest extends BaseIntegrationT
   @SneakyThrows
   public void shouldThrowValidationExceptionWhenRequestBodyHasBadDataInUpdateMethod() {
     // given
-    final var administratorId = 1;
+    final var administratorId = 40532;
     final var requestBody = new AdministratorCommand(null, "", "99g99999", "@email.com");
     // when
     mvc.perform(
@@ -183,7 +183,7 @@ public class AdministratorControllerAsAdministratorTest extends BaseIntegrationT
   @SneakyThrows
   public void shouldReturnBadRequestWhenThereIsAnotherUserWithProvidedEmail() {
     // given
-    final var administratorId = 1;
+    final var administratorId = 40532;
     final var requestBody =
         new AdministratorCommand("Administrator", "AfterChanges", "999999999", "admin@test.pl");
     // when
@@ -202,7 +202,7 @@ public class AdministratorControllerAsAdministratorTest extends BaseIntegrationT
   @SneakyThrows
   public void shouldDeleteAdministrator() {
     // given
-    final var administratorId = 1;
+    final var administratorId = 32145;
     // when
     mvc.perform(delete(format("/v1/administrators/%s", administratorId)))
         // then
@@ -210,7 +210,7 @@ public class AdministratorControllerAsAdministratorTest extends BaseIntegrationT
 
     final var expired =
         jdbcTemplate.queryForObject(
-            "select is_expired from application_user where id = 1", Boolean.class);
+            "select is_expired from application_user where id = 12054", Boolean.class);
     assertThat(expired).isTrue();
   }
 
@@ -229,7 +229,7 @@ public class AdministratorControllerAsAdministratorTest extends BaseIntegrationT
   @SneakyThrows
   public void shouldDeleteUserAndThenThrowAccountExpiredException() {
     // given
-    final var administratorId = 1;
+    final var administratorId = 40532;
     final var authCommand = new AuthCommand("Admin@admin.pl", "Avocado1!");
     // when
     mvc.perform(delete(format("/v1/administrators/%s", administratorId)));
