@@ -2,6 +2,7 @@ package pl.com.schoolsystem.headmaster.api;
 
 import static org.springframework.http.HttpStatus.CREATED;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -19,7 +20,7 @@ public class HeadmasterController {
 
   @PostMapping
   @ResponseStatus(CREATED)
-  public HeadmasterView create(@RequestBody HeadmasterCommand command) {
+  public HeadmasterView create(@RequestBody @Valid HeadmasterCommand command) {
     return headmasterService.create(command);
   }
 }
