@@ -12,6 +12,7 @@ public interface AdministratorMapper {
   AdministratorMapper ADMINISTRATOR_MAPPER = getMapper(AdministratorMapper.class);
 
   @Mapping(source = "applicationUser", target = "applicationUser")
+  @Mapping(target = "id", ignore = true)
   AdministratorEntity toAdministratorEntity(ApplicationUserEntity applicationUser);
 
   @Mapping(source = "id", target = "id")
