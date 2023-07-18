@@ -8,7 +8,7 @@ import static org.mockito.ArgumentCaptor.forClass;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.*;
-import static pl.com.schoolsystem.headmaster.HeadMasterServiceTestDataFactory.*;
+import static pl.com.schoolsystem.headmaster.HeadmasterServiceTestDataFactory.*;
 import static pl.com.schoolsystem.security.user.ApplicationRole.HEADMASTER;
 
 import org.junit.jupiter.api.Test;

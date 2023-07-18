@@ -14,7 +14,7 @@ public class HeadmasterControllerAsHeadmasterTest extends BaseIntegrationTestAsH
 
   @Test
   @SneakyThrows
-  public void shouldGetForbiddenOnPostHeadmasterMethod() {
+  public void shouldGetForbiddenOnPostMethod() {
     // given
     final var requestBody = new HeadmasterCommand("Już", "istnieje", "789123546", "Admin@admin.pl");
     // when
@@ -26,7 +26,7 @@ public class HeadmasterControllerAsHeadmasterTest extends BaseIntegrationTestAsH
         // then
         .andExpect(status().isForbidden())
         .andExpect(jsonPath("$.code").value("ACCESS_DENIED"))
-        .andExpect(jsonPath("$.message").value("Acces is denied"));
+        .andExpect(jsonPath("$.message").value("Access is denied"));
   }
 
   @Test

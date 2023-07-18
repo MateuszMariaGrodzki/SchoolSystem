@@ -90,7 +90,7 @@ public class CommonControllerAdvisor {
   @ExceptionHandler(AccessDeniedException.class)
   @ResponseStatus(FORBIDDEN)
   public ErrorResponse handleAccessDeniedException(AccessDeniedException ex) {
-    log.warn("Acces is denied: {}", ex.getMessage());
+    log.warn("Access is denied: {}", ex.getMessage());
 
     return new ErrorResponse(ACCESS_DENIED.getCode(), ACCESS_DENIED.getMessage(), emptyMap());
   }
