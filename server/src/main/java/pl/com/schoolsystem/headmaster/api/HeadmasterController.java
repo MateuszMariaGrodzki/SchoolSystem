@@ -23,4 +23,10 @@ public class HeadmasterController {
   public HeadmasterView create(@RequestBody @Valid HeadmasterCommand command) {
     return headmasterService.create(command);
   }
+
+  @GetMapping("/{id}")
+  @PreAuthorize("hasAnyRole('ADMIN','HEADMASTER')")
+  public HeadmasterView getById(@PathVariable long id) {
+    return headmasterService.getById(id);
+  }
 }

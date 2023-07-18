@@ -1,8 +1,10 @@
 package pl.com.schoolsystem.headmaster;
 
+import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.hasEntry;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -90,5 +92,34 @@ public class HeadmasterControllerAsAdministratorTest extends BaseIntegrationTest
             jsonPath(
                 "$.details", hasEntry("phoneNumber", "Phone number must have exactly 9 digits")))
         .andExpect(jsonPath("$.details", hasEntry("email", "Email has bad format")));
+  }
+
+  @Test
+  @SneakyThrows
+  public void shouldGetHeadmasterDataById() {
+    // given
+    final var headmasterId = 321L;
+    // when
+    mvc.perform(get(format("/v1/headmasters/%s", headmasterId)))
+        // then
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.firstName").value("Head"))
+        .andExpect(jsonPath("$.lastName").value("Master"))
+        .andExpect(jsonPath("$.email").value("head@master.pl"))
+        .andExpect(jsonPath("$.phoneNumber").value("111111111"))
+        .andExpect(jsonPath("$.id").value(headmasterId));
+  }
+
+  @Test
+  @SneakyThrows
+  public void shouldThrowHeadMasterNotFoundException() {
+    // given
+    final var notExistingHeadmasterId = 105L;
+    // when
+    mvc.perform(get(format("/v1/headmasters/%s", notExistingHeadmasterId)))
+        // then
+        .andExpect(status().isNotFound())
+        .andExpect(jsonPath("$.code").value("USER_NOT_FOUND"))
+        .andExpect(jsonPath("$.message").value("Headmaster with id 105 not found"));
   }
 }

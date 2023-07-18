@@ -45,4 +45,12 @@ public class HeadmasterService {
     emailSender.sendNewUserEmail(applicationUserEntity, password);
     return HEADMASTER_MAPPER.toHeadmasterView(headmasterId, applicationUserEntity);
   }
+
+  public HeadmasterView getById(long id) {
+    return headmasterRepository
+        .findById(id)
+        .map(HeadmasterEntity::getApplicationUser)
+        .map(user -> HEADMASTER_MAPPER.toHeadmasterView(id, user))
+        .orElseThrow(() -> new HeadmasterNotFoundException(id));
+  }
 }

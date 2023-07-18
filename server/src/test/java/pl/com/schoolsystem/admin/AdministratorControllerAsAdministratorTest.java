@@ -120,7 +120,7 @@ public class AdministratorControllerAsAdministratorTest extends BaseIntegrationT
         // then
         .andExpect(status().isNotFound())
         .andExpect(jsonPath("$.code").value("USER_NOT_FOUND"))
-        .andExpect(jsonPath("$.message").value("User with id 254564 not found"));
+        .andExpect(jsonPath("$.message").value("Administrator with id 254564 not found"));
   }
 
   @Test
@@ -238,10 +238,10 @@ public class AdministratorControllerAsAdministratorTest extends BaseIntegrationT
                 .content(objectMapper.writeValueAsString(authCommand))
                 .accept(APPLICATION_JSON)
                 .contentType(APPLICATION_JSON))
-        .
+
         // then
-        andExpect(status().isForbidden())
+        .andExpect(status().isForbidden())
         .andExpect(jsonPath("$.code").value("FORBIDDEN"))
-        .andExpect(jsonPath("$.message").value("Konto zostało usunięte"));
+        .andExpect(jsonPath("$.message").value("Account has been deleted"));
   }
 }
