@@ -9,6 +9,7 @@ import java.util.function.BinaryOperator;
 import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.AccountExpiredException;
 import org.springframework.security.authentication.InternalAuthenticationServiceException;
 import org.springframework.validation.FieldError;
@@ -84,5 +85,13 @@ public class CommonControllerAdvisor {
       AccountExpiredException accountExpiredException) {
     log.info("Account expired exception occurred: {}", accountExpiredException.getMessage());
     return new ErrorResponse(ACCOUNT_EXPIRED.getCode(), ACCOUNT_EXPIRED.getMessage(), emptyMap());
+  }
+
+  @ExceptionHandler(AccessDeniedException.class)
+  @ResponseStatus(FORBIDDEN)
+  public ErrorResponse handleAccessDeniedException(AccessDeniedException ex) {
+    log.warn("Acces is denied: {}", ex.getMessage());
+
+    return new ErrorResponse(ACCESS_DENIED.getCode(), ACCESS_DENIED.getMessage(), emptyMap());
   }
 }
