@@ -1,14 +1,19 @@
 package pl.com.schoolsystem.headmaster;
 
+import static java.util.Optional.empty;
+import static java.util.Optional.of;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertThrows;
 import static org.mockito.ArgumentCaptor.forClass;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.*;
-import static pl.com.schoolsystem.headmaster.HeadMasterServiceTestDataFactory.*;
+import static pl.com.schoolsystem.headmaster.HeadmasterServiceTestDataFactory.*;
 import static pl.com.schoolsystem.security.user.ApplicationRole.HEADMASTER;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.ArgumentCaptor;
 import pl.com.schoolsystem.mail.EmailSender;
 import pl.com.schoolsystem.security.user.ApplicationUserService;
@@ -59,5 +64,38 @@ public class HeadmasterServiceTest {
     assertThat(savedApplicationUser.getLastName()).isEqualTo(command.lastName());
     assertThat(savedApplicationUser.getPhoneNumber()).isEqualTo(command.phoneNumber());
     assertThat(savedApplicationUser.getRole()).isEqualTo(HEADMASTER);
+  }
+
+  @ParameterizedTest
+  @ValueSource(longs = {157L, 204L})
+  void shouldFindHeadMasterInGetByIdMethod(long headmasterId) {
+    // given
+    final var applicationUserId = 67L;
+    final var headmaster = provideHeadmasterEntity(headmasterId, applicationUserId);
+
+    given(headmasterRepository.findById(headmasterId)).willReturn(of(headmaster));
+    // when
+    final var result = headmasterService.getById(headmasterId);
+    // then
+    assertThat(result.email()).isEqualTo("head@master.com.pl");
+    assertThat(result.firstName()).isEqualTo("FirstName");
+    assertThat(result.lastName()).isEqualTo("LastName");
+    assertThat(result.id()).isEqualTo(headmasterId);
+    assertThat(result.phoneNumber()).isEqualTo("88148814");
+  }
+
+  @Test
+  void shouldThrowHeadmasterNotFoundException() {
+    // given
+    final var headmasterId = 10L;
+
+    given(headmasterRepository.findById(headmasterId)).willReturn(empty());
+    // when
+    final var exception =
+        assertThrows(
+            HeadmasterNotFoundException.class, () -> headmasterService.getById(headmasterId));
+    // then
+    assertThat(exception.getCode()).isEqualTo("USER_NOT_FOUND");
+    assertThat(exception.getMessage()).isEqualTo("Headmaster with id 10 not found");
   }
 }

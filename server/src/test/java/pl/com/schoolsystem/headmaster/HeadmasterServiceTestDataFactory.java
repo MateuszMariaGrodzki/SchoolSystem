@@ -6,7 +6,7 @@ import lombok.experimental.UtilityClass;
 import pl.com.schoolsystem.security.user.ApplicationUserEntity;
 
 @UtilityClass
-public class HeadMasterServiceTestDataFactory {
+public class HeadmasterServiceTestDataFactory {
 
   public ApplicationUserEntity provideApplicationUserEntity(
       HeadmasterCommand command, String password) {

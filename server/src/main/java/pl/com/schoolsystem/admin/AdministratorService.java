@@ -9,7 +9,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import pl.com.schoolsystem.common.exception.ApplicationUserNotFoundException;
 import pl.com.schoolsystem.common.exception.DuplicatedApplicationUserEmailException;
 import pl.com.schoolsystem.mail.EmailSender;
 import pl.com.schoolsystem.security.user.ApplicationUserEntity;
@@ -53,7 +52,7 @@ public class AdministratorService {
         .findById(id)
         .map(AdministratorEntity::getApplicationUser)
         .map(user -> ADMINISTRATOR_MAPPER.toAdministratorView(id, user))
-        .orElseThrow(() -> new ApplicationUserNotFoundException(id));
+        .orElseThrow(() -> new AdministratorNotFoundException(id));
   }
 
   @Transactional
@@ -61,7 +60,7 @@ public class AdministratorService {
     final var administrator =
         administratorRepository
             .findById(id)
-            .orElseThrow(() -> new ApplicationUserNotFoundException(id));
+            .orElseThrow(() -> new AdministratorNotFoundException(id));
     final var applicationUser = administrator.getApplicationUser();
     if (isEmailValid(applicationUser, command.email())) {
       applicationUser.setPhoneNumber(command.phoneNumber());
