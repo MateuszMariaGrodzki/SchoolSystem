@@ -16,7 +16,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.ArgumentCaptor;
-import pl.com.schoolsystem.common.exception.ApplicationUserNotFoundException;
 import pl.com.schoolsystem.common.exception.DuplicatedApplicationUserEmailException;
 import pl.com.schoolsystem.mail.EmailSender;
 import pl.com.schoolsystem.security.user.ApplicationUserEntity;
@@ -82,11 +81,11 @@ public class AdministratorServiceTest {
     // when
     final var exception =
         assertThrows(
-            ApplicationUserNotFoundException.class,
+            AdministratorNotFoundException.class,
             () -> administratorService.getById(administratorId));
     // then
     assertThat(exception.getCode()).isEqualTo("USER_NOT_FOUND");
-    assertThat(exception.getMessage()).isEqualTo("User with id 100054 not found");
+    assertThat(exception.getMessage()).isEqualTo("Administrator with id 100054 not found");
   }
 
   @ParameterizedTest
@@ -140,11 +139,11 @@ public class AdministratorServiceTest {
     // when
     final var exception =
         assertThrows(
-            ApplicationUserNotFoundException.class,
+            AdministratorNotFoundException.class,
             () -> administratorService.updateById(administratorId, command));
     // then
     assertThat(exception.getCode()).isEqualTo("USER_NOT_FOUND");
-    assertThat(exception.getMessage()).isEqualTo("User with id 10 not found");
+    assertThat(exception.getMessage()).isEqualTo("Administrator with id 10 not found");
   }
 
   @Test

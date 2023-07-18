@@ -120,7 +120,7 @@ public class AdministratorControllerAsAdministratorTest extends BaseIntegrationT
         // then
         .andExpect(status().isNotFound())
         .andExpect(jsonPath("$.code").value("USER_NOT_FOUND"))
-        .andExpect(jsonPath("$.message").value("User with id 254564 not found"));
+        .andExpect(jsonPath("$.message").value("Administrator with id 254564 not found"));
   }
 
   @Test
