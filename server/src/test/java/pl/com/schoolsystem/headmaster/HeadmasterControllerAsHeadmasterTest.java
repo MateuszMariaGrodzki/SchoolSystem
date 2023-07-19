@@ -1,9 +1,9 @@
 package pl.com.schoolsystem.headmaster;
 
 import static java.lang.String.format;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -43,5 +43,39 @@ public class HeadmasterControllerAsHeadmasterTest extends BaseIntegrationTestAsH
         .andExpect(jsonPath("$.email").value("head@master.pl"))
         .andExpect(jsonPath("$.phoneNumber").value("111111111"))
         .andExpect(jsonPath("$.id").value(headmasterId));
+  }
+
+  @Test
+  @SneakyThrows
+  public void shouldUpdateHeadmasterWhenEmailDoseNotChange() {
+    // given
+    final var headmasterId = 321L;
+    final var requestBody =
+        new HeadmasterCommand("Update", "headmaster", "666666666", "head@master.pl");
+
+    // when
+    mvc.perform(
+            put(format("/v1/headmasters/%s", headmasterId))
+                .accept(APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(requestBody))
+                .contentType(APPLICATION_JSON))
+        // then
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.id").value(headmasterId))
+        .andExpect(jsonPath("$.firstName").value("Update"))
+        .andExpect(jsonPath("$.lastName").value("headmaster"))
+        .andExpect(jsonPath("$.phoneNumber").value("666666666"))
+        .andExpect(jsonPath("$.email").value("head@master.pl"));
+
+    final var applicationUserEntity =
+        jdbcTemplate.queryForMap("select * from application_user where id = 741");
+    assertThat(applicationUserEntity)
+        .containsEntry("first_name", "Update")
+        .containsEntry("last_name", "headmaster")
+        .containsEntry("phone_number", "666666666")
+        .containsEntry("email", "head@master.pl")
+        .containsEntry("role", "HEADMASTER")
+        .containsKey("password")
+        .isNotNull();
   }
 }
