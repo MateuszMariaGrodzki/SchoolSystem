@@ -32,7 +32,8 @@ public class HeadmasterController {
 
   @PutMapping("/{id}")
   @PreAuthorize("hasAnyRole('ADMIN','HEADMASTER')")
-  public HeadmasterView updateById(@PathVariable long id, @Valid HeadmasterCommand command) {
+  public HeadmasterView updateById(
+      @PathVariable long id, @RequestBody @Valid HeadmasterCommand command) {
     return headmasterService.updateById(id, command);
   }
 }

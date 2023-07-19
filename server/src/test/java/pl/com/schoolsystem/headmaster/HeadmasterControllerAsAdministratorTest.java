@@ -4,8 +4,7 @@ import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.hasEntry;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -121,5 +120,131 @@ public class HeadmasterControllerAsAdministratorTest extends BaseIntegrationTest
         .andExpect(status().isNotFound())
         .andExpect(jsonPath("$.code").value("USER_NOT_FOUND"))
         .andExpect(jsonPath("$.message").value("Headmaster with id 105 not found"));
+  }
+
+  @Test
+  @SneakyThrows
+  public void shouldUpdateHeadmaster() {
+    // given
+    final var headmasterId = 321L;
+    final var requestBody =
+        new HeadmasterCommand("UpdatedHead", "UpdatedMaster", "741236985", "UpdatedMaster@com.pl");
+    // when
+    mvc.perform(
+            put(format("/v1/headmasters/%s", headmasterId))
+                .accept(APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(requestBody))
+                .contentType(APPLICATION_JSON))
+        // then
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.id").value(headmasterId))
+        .andExpect(jsonPath("$.firstName").value("UpdatedHead"))
+        .andExpect(jsonPath("$.lastName").value("UpdatedMaster"))
+        .andExpect(jsonPath("$.phoneNumber").value("741236985"))
+        .andExpect(jsonPath("$.email").value("UpdatedMaster@com.pl"));
+
+    final var applicationUserEntity =
+        jdbcTemplate.queryForMap("select * from application_user where id = 741");
+    assertThat(applicationUserEntity)
+        .containsEntry("first_name", "UpdatedHead")
+        .containsEntry("last_name", "UpdatedMaster")
+        .containsEntry("phone_number", "741236985")
+        .containsEntry("email", "UpdatedMaster@com.pl")
+        .containsEntry("role", "HEADMASTER")
+        .containsKey("password")
+        .isNotNull();
+  }
+
+  @Test
+  @SneakyThrows
+  public void shouldFailValidationInUpdate() {
+    // given
+    final var headmasterId = 321L;
+    final var requestBody = new HeadmasterCommand("09323Ksa32!!", "    ", "145", "sd@a");
+
+    // when
+    mvc.perform(
+            put(format("/v1/headmasters/%s", headmasterId))
+                .accept(APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(requestBody))
+                .contentType(APPLICATION_JSON))
+        // then
+        .andExpect(status().isBadRequest())
+        .andExpect(jsonPath("$.code").value("VALIDATION_ERROR"))
+        .andExpect(jsonPath("$.message").value("Invalid request"))
+        .andExpect(
+            jsonPath(
+                "$.details",
+                hasEntry(
+                    "firstName", "Invalid characters. Name can have only letters, space and dash")))
+        .andExpect(jsonPath("$.details", hasEntry("lastName", "Last name is mandatory")))
+        .andExpect(
+            jsonPath(
+                "$.details", hasEntry("phoneNumber", "Phone number must have exactly 9 digits")))
+        .andExpect(jsonPath("$.details", hasEntry("email", "Email has bad format")));
+  }
+
+  @Test
+  @SneakyThrows
+  public void shouldNotUpdateHeadmasterWhenThereIsAnotherUserWithGivenEmailInDatabase() {
+    // given
+    final var headmasterId = 321L;
+    final var requestBody = new HeadmasterCommand("Wrong", "Email", "741236985", "Admin@admin.pl");
+
+    // when
+    mvc.perform(
+            put(format("/v1/headmasters/%s", headmasterId))
+                .accept(APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(requestBody))
+                .contentType(APPLICATION_JSON))
+        // then
+        .andExpect(status().isBadRequest())
+        .andExpect(jsonPath("$.code").value("DUPLICATED_EMAIL"))
+        .andExpect(jsonPath("$.message").value("Email: Admin@admin.pl already exists in system"));
+
+    final var applicationUserEntity =
+        jdbcTemplate.queryForMap("select * from application_user where id = 741");
+    assertThat(applicationUserEntity)
+        .containsEntry("first_name", "Head")
+        .containsEntry("last_name", "Master")
+        .containsEntry("phone_number", "111111111")
+        .containsEntry("email", "head@master.pl")
+        .containsEntry("role", "HEADMASTER")
+        .containsKey("password")
+        .isNotNull();
+  }
+
+  @Test
+  @SneakyThrows
+  public void shouldUpdateHeadmasterWhenEmailDoseNotChange() {
+    // given
+    final var headmasterId = 321L;
+    final var requestBody =
+        new HeadmasterCommand("Update", "headmaster", "666666666", "head@master.pl");
+
+    // when
+    mvc.perform(
+            put(format("/v1/headmasters/%s", headmasterId))
+                .accept(APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(requestBody))
+                .contentType(APPLICATION_JSON))
+        // then
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.id").value(headmasterId))
+        .andExpect(jsonPath("$.firstName").value("Update"))
+        .andExpect(jsonPath("$.lastName").value("headmaster"))
+        .andExpect(jsonPath("$.phoneNumber").value("666666666"))
+        .andExpect(jsonPath("$.email").value("head@master.pl"));
+
+    final var applicationUserEntity =
+        jdbcTemplate.queryForMap("select * from application_user where id = 741");
+    assertThat(applicationUserEntity)
+        .containsEntry("first_name", "Update")
+        .containsEntry("last_name", "headmaster")
+        .containsEntry("phone_number", "666666666")
+        .containsEntry("email", "head@master.pl")
+        .containsEntry("role", "HEADMASTER")
+        .containsKey("password")
+        .isNotNull();
   }
 }

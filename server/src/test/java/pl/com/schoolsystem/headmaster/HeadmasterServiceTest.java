@@ -15,6 +15,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.ArgumentCaptor;
+import pl.com.schoolsystem.common.exception.DuplicatedApplicationUserEmailException;
 import pl.com.schoolsystem.mail.EmailSender;
 import pl.com.schoolsystem.security.user.ApplicationUserService;
 import pl.com.schoolsystem.security.user.PasswordService;
@@ -85,7 +86,7 @@ public class HeadmasterServiceTest {
   }
 
   @Test
-  void shouldThrowHeadmasterNotFoundException() {
+  void shouldThrowHeadmasterNotFoundExceptionInGetMethod() {
     // given
     final var headmasterId = 10L;
 
@@ -97,5 +98,82 @@ public class HeadmasterServiceTest {
     // then
     assertThat(exception.getCode()).isEqualTo("USER_NOT_FOUND");
     assertThat(exception.getMessage()).isEqualTo("Headmaster with id 10 not found");
+  }
+
+  @ParameterizedTest
+  @ValueSource(longs = {985L, 231L})
+  void shouldUpdateHeadmaster(long headmasterId) {
+    // given
+    final var command =
+        new HeadmasterCommand("UpdatedHead", "UpdatedMaster", "75315991", "head@master.com.pl");
+    final var headmaster = provideHeadmasterEntity(headmasterId, 147L);
+
+    given(headmasterRepository.findById(headmasterId)).willReturn(of(headmaster));
+    // when
+    final var result = headmasterService.updateById(headmasterId, command);
+    // then
+    assertThat(result.phoneNumber()).isEqualTo(command.phoneNumber());
+    assertThat(result.id()).isEqualTo(headmasterId);
+    assertThat(result.email()).isEqualTo(command.email());
+    assertThat(result.firstName()).isEqualTo(command.firstName());
+    assertThat(result.lastName()).isEqualTo(command.lastName());
+  }
+
+  @Test
+  void shouldThrowHeadmasterNotFoundExceptionInUpdateMethod() {
+    // given
+    final var headmasterId = 134L;
+    final var command =
+        new HeadmasterCommand("Not", "Existing", "789456123", "not@existing.com.pl");
+
+    given(headmasterRepository.findById(headmasterId)).willReturn(empty());
+    // when
+    final var exception =
+        assertThrows(
+            HeadmasterNotFoundException.class,
+            () -> headmasterService.updateById(headmasterId, command));
+    // then
+    assertThat(exception.getCode()).isEqualTo("USER_NOT_FOUND");
+    assertThat(exception.getMessage()).isEqualTo("Headmaster with id 134 not found");
+  }
+
+  @Test
+  void shouldNotMakeAnotherCallToDatabaseWhenEmailIsTheSame() {
+    // given
+    final var headmasterId = 145L;
+    final var command = new HeadmasterCommand("Not", "The same", "741236985", "head@master.com.pl");
+    final var headmaster = provideHeadmasterEntity(145L, 234L);
+
+    given(headmasterRepository.findById(headmasterId)).willReturn(of(headmaster));
+    // when
+    final var result = headmasterService.updateById(headmasterId, command);
+    // then
+    assertThat(result.phoneNumber()).isEqualTo(command.phoneNumber());
+    assertThat(result.id()).isEqualTo(headmasterId);
+    assertThat(result.email()).isEqualTo(command.email());
+    assertThat(result.firstName()).isEqualTo(command.firstName());
+    assertThat(result.lastName()).isEqualTo(command.lastName());
+    verifyNoInteractions(applicationUserService);
+  }
+
+  @Test
+  void shouldThrowDuplicatedEmailException() {
+    // given
+    final var headmasterId = 157L;
+    final var command =
+        new HeadmasterCommand("Duplicated", "Email", "741236985", "duplicated@email.com.pl");
+    final var headMaster = provideHeadmasterEntity(headmasterId, 345L);
+
+    given(headmasterRepository.findById(headmasterId)).willReturn(of(headMaster));
+    given(applicationUserService.existsByEmail(command.email())).willReturn(true);
+    // when
+    final var exception =
+        assertThrows(
+            DuplicatedApplicationUserEmailException.class,
+            () -> headmasterService.updateById(headmasterId, command));
+    // then
+    assertThat(exception.getDisplayMessage())
+        .isEqualTo("Email: duplicated@email.com.pl already exists in system");
+    assertThat(exception.getCode()).isEqualTo("DUPLICATED_EMAIL");
   }
 }
