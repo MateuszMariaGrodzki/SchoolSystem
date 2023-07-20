@@ -17,6 +17,7 @@ import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.ArgumentCaptor;
 import pl.com.schoolsystem.common.exception.DuplicatedApplicationUserEmailException;
 import pl.com.schoolsystem.mail.EmailSender;
+import pl.com.schoolsystem.security.user.ApplicationUserEntity;
 import pl.com.schoolsystem.security.user.ApplicationUserService;
 import pl.com.schoolsystem.security.user.PasswordService;
 
@@ -175,5 +176,21 @@ public class HeadmasterServiceTest {
     assertThat(exception.getDisplayMessage())
         .isEqualTo("Email: duplicated@email.com.pl already exists in system");
     assertThat(exception.getCode()).isEqualTo("DUPLICATED_EMAIL");
+  }
+
+  @ParameterizedTest
+  @ValueSource(longs = {549L, 210L})
+  void shouldDeleteHeadmaster(long id) {
+    // given
+    final var applicationUserEntity = mock(ApplicationUserEntity.class);
+    final var headmaster = new HeadmasterEntity();
+    headmaster.setApplicationUser(applicationUserEntity);
+    headmaster.setId(id);
+
+    given(headmasterRepository.findById(id)).willReturn(of(headmaster));
+    // when
+    headmasterService.deleteById(id);
+    // then
+    verify(applicationUserEntity, times(1)).setExpired(true);
   }
 }
