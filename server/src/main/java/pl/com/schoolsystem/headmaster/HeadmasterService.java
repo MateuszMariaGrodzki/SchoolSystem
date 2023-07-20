@@ -83,4 +83,16 @@ public class HeadmasterService {
       String requestEmail, String databaseEmail) {
     return requestEmail.equals(databaseEmail);
   }
+
+  @Transactional
+  public void deleteById(long id) {
+    headmasterRepository
+        .findById(id)
+        .map(HeadmasterEntity::getApplicationUser)
+        .ifPresent(
+            user -> {
+              user.setExpired(true);
+              log.info("Set isExpired to headmaster with id: {}", id);
+            });
+  }
 }
