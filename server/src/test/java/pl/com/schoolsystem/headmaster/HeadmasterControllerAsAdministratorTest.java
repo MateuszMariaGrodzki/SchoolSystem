@@ -11,6 +11,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;
 import pl.com.schoolsystem.admin.BaseIntegrationTestAsAdministrator;
+import pl.com.schoolsystem.security.authentication.AuthCommand;
 
 public class HeadmasterControllerAsAdministratorTest extends BaseIntegrationTestAsAdministrator {
 
@@ -246,5 +247,52 @@ public class HeadmasterControllerAsAdministratorTest extends BaseIntegrationTest
         .containsEntry("role", "HEADMASTER")
         .containsKey("password")
         .isNotNull();
+  }
+
+  @Test
+  @SneakyThrows
+  public void shouldDeleteHeadmaster() {
+    // given
+    final var headmasterId = 321L;
+    // when
+    mvc.perform(delete(format("/v1/headmasters/%s", headmasterId)))
+        // then
+        .andExpect(status().isNoContent());
+
+    final var isExpiredFlag =
+        jdbcTemplate.queryForObject(
+            "select u.is_expired from application_user u where u.id = 741", Boolean.class);
+    assertThat(isExpiredFlag).isTrue();
+  }
+
+  @Test
+  @SneakyThrows
+  public void shouldReturnNotContentOnNotExistingHeadmaster() {
+    // given
+    final var headmasterId = 7896541L;
+    // when
+    mvc.perform(delete(format("/v1/headmasters/%s", headmasterId)))
+        // then
+        .andExpect(status().isNoContent());
+  }
+
+  @Test
+  @SneakyThrows
+  public void shouldDeleteHeadmasterAndThenThrowAccountExpiredExceptionOnAuthenticating() {
+    // given
+    final var headmasterId = 321L;
+    final var authCommand = new AuthCommand("head@master.pl", "Avocado1!");
+    // when
+    mvc.perform(delete(format("/v1/headmasters/%s", headmasterId)))
+        // then
+        .andExpect(status().isNoContent());
+    mvc.perform(
+            post("/v1/token")
+                .content(objectMapper.writeValueAsString(authCommand))
+                .contentType(APPLICATION_JSON)
+                .accept(APPLICATION_JSON))
+        .andExpect(status().isForbidden())
+        .andExpect(jsonPath("$.code").value("FORBIDDEN"))
+        .andExpect(jsonPath("$.message").value("Account has been deleted"));
   }
 }

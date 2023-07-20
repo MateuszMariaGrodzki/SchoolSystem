@@ -78,4 +78,17 @@ public class HeadmasterControllerAsHeadmasterTest extends BaseIntegrationTestAsH
         .containsKey("password")
         .isNotNull();
   }
+
+  @Test
+  @SneakyThrows
+  public void shouldGetForbiddenOnDeleteMethod() {
+    // given
+    final var headmasterId = 321L;
+    // when
+    mvc.perform(delete(format("/v1/headmasters/%s", headmasterId)))
+        // then
+        .andExpect(status().isForbidden())
+        .andExpect(jsonPath("$.code").value("ACCESS_DENIED"))
+        .andExpect(jsonPath("$.message").value("Access is denied"));
+  }
 }
