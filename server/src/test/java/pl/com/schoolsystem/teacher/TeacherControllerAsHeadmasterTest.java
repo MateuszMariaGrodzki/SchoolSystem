@@ -55,7 +55,7 @@ public class TeacherControllerAsHeadmasterTest extends BaseIntegrationTestAsHead
     final var requestBody = new TeacherCommand("Już", "istnieje", "789123546", "Admin@admin.pl");
     // when
     mvc.perform(
-            post("/v1/headmasters")
+            post("/v1/teachers")
                 .accept(APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(requestBody))
                 .contentType(APPLICATION_JSON))
@@ -72,7 +72,7 @@ public class TeacherControllerAsHeadmasterTest extends BaseIntegrationTestAsHead
     final var requestBody = new TeacherCommand(null, "BOM\\uFeFF", "74136985a", "no nie wiem");
     // when
     mvc.perform(
-            post("/v1/headmasters")
+            post("/v1/teachers")
                 .accept(APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(requestBody))
                 .contentType(APPLICATION_JSON))
@@ -80,12 +80,12 @@ public class TeacherControllerAsHeadmasterTest extends BaseIntegrationTestAsHead
         .andExpect(status().isBadRequest())
         .andExpect(jsonPath("$.code").value("VALIDATION_ERROR"))
         .andExpect(jsonPath("$.message").value("Invalid request"))
+        .andExpect(jsonPath("$.details", hasEntry("firstName", "First name is mandatory")))
         .andExpect(
             jsonPath(
                 "$.details",
                 hasEntry(
-                    "firstName", "Invalid characters. Name can have only letters, space and dash")))
-        .andExpect(jsonPath("$.details", hasEntry("lastName", "Last name is mandatory")))
+                    "lastName", "Invalid characters. Name can have only letters, space and dash")))
         .andExpect(
             jsonPath(
                 "$.details", hasEntry("phoneNumber", "Phone number must have exactly 9 digits")))
