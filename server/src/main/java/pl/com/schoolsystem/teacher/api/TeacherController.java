@@ -23,4 +23,10 @@ public class TeacherController {
   public TeacherView create(@RequestBody @Valid TeacherCommand command) {
     return teacherService.create(command);
   }
+
+  @GetMapping("/{id}")
+  @PreAuthorize("hasAnyRole('HEADMASTER','TEACHER')")
+  public TeacherView getById(@PathVariable long id) {
+    return teacherService.getById(id);
+  }
 }
