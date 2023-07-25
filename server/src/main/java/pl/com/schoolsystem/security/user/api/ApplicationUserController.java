@@ -13,7 +13,7 @@ import pl.com.schoolsystem.security.user.ChangePasswordCommand;
 
 @RestController
 @RequestMapping("/v1/passwords")
-@PreAuthorize("hasAnyRole('ADMIN', 'DIRECTOR', 'TEACHER', 'STUDENT')")
+@PreAuthorize("hasAnyRole('ADMIN', 'HEADMASTER', 'TEACHER', 'STUDENT')")
 @RequiredArgsConstructor
 public class ApplicationUserController {
 
