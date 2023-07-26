@@ -32,7 +32,7 @@ public class TeacherController {
 
   @PutMapping("/{id}")
   @PreAuthorize("hasAnyRole('HEADMASTER','TEACHER')")
-  public TeacherView updateById(@PathVariable long id, @RequestBody TeacherCommand command) {
+  public TeacherView updateById(@PathVariable long id, @RequestBody @Valid TeacherCommand command) {
     return teacherService.updateById(id, command);
   }
 }
