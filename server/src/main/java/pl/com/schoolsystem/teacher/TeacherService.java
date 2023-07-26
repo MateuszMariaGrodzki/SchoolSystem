@@ -54,6 +54,7 @@ public class TeacherService {
         .orElseThrow(() -> new TeacherNotFoundException(id));
   }
 
+  @Transactional
   public TeacherView updateById(long id, TeacherCommand command) {
     final var teacher =
         teacherRepository.findById(id).orElseThrow(() -> new TeacherNotFoundException(id));
