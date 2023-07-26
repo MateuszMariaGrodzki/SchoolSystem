@@ -29,4 +29,10 @@ public class TeacherController {
   public TeacherView getById(@PathVariable long id) {
     return teacherService.getById(id);
   }
+
+  @PutMapping("/{id}")
+  @PreAuthorize("hasAnyRole('HEADMASTER','TEACHER')")
+  public TeacherView updateById(@PathVariable long id, @RequestBody @Valid TeacherCommand command) {
+    return teacherService.updateById(id, command);
+  }
 }
