@@ -41,4 +41,23 @@ public class TeacherControllerAsAdministratorTest extends BaseIntegrationTestAsA
         .andExpect(jsonPath("$.code").value("ACCESS_DENIED"))
         .andExpect(jsonPath("$.message").value("Access is denied"));
   }
+
+  @Test
+  @SneakyThrows
+  public void shouldReturnForbiddenOnUpdateMethod() {
+    // given
+    final var teacherId = 86L;
+    final var requestBody =
+        new TeacherCommand("Update", "Teacher", "456123789", "teacher@update.com.pl");
+    // when
+    mvc.perform(
+            put(format("/v1/teachers/%s", teacherId))
+                .accept(APPLICATION_JSON)
+                .contentType(APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(requestBody)))
+        // then
+        .andExpect(status().isForbidden())
+        .andExpect(jsonPath("$.code").value("ACCESS_DENIED"))
+        .andExpect(jsonPath("$.message").value("Access is denied"));
+  }
 }
