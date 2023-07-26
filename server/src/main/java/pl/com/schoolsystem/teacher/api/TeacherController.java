@@ -31,7 +31,7 @@ public class TeacherController {
   }
 
   @PutMapping("/{id}")
-  @PreAuthorize("hasAnyRole('HEADMASTER','TEACHER'")
+  @PreAuthorize("hasAnyRole('HEADMASTER','TEACHER')")
   public TeacherView updateById(@PathVariable long id, @RequestBody TeacherCommand command) {
     return teacherService.updateById(id, command);
   }
