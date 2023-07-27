@@ -77,4 +77,17 @@ public class TeacherControllerAsTeacherTest extends BaseIntegrationTestAsTeacher
         .containsKey("password")
         .isNotNull();
   }
+
+  @Test
+  @SneakyThrows
+  public void shouldReturnForbiddenOnDeleteMethod() {
+    // given
+    final var teacherId = 86L;
+    // when
+    mvc.perform(delete(format("/v1/teachers/%s", teacherId)))
+        // then
+        .andExpect(status().isForbidden())
+        .andExpect(jsonPath("$.code").value("ACCESS_DENIED"))
+        .andExpect(jsonPath("$.message").value("Access is denied"));
+  }
 }
