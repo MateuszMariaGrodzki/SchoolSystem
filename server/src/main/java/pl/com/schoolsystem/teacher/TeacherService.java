@@ -81,4 +81,16 @@ public class TeacherService {
       String requestEmail, String databaseEmail) {
     return requestEmail.equals(databaseEmail);
   }
+
+  @Transactional
+  public void deleteById(long id) {
+    teacherRepository
+        .findById(id)
+        .map(TeacherEntity::getApplicationUser)
+        .ifPresent(
+            user -> {
+              log.info("Deleting teacher with id {}", id);
+              user.setExpired(true);
+            });
+  }
 }

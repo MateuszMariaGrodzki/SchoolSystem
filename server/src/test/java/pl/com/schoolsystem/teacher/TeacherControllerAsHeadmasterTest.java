@@ -11,6 +11,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;
 import pl.com.schoolsystem.headmaster.BaseIntegrationTestAsHeadmaster;
+import pl.com.schoolsystem.security.authentication.AuthCommand;
 
 public class TeacherControllerAsHeadmasterTest extends BaseIntegrationTestAsHeadmaster {
 
@@ -220,5 +221,53 @@ public class TeacherControllerAsHeadmasterTest extends BaseIntegrationTestAsHead
         .andExpect(status().isBadRequest())
         .andExpect(jsonPath("$.code").value("DUPLICATED_EMAIL"))
         .andExpect(jsonPath("$.message").value("Email: Admin@admin.pl already exists in system"));
+  }
+
+  @Test
+  @SneakyThrows
+  public void shouldDeleteTeacher() {
+    // given
+    final var teacherId = 86L;
+    // when
+    mvc.perform(delete(format("/v1/teachers/%s", teacherId)))
+        // then
+        .andExpect(status().isNoContent());
+
+    final var isExpiredFlag =
+        jdbcTemplate.queryForObject(
+            "select u.is_expired from application_user u where u.id = 56", Boolean.class);
+
+    assertThat(isExpiredFlag).isTrue();
+  }
+
+  @Test
+  @SneakyThrows
+  public void shouldReturnNoContentForNotExistingTeacher() {
+    // given
+    final var notExistingTeacherId = 546465L;
+    // when
+    mvc.perform(delete(format("/v1/teachers/%s", notExistingTeacherId)))
+        // then
+        .andExpect(status().isNoContent());
+  }
+
+  @Test
+  @SneakyThrows
+  public void shouldDeleteTeacherAndThenThrowAccountExpiredOnAuthentication() {
+    // given
+    final var teacherId = 86L;
+    final var authCommand = new AuthCommand("teacher@gruszka.pl", "Avocado1!");
+    // when
+    mvc.perform(delete(format("/v1/teachers/%s", teacherId)))
+        // then
+        .andExpect(status().isNoContent());
+    mvc.perform(
+            post("/v1/token")
+                .content(objectMapper.writeValueAsString(authCommand))
+                .contentType(APPLICATION_JSON)
+                .accept(APPLICATION_JSON))
+        .andExpect(status().isForbidden())
+        .andExpect(jsonPath("$.code").value("FORBIDDEN"))
+        .andExpect(jsonPath("$.message").value("Account has been deleted"));
   }
 }
