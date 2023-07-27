@@ -1,6 +1,7 @@
 package pl.com.schoolsystem.teacher.api;
 
 import static org.springframework.http.HttpStatus.CREATED;
+import static org.springframework.http.HttpStatus.NO_CONTENT;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -34,5 +35,11 @@ public class TeacherController {
   @PreAuthorize("hasAnyRole('HEADMASTER','TEACHER')")
   public TeacherView updateById(@PathVariable long id, @RequestBody @Valid TeacherCommand command) {
     return teacherService.updateById(id, command);
+  }
+
+  @DeleteMapping("/{id}")
+  @ResponseStatus(NO_CONTENT)
+  public void deleteById(@PathVariable long id) {
+    teacherService.deleteById(id);
   }
 }
