@@ -25,7 +25,7 @@ public class StudentController {
   }
 
   @GetMapping("/{id}")
-  @PreAuthorize("hasAnyRole('HEADMASTER','TEACHER','STUDENT)")
+  @PreAuthorize("hasAnyRole('HEADMASTER','TEACHER','STUDENT')")
   public StudentView getById(@PathVariable long id) {
     return studentService.getById(id);
   }

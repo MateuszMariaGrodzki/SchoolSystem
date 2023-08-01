@@ -7,6 +7,6 @@ import pl.com.schoolsystem.common.exception.NotFoundException;
 public class StudentNotFoundException extends NotFoundException {
 
   public StudentNotFoundException(long id) {
-    super("USER_NOT_FOUND", format("Teacher with id %s not found", id));
+    super("USER_NOT_FOUND", format("Student with id %s not found", id));
   }
 }
