@@ -43,4 +43,12 @@ public class StudentService {
     emailSender.sendNewUserEmail(applicationUserEntity, password);
     return STUDENT_MAPPER.toStudentView(studentId, applicationUserEntity);
   }
+
+  public StudentView getById(long id) {
+    return studentRepository
+        .findById(id)
+        .map(StudentEntity::getApplicationUser)
+        .map(user -> STUDENT_MAPPER.toStudentView(id, user))
+        .orElseThrow(() -> new StudentNotFoundException(id));
+  }
 }
