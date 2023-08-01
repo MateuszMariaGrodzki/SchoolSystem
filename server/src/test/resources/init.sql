@@ -18,3 +18,8 @@ VALUES (56 , 'Teacher' , 'Gruszka' , '222222222' , 'teacher@gruszka.pl' , '$2a$1
 
 INSERT INTO teacher(id, application_user_id) VALUES (86,56);
 
+INSERT INTO application_user(id, first_name, last_name, phone_number, email, password, role)
+VALUES (876, 'Trzezwy' , 'Student' , '333333333' , 'trzezwy@student.pl' , '$2a$10$vvUHLe0gPvQfa1gDunO1WuRCAovr5HT34ebr1F79ZUBBkymt6Ztxi' , 'STUDENT');
+
+INSERT INTO student(id, application_user_id) VALUES(4786,876);
+

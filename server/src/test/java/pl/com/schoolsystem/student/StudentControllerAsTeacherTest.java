@@ -1,8 +1,10 @@
 package pl.com.schoolsystem.student;
 
+import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.hasEntry;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -96,5 +98,34 @@ public class StudentControllerAsTeacherTest extends BaseIntegrationTestAsTeacher
             jsonPath(
                 "$.details", hasEntry("phoneNumber", "Phone number must have exactly 9 digits")))
         .andExpect(jsonPath("$.details", hasEntry("email", "Email has bad format")));
+  }
+
+  @Test
+  @SneakyThrows
+  public void shouldFindUserInGetByIdMethod() {
+    // given
+    final var studentId = 4786L;
+    // when
+    mvc.perform(get(format("/v1/students/%s", studentId)))
+        // then
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.id").value(4786))
+        .andExpect(jsonPath("$.firstName").value("Trzezwy"))
+        .andExpect(jsonPath("$.lastName").value("Student"))
+        .andExpect(jsonPath("$.email").value("trzezwy@student.pl"))
+        .andExpect(jsonPath("$.phoneNumber").value("333333333"));
+  }
+
+  @Test
+  @SneakyThrows
+  public void shouldThrowStudentNotFoundException() {
+    // given
+    final var studentId = 549385934L;
+    // when
+    mvc.perform(get(format("/v1/students/%s", studentId)))
+        // then
+        .andExpect(status().isNotFound())
+        .andExpect(jsonPath("$.code").value("USER_NOT_FOUND"))
+        .andExpect(jsonPath("$.message").value("Student with id 549385934 not found"));
   }
 }
