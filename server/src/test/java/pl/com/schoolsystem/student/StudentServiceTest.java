@@ -15,6 +15,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.ArgumentCaptor;
+import pl.com.schoolsystem.common.exception.DuplicatedApplicationUserEmailException;
 import pl.com.schoolsystem.mail.EmailSender;
 import pl.com.schoolsystem.security.user.ApplicationUserService;
 import pl.com.schoolsystem.security.user.PasswordService;
@@ -94,5 +95,85 @@ public class StudentServiceTest {
     // then
     assertThat(exception.getCode()).isEqualTo("USER_NOT_FOUND");
     assertThat(exception.getMessage()).isEqualTo("Student with id 543 not found");
+  }
+
+  @ParameterizedTest
+  @ValueSource(longs = {543534L, 43L})
+  void shouldUpdateStudent(long studentId) {
+    // given
+    final var command =
+        new StudentCommand("Updated", "Student", "745698132", "updatedstudent@com.pl");
+    final var student = provideStudentEntity(studentId, 845L);
+
+    given(studentRepository.findById(studentId)).willReturn(of(student));
+    given(applicationUserService.existsByEmail(command.email())).willReturn(false);
+    // when
+    final var result = studentService.updateById(studentId, command);
+    // then
+    assertThat(result.phoneNumber()).isEqualTo(command.phoneNumber());
+    assertThat(result.id()).isEqualTo(studentId);
+    assertThat(result.email()).isEqualTo(command.email());
+    assertThat(result.firstName()).isEqualTo(command.firstName());
+    assertThat(result.lastName()).isEqualTo(command.lastName());
+  }
+
+  @Test
+  void shouldThrowStudentNotFoundException() {
+    // given
+    final var studentId = 74591L;
+    final var command =
+        new StudentCommand("Do not", "matter", "741296835", "sudent@updated.com.pl");
+
+    given(studentRepository.findById(studentId)).willReturn(empty());
+    // when
+    final var exception =
+        assertThrows(
+            StudentNotFoundException.class, () -> studentService.updateById(studentId, command));
+    // then
+    assertThat(exception.getCode()).isEqualTo("USER_NOT_FOUND");
+    assertThat(exception.getMessage()).isEqualTo("Student with id 74591 not found");
+    verifyNoInteractions(applicationUserService);
+  }
+
+  @Test
+  void shouldNotMakeAnotherCallToDatabaseWhenEmailIsTheSameInUpdateMethod() {
+    // given
+    final var studentId = 745L;
+    final var command =
+        new StudentCommand("Updatable", "student", "502188864", "trzezwy@student.com.pl");
+    final var student = provideStudentEntity(studentId, 854L);
+
+    given(studentRepository.findById(studentId)).willReturn(of(student));
+    // when
+    final var result = studentService.updateById(studentId, command);
+    // then
+    assertThat(result.phoneNumber()).isEqualTo(command.phoneNumber());
+    assertThat(result.id()).isEqualTo(studentId);
+    assertThat(result.email()).isEqualTo(command.email());
+    assertThat(result.firstName()).isEqualTo(command.firstName());
+    assertThat(result.lastName()).isEqualTo(command.lastName());
+    verifyNoInteractions(applicationUserService);
+  }
+
+  @Test
+  void shouldThrowDuplicatedEmailExceptionInUpdateMethod() {
+    // given
+    final var studentId = 7865L;
+    final var command =
+        new StudentCommand("Updatable", "Student", "609325789", "already@existing.com.pl");
+    final var teacher = provideStudentEntity(studentId, 3213L);
+
+    given(studentRepository.findById(studentId)).willReturn(of(teacher));
+    given(applicationUserService.existsByEmail(command.email())).willReturn(true);
+    // when
+    final var exception =
+        assertThrows(
+            DuplicatedApplicationUserEmailException.class,
+            () -> studentService.updateById(studentId, command));
+
+    // then
+    assertThat(exception.getCode()).isEqualTo("DUPLICATED_EMAIL");
+    assertThat(exception.getDisplayMessage())
+        .isEqualTo("Email: already@existing.com.pl already exists in system");
   }
 }
