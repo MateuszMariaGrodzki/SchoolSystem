@@ -1,12 +1,12 @@
 package pl.com.schoolsystem.base;
 
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Tag;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.containers.wait.strategy.Wait;
-import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.utility.DockerImageName;
 
@@ -15,6 +15,8 @@ import org.testcontainers.utility.DockerImageName;
 public class Containers extends PostgreSQLContainer<Containers> {
 
   private static Containers container;
+
+  public static GenericContainer greenMailContainer;
 
   public Containers() {
     super("postgres:13.1-alpine");
@@ -38,14 +40,17 @@ public class Containers extends PostgreSQLContainer<Containers> {
   @Override
   public void stop() {}
 
-  @Container
-  static GenericContainer greenMailContainer =
-      new GenericContainer<>(DockerImageName.parse("greenmail/standalone:1.6.1"))
-          .waitingFor(Wait.forLogMessage(".*Starting GreenMail standalone.*", 1))
-          .withEnv(
-              "GREENMAIL_OPTS",
-              "-Dgreenmail.setup.test.smtp -Dgreenmail.hostname=0.0.0.0 -Dgreenmail.users=mateusz:password")
-          .withExposedPorts(3025);
+  @BeforeAll
+  public static void init() {
+    greenMailContainer =
+        new GenericContainer<>(DockerImageName.parse("greenmail/standalone:1.6.1"))
+            .waitingFor(Wait.forLogMessage(".*Starting GreenMail standalone.*", 1))
+            .withEnv(
+                "GREENMAIL_OPTS",
+                "-Dgreenmail.setup.test.smtp -Dgreenmail.hostname=0.0.0.0 -Dgreenmail.users=mateusz:password")
+            .withExposedPorts(3025);
+    greenMailContainer.start();
+  }
 
   @DynamicPropertySource
   static void configureMailHost(DynamicPropertyRegistry registry) {
