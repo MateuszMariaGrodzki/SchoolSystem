@@ -2,8 +2,7 @@ package pl.com.schoolsystem.student;
 
 import static java.lang.String.format;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -45,5 +44,24 @@ public class StudentControllerAsHeadmasterTest extends BaseIntegrationTestAsHead
         .andExpect(jsonPath("$.lastName").value("Student"))
         .andExpect(jsonPath("$.email").value("trzezwy@student.pl"))
         .andExpect(jsonPath("$.phoneNumber").value("333333333"));
+  }
+
+  @Test
+  @SneakyThrows
+  public void shouldReturnForbiddenInUpdateMethod() {
+    // given
+    final var studentId = 4786L;
+    final var requestBody =
+        new StudentCommand("Student", "Updatable", "789632145", "updatable@onet.pl");
+    // when
+    mvc.perform(
+            put(format("/v1/students/%s", studentId))
+                .contentType(APPLICATION_JSON)
+                .accept(APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(requestBody)))
+        // then
+        .andExpect(status().isForbidden())
+        .andExpect(jsonPath("$.code").value("ACCESS_DENIED"))
+        .andExpect(jsonPath("$.message").value("Access is denied"));
   }
 }
