@@ -44,7 +44,7 @@ public class ApplicationUserControllerAsStudentTest extends BaseIntegrationTestA
   @SneakyThrows
   public void shouldFailValidation() {
     // given
-    final var requestBody = new ChangePasswordCommand("", "", "");
+    final var requestBody = new ChangePasswordCommand("", "Student123", "");
     // when
     mvc.perform(
             post("/v1/passwords/change")
