@@ -78,4 +78,17 @@ public class StudentControllerAsStudentTest extends BaseIntegrationTestAsStudent
         .containsKey("password")
         .isNotNull();
   }
+
+  @Test
+  @SneakyThrows
+  public void shouldReturnForbiddenInDeleteMethod() {
+    // given
+    final var studentId = 4786L;
+    // when
+    mvc.perform(delete(format("/v1/students/%s", studentId)))
+        // then
+        .andExpect(status().isForbidden())
+        .andExpect(jsonPath("$.code").value("ACCESS_DENIED"))
+        .andExpect(jsonPath("$.message").value("Access is denied"));
+  }
 }
