@@ -56,7 +56,7 @@ public class AdministratorControllerAsAdministratorTest extends BaseIntegrationT
   public void shouldNotAddAdminWithExistingEmail() {
     // given
     final var requestBody =
-        new AdministratorCommand(new UserCommand("Już", "istnieje", "789123546", "Admin@admin.pl"));
+        new AdministratorCommand(new UserCommand("Już", "istnieje", "789123546", "admin@admin.pl"));
     // when
     mvc.perform(
             post("/v1/administrators")
@@ -66,7 +66,7 @@ public class AdministratorControllerAsAdministratorTest extends BaseIntegrationT
         // then
         .andExpect(status().isBadRequest())
         .andExpect(jsonPath("$.code").value("DUPLICATED_EMAIL"))
-        .andExpect(jsonPath("$.message").value("Email: Admin@admin.pl already exists in system"));
+        .andExpect(jsonPath("$.message").value("Email: admin@admin.pl already exists in system"));
   }
 
   @Test
@@ -130,7 +130,7 @@ public class AdministratorControllerAsAdministratorTest extends BaseIntegrationT
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.firstName").value("Admin"))
         .andExpect(jsonPath("$.lastName").value("Admin"))
-        .andExpect(jsonPath("$.email").value("Admin@admin.pl"))
+        .andExpect(jsonPath("$.email").value("admin@admin.pl"))
         .andExpect(jsonPath("$.phoneNumber").value("000000000"));
   }
 
@@ -260,7 +260,7 @@ public class AdministratorControllerAsAdministratorTest extends BaseIntegrationT
   public void shouldDeleteUserAndThenThrowAccountExpiredException() {
     // given
     final var administratorId = 40532;
-    final var authCommand = new AuthCommand("Admin@admin.pl", "Avocado1!");
+    final var authCommand = new AuthCommand("admin@admin.pl", "Avocado1!");
     // when
     mvc.perform(delete(format("/v1/administrators/%s", administratorId)));
     mvc.perform(

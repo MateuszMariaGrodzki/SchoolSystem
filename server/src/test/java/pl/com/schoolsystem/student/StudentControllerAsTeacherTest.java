@@ -59,7 +59,7 @@ public class StudentControllerAsTeacherTest extends BaseIntegrationTestAsTeacher
   public void shouldNotCreateStudentWithExistingEmail() {
     // given
     final var requestBody =
-        new StudentCommand(new UserCommand("Już", "istnieje", "789123546", "Admin@admin.pl"));
+        new StudentCommand(new UserCommand("Już", "istnieje", "789123546", "admin@admin.pl"));
     // when
     mvc.perform(
             post("/v1/students")
@@ -69,7 +69,7 @@ public class StudentControllerAsTeacherTest extends BaseIntegrationTestAsTeacher
         // then
         .andExpect(status().isBadRequest())
         .andExpect(jsonPath("$.code").value("DUPLICATED_EMAIL"))
-        .andExpect(jsonPath("$.message").value("Email: Admin@admin.pl already exists in system"));
+        .andExpect(jsonPath("$.message").value("Email: admin@admin.pl already exists in system"));
   }
 
   @Test
@@ -248,7 +248,7 @@ public class StudentControllerAsTeacherTest extends BaseIntegrationTestAsTeacher
     // given
     final var studentId = 4786L;
     final var requestBody =
-        new StudentCommand(new UserCommand("Update", "Student", "456654456", "Admin@admin.pl"));
+        new StudentCommand(new UserCommand("Update", "Student", "456654456", "admin@admin.pl"));
     // when
     mvc.perform(
             put(format("/v1/students/%s", studentId))
@@ -258,7 +258,7 @@ public class StudentControllerAsTeacherTest extends BaseIntegrationTestAsTeacher
         // then
         .andExpect(status().isBadRequest())
         .andExpect(jsonPath("$.code").value("DUPLICATED_EMAIL"))
-        .andExpect(jsonPath("$.message").value("Email: Admin@admin.pl already exists in system"));
+        .andExpect(jsonPath("$.message").value("Email: admin@admin.pl already exists in system"));
   }
 
   @Test

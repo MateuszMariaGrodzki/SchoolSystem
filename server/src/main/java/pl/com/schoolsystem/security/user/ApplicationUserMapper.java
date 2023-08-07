@@ -11,6 +11,7 @@ public interface ApplicationUserMapper {
 
   ApplicationUserMapper APPLICATION_USER_MAPPER = getMapper(ApplicationUserMapper.class);
 
+  @Mapping(target = "email", expression = "java(command.email().toLowerCase())")
   AddApplicationUserCommand toApplicationUserCommand(
       UserCommand command, String password, ApplicationRole role);
 

@@ -56,7 +56,7 @@ public class HeadmasterControllerAsAdministratorTest extends BaseIntegrationTest
   public void shouldNotAddHeadmasterWithExistingEmail() {
     // given
     final var requestBody =
-        new HeadmasterCommand(new UserCommand("Już", "istnieje", "789123546", "Admin@admin.pl"));
+        new HeadmasterCommand(new UserCommand("Już", "istnieje", "789123546", "admin@admin.pl"));
     // when
     mvc.perform(
             post("/v1/headmasters")
@@ -66,7 +66,7 @@ public class HeadmasterControllerAsAdministratorTest extends BaseIntegrationTest
         // then
         .andExpect(status().isBadRequest())
         .andExpect(jsonPath("$.code").value("DUPLICATED_EMAIL"))
-        .andExpect(jsonPath("$.message").value("Email: Admin@admin.pl already exists in system"));
+        .andExpect(jsonPath("$.message").value("Email: admin@admin.pl already exists in system"));
   }
 
   @Test
@@ -220,7 +220,7 @@ public class HeadmasterControllerAsAdministratorTest extends BaseIntegrationTest
     // given
     final var headmasterId = 321L;
     final var requestBody =
-        new HeadmasterCommand(new UserCommand("Wrong", "Email", "741236985", "Admin@admin.pl"));
+        new HeadmasterCommand(new UserCommand("Wrong", "Email", "741236985", "admin@admin.pl"));
 
     // when
     mvc.perform(
@@ -231,7 +231,7 @@ public class HeadmasterControllerAsAdministratorTest extends BaseIntegrationTest
         // then
         .andExpect(status().isBadRequest())
         .andExpect(jsonPath("$.code").value("DUPLICATED_EMAIL"))
-        .andExpect(jsonPath("$.message").value("Email: Admin@admin.pl already exists in system"));
+        .andExpect(jsonPath("$.message").value("Email: admin@admin.pl already exists in system"));
 
     final var applicationUserEntity =
         jdbcTemplate.queryForMap("select * from application_user where id = 741");
