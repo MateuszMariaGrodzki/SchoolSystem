@@ -33,7 +33,7 @@ public class TeacherService {
     final var password = generatePassword();
     final var applicationUserCommand =
         APPLICATION_USER_MAPPER.toApplicationUserCommand(
-            teacherCommand, passwordService.encodePassword(password), TEACHER);
+            teacherCommand.personalData(), passwordService.encodePassword(password), TEACHER);
     final var applicationUserEntity = applicationUserService.create(applicationUserCommand);
     final var teacherEntity = TEACHER_MAPPER.toTeacherEntity(applicationUserEntity);
     final var savedEntity = teacherRepository.save(teacherEntity);
@@ -59,15 +59,16 @@ public class TeacherService {
     final var teacher =
         teacherRepository.findById(id).orElseThrow(() -> new TeacherNotFoundException(id));
     final var applicationUser = teacher.getApplicationUser();
-    if (isEmailValid(applicationUser, command.email())) {
-      applicationUser.setPhoneNumber(command.phoneNumber());
-      applicationUser.setFirstName(command.firstName());
-      applicationUser.setLastName(command.lastName());
-      applicationUser.setEmail(command.email());
+    if (isEmailValid(applicationUser, command.personalData().email())) {
+      final var personalData = command.personalData();
+      applicationUser.setPhoneNumber(personalData.phoneNumber());
+      applicationUser.setFirstName(personalData.firstName());
+      applicationUser.setLastName(personalData.lastName());
+      applicationUser.setEmail(personalData.email());
       log.info("Updated teacher with id {}", id);
       return TEACHER_MAPPER.toTeacherView(id, applicationUser);
     }
-    throw new DuplicatedApplicationUserEmailException(command.email());
+    throw new DuplicatedApplicationUserEmailException(command.personalData().email());
   }
 
   private boolean isEmailValid(ApplicationUserEntity applicationUser, String email) {

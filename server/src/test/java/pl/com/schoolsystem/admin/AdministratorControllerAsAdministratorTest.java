@@ -11,6 +11,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;
 import pl.com.schoolsystem.security.authentication.AuthCommand;
+import pl.com.schoolsystem.security.user.UserCommand;
 
 public class AdministratorControllerAsAdministratorTest extends BaseIntegrationTestAsAdministrator {
 
@@ -20,7 +21,7 @@ public class AdministratorControllerAsAdministratorTest extends BaseIntegrationT
     // given
     final var requestBody =
         new AdministratorCommand(
-            "Zdenerwowana", "Agnieszka", "789123546", "zdenerwowana.aga@onet.pl");
+            new UserCommand("Zdenerwowana", "Agnieszka", "789123546", "zdenerwowana.aga@onet.pl"));
     // when
     mvc.perform(
             post("/v1/administrators")
@@ -55,7 +56,7 @@ public class AdministratorControllerAsAdministratorTest extends BaseIntegrationT
   public void shouldNotAddAdminWithExistingEmail() {
     // given
     final var requestBody =
-        new AdministratorCommand("Już", "istnieje", "789123546", "Admin@admin.pl");
+        new AdministratorCommand(new UserCommand("Już", "istnieje", "789123546", "Admin@admin.pl"));
     // when
     mvc.perform(
             post("/v1/administrators")
@@ -72,7 +73,8 @@ public class AdministratorControllerAsAdministratorTest extends BaseIntegrationT
   @SneakyThrows
   public void shouldFailValidation() {
     // given
-    final var requestBody = new AdministratorCommand("", "Jag123mfds", "159", "Adminadmin.pl");
+    final var requestBody =
+        new AdministratorCommand(new UserCommand("", "Jag123mfds", "159", "Adminadmin.pl"));
     // when
     mvc.perform(
             post("/v1/administrators")
@@ -83,16 +85,19 @@ public class AdministratorControllerAsAdministratorTest extends BaseIntegrationT
         .andExpect(status().isBadRequest())
         .andExpect(jsonPath("$.code").value("VALIDATION_ERROR"))
         .andExpect(jsonPath("$.message").value("Invalid request"))
-        .andExpect(jsonPath("$.details", hasEntry("firstName", "First name is mandatory")))
+        .andExpect(
+            jsonPath("$.details", hasEntry("personalData.firstName", "First name is mandatory")))
         .andExpect(
             jsonPath(
                 "$.details",
                 hasEntry(
-                    "lastName", "Invalid characters. Name can have only letters, space and dash")))
+                    "personalData.lastName",
+                    "Invalid characters. Name can have only letters, space and dash")))
         .andExpect(
             jsonPath(
-                "$.details", hasEntry("phoneNumber", "Phone number must have exactly 9 digits")))
-        .andExpect(jsonPath("$.details", hasEntry("email", "Email has bad format")));
+                "$.details",
+                hasEntry("personalData.phoneNumber", "Phone number must have exactly 9 digits")))
+        .andExpect(jsonPath("$.details", hasEntry("personalData.email", "Email has bad format")));
   }
 
   @Test
@@ -129,7 +134,8 @@ public class AdministratorControllerAsAdministratorTest extends BaseIntegrationT
     // given
     final var administratorId = 40532;
     final var requestBody =
-        new AdministratorCommand("Administrator", "AfterChanges", "999999999", "changed@email.com");
+        new AdministratorCommand(
+            new UserCommand("Administrator", "AfterChanges", "999999999", "changed@email.com"));
     // when
     mvc.perform(
             put(format("/v1/administrators/%s", administratorId))
@@ -160,7 +166,8 @@ public class AdministratorControllerAsAdministratorTest extends BaseIntegrationT
   public void shouldThrowValidationExceptionWhenRequestBodyHasBadDataInUpdateMethod() {
     // given
     final var administratorId = 40532;
-    final var requestBody = new AdministratorCommand(null, "", "99g99999", "@email.com");
+    final var requestBody =
+        new AdministratorCommand(new UserCommand(null, "", "99g99999", "@email.com"));
     // when
     mvc.perform(
             put(format("/v1/administrators/%s", administratorId))
@@ -171,12 +178,15 @@ public class AdministratorControllerAsAdministratorTest extends BaseIntegrationT
         .andExpect(status().isBadRequest())
         .andExpect(jsonPath("$.code").value("VALIDATION_ERROR"))
         .andExpect(jsonPath("$.message").value("Invalid request"))
-        .andExpect(jsonPath("$.details", hasEntry("firstName", "First name is mandatory")))
-        .andExpect(jsonPath("$.details", hasEntry("lastName", "Last name is mandatory")))
+        .andExpect(
+            jsonPath("$.details", hasEntry("personalData.firstName", "First name is mandatory")))
+        .andExpect(
+            jsonPath("$.details", hasEntry("personalData.lastName", "Last name is mandatory")))
         .andExpect(
             jsonPath(
-                "$.details", hasEntry("phoneNumber", "Phone number must have exactly 9 digits")))
-        .andExpect(jsonPath("$.details", hasEntry("email", "Email has bad format")));
+                "$.details",
+                hasEntry("personalData.phoneNumber", "Phone number must have exactly 9 digits")))
+        .andExpect(jsonPath("$.details", hasEntry("personalData.email", "Email has bad format")));
   }
 
   @Test
@@ -185,7 +195,8 @@ public class AdministratorControllerAsAdministratorTest extends BaseIntegrationT
     // given
     final var administratorId = 40532;
     final var requestBody =
-        new AdministratorCommand("Administrator", "AfterChanges", "999999999", "admin@test.pl");
+        new AdministratorCommand(
+            new UserCommand("Administrator", "AfterChanges", "999999999", "admin@test.pl"));
     // when
     mvc.perform(
             put(format("/v1/administrators/%s", administratorId))

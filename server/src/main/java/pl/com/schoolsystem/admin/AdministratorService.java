@@ -33,7 +33,7 @@ public class AdministratorService {
     final var password = generatePassword();
     final var applicationUserCommand =
         APPLICATION_USER_MAPPER.toApplicationUserCommand(
-            command, passwordService.encodePassword(password), ADMIN);
+            command.personalData(), passwordService.encodePassword(password), ADMIN);
     final var applicationUserEntity = applicationUserService.create(applicationUserCommand);
     final var administratorEntity =
         ADMINISTRATOR_MAPPER.toAdministratorEntity(applicationUserEntity);
@@ -62,15 +62,16 @@ public class AdministratorService {
             .findById(id)
             .orElseThrow(() -> new AdministratorNotFoundException(id));
     final var applicationUser = administrator.getApplicationUser();
-    if (isEmailValid(applicationUser, command.email())) {
-      applicationUser.setPhoneNumber(command.phoneNumber());
-      applicationUser.setFirstName(command.firstName());
-      applicationUser.setLastName(command.lastName());
-      applicationUser.setEmail(command.email());
+    if (isEmailValid(applicationUser, command.personalData().email())) {
+      final var personalData = command.personalData();
+      applicationUser.setPhoneNumber(personalData.phoneNumber());
+      applicationUser.setFirstName(personalData.firstName());
+      applicationUser.setLastName(personalData.lastName());
+      applicationUser.setEmail(personalData.email());
       log.info("Updated administrator with id {}", id);
       return ADMINISTRATOR_MAPPER.toAdministratorView(id, applicationUser);
     }
-    throw new DuplicatedApplicationUserEmailException(command.email());
+    throw new DuplicatedApplicationUserEmailException(command.personalData().email());
   }
 
   private boolean isEmailValid(ApplicationUserEntity applicationUser, String email) {

@@ -12,6 +12,7 @@ import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.MediaType;
 import pl.com.schoolsystem.security.authentication.AuthCommand;
+import pl.com.schoolsystem.security.user.UserCommand;
 import pl.com.schoolsystem.teacher.BaseIntegrationTestAsTeacher;
 import pl.com.schoolsystem.teacher.TeacherCommand;
 
@@ -22,7 +23,8 @@ public class StudentControllerAsTeacherTest extends BaseIntegrationTestAsTeacher
   public void shouldAddNewStudent() {
     // given
     final var requestBody =
-        new StudentCommand("Trzezwy", "Student", "546381729", "trzezwy@student.com.pl");
+        new StudentCommand(
+            new UserCommand("Trzezwy", "Student", "546381729", "trzezwy@student.com.pl"));
     // when
     mvc.perform(
             post("/v1/students")
@@ -56,7 +58,8 @@ public class StudentControllerAsTeacherTest extends BaseIntegrationTestAsTeacher
   @SneakyThrows
   public void shouldNotCreateStudentWithExistingEmail() {
     // given
-    final var requestBody = new StudentCommand("Już", "istnieje", "789123546", "Admin@admin.pl");
+    final var requestBody =
+        new StudentCommand(new UserCommand("Już", "istnieje", "789123546", "Admin@admin.pl"));
     // when
     mvc.perform(
             post("/v1/students")
@@ -73,7 +76,8 @@ public class StudentControllerAsTeacherTest extends BaseIntegrationTestAsTeacher
   @SneakyThrows
   public void shouldFailValidationOnPostMethod() {
     // given
-    final var requestBody = new TeacherCommand("878451232", "--8-", "Student", "chyba niepoprawny");
+    final var requestBody =
+        new TeacherCommand(new UserCommand("878451232", "--8-", "Student", "chyba niepoprawny"));
     // when
     mvc.perform(
             post("/v1/students")
@@ -88,16 +92,19 @@ public class StudentControllerAsTeacherTest extends BaseIntegrationTestAsTeacher
             jsonPath(
                 "$.details",
                 hasEntry(
-                    "firstName", "Invalid characters. Name can have only letters, space and dash")))
+                    "personalData.firstName",
+                    "Invalid characters. Name can have only letters, space and dash")))
         .andExpect(
             jsonPath(
                 "$.details",
                 hasEntry(
-                    "lastName", "Invalid characters. Name can have only letters, space and dash")))
+                    "personalData.lastName",
+                    "Invalid characters. Name can have only letters, space and dash")))
         .andExpect(
             jsonPath(
-                "$.details", hasEntry("phoneNumber", "Phone number must have exactly 9 digits")))
-        .andExpect(jsonPath("$.details", hasEntry("email", "Email has bad format")));
+                "$.details",
+                hasEntry("personalData.phoneNumber", "Phone number must have exactly 9 digits")))
+        .andExpect(jsonPath("$.details", hasEntry("personalData.email", "Email has bad format")));
   }
 
   @Test
@@ -135,7 +142,9 @@ public class StudentControllerAsTeacherTest extends BaseIntegrationTestAsTeacher
     // given
     final var studentId = 4786L;
     final var requestBody =
-        new StudentCommand("Change", "Student-by-teacher", "888888888", "updated@byTeacher.com.pl");
+        new StudentCommand(
+            new UserCommand(
+                "Change", "Student-by-teacher", "888888888", "updated@byTeacher.com.pl"));
     // when
     mvc.perform(
             put(format("/v1/students/%s", studentId))
@@ -168,7 +177,8 @@ public class StudentControllerAsTeacherTest extends BaseIntegrationTestAsTeacher
     // given
     final var studentId = 4786L;
     final var requestBody =
-        new StudentCommand(null, "Student!by3teacher", "88/888", "@byTeacher.com.pl");
+        new StudentCommand(
+            new UserCommand(null, "Student!by3teacher", "88/888", "@byTeacher.com.pl"));
     // when
     mvc.perform(
             put(format("/v1/students/%s", studentId))
@@ -179,16 +189,19 @@ public class StudentControllerAsTeacherTest extends BaseIntegrationTestAsTeacher
         .andExpect(status().isBadRequest())
         .andExpect(jsonPath("$.code").value("VALIDATION_ERROR"))
         .andExpect(jsonPath("$.message").value("Invalid request"))
-        .andExpect(jsonPath("$.details", hasEntry("firstName", "First name is mandatory")))
+        .andExpect(
+            jsonPath("$.details", hasEntry("personalData.firstName", "First name is mandatory")))
         .andExpect(
             jsonPath(
                 "$.details",
                 hasEntry(
-                    "lastName", "Invalid characters. Name can have only letters, space and dash")))
+                    "personalData.lastName",
+                    "Invalid characters. Name can have only letters, space and dash")))
         .andExpect(
             jsonPath(
-                "$.details", hasEntry("phoneNumber", "Phone number must have exactly 9 digits")))
-        .andExpect(jsonPath("$.details", hasEntry("email", "Email has bad format")));
+                "$.details",
+                hasEntry("personalData.phoneNumber", "Phone number must have exactly 9 digits")))
+        .andExpect(jsonPath("$.details", hasEntry("personalData.email", "Email has bad format")));
   }
 
   @Test
@@ -196,7 +209,8 @@ public class StudentControllerAsTeacherTest extends BaseIntegrationTestAsTeacher
   public void shouldThrowUserNotFoundExceptionInUpdateMethod() {
     // given
     final var studentId = 545687999L;
-    final var requestBody = new StudentCommand("Mat", "Gro", "789456123", "mat@gro.com.pl");
+    final var requestBody =
+        new StudentCommand(new UserCommand("Mat", "Gro", "789456123", "mat@gro.com.pl"));
     // when
     mvc.perform(
             put(format("/v1/students/%s", studentId))
@@ -214,7 +228,8 @@ public class StudentControllerAsTeacherTest extends BaseIntegrationTestAsTeacher
   public void shouldThrowDuplicatedEmailExceptionInUpdateMethod() {
     // given
     final var studentId = 4786L;
-    final var requestBody = new StudentCommand("Update", "Student", "456654456", "Admin@admin.pl");
+    final var requestBody =
+        new StudentCommand(new UserCommand("Update", "Student", "456654456", "Admin@admin.pl"));
     // when
     mvc.perform(
             put(format("/v1/students/%s", studentId))
