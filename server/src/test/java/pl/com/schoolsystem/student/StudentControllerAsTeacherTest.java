@@ -248,7 +248,7 @@ public class StudentControllerAsTeacherTest extends BaseIntegrationTestAsTeacher
     // given
     final var studentId = 4786L;
     final var requestBody =
-        new StudentCommand(new UserCommand("Update", "Student", "456654456", "admin@admin.pl"));
+        new StudentCommand(new UserCommand("Update", "Student", "456654456", "AdmIn@admin.pl"));
     // when
     mvc.perform(
             put(format("/v1/students/%s", studentId))
@@ -258,7 +258,7 @@ public class StudentControllerAsTeacherTest extends BaseIntegrationTestAsTeacher
         // then
         .andExpect(status().isBadRequest())
         .andExpect(jsonPath("$.code").value("DUPLICATED_EMAIL"))
-        .andExpect(jsonPath("$.message").value("Email: admin@admin.pl already exists in system"));
+        .andExpect(jsonPath("$.message").value("Email: AdmIn@admin.pl already exists in system"));
   }
 
   @Test
