@@ -34,7 +34,7 @@ public class ApplicationUserServiceTest {
   void shouldThrowApplicationUserNotFoundExceptionOnGetByEmailMethod() {
     // given
     final var email = "qwerty@onet.pl";
-    given(applicationUserRepository.findByEmail(email)).willReturn(empty());
+    given(applicationUserRepository.findByEmailIgnoreCase(email)).willReturn(empty());
     // when
     final var exception =
         assertThrows(
@@ -51,7 +51,7 @@ public class ApplicationUserServiceTest {
   void shouldGetApplicationUserByEmail() {
     // given
     final var email = "qwerty@onet.pl";
-    given(applicationUserRepository.findByEmail(email))
+    given(applicationUserRepository.findByEmailIgnoreCase(email))
         .willReturn(Optional.of(new ApplicationUserEntity()));
     // when
     // then
@@ -74,7 +74,7 @@ public class ApplicationUserServiceTest {
             "qwerty@onet.pl",
             "dsadasgjdkjghsfgfdkgbfdkgd",
             userRole);
-    given(applicationUserRepository.existsByEmail(command.email())).willReturn(true);
+    given(applicationUserRepository.existsByEmailIgnoreCase(command.email())).willReturn(true);
     // when
     final var exception =
         assertThrows(
@@ -103,7 +103,7 @@ public class ApplicationUserServiceTest {
     given(applicationUser.getEmail()).willReturn("aaa");
 
     given(applicationUserRepository.save(any())).willReturn(applicationUser);
-    given(applicationUserRepository.existsByEmail(command.email())).willReturn(false);
+    given(applicationUserRepository.existsByEmailIgnoreCase(command.email())).willReturn(false);
     // when
     applicationUserService.create(command);
     // then
@@ -157,7 +157,7 @@ public class ApplicationUserServiceTest {
     final var encryptedPassword = "encryptedAlamaKota123!";
 
     given(authenticationFacade.getAuthenticatedUser()).willReturn(applicationUser);
-    given(applicationUserRepository.findByEmail(applicationUser.getEmail()))
+    given(applicationUserRepository.findByEmailIgnoreCase(applicationUser.getEmail()))
         .willReturn(Optional.of(applicationUser));
     given(passwordService.changePassword(command, applicationUser))
         .willReturn(Either.right(encryptedPassword));
@@ -180,7 +180,8 @@ public class ApplicationUserServiceTest {
     given(authenticationFacade.getAuthenticatedUser()).willReturn(applicationUser);
     given(passwordService.changePassword(command, applicationUser))
         .willReturn(Either.right(encryptedPassword));
-    given(applicationUserRepository.findByEmail(applicationUser.getEmail())).willReturn(empty());
+    given(applicationUserRepository.findByEmailIgnoreCase(applicationUser.getEmail()))
+        .willReturn(empty());
     // when
     final var exception =
         assertThrows(

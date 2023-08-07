@@ -9,6 +9,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;
+import pl.com.schoolsystem.security.user.UserCommand;
 
 public class StudentControllerAsStudentTest extends BaseIntegrationTestAsStudent {
 
@@ -17,7 +18,8 @@ public class StudentControllerAsStudentTest extends BaseIntegrationTestAsStudent
   public void shouldReturnForbiddenOnPostMethod() {
     // given
     final var requestBody =
-        new StudentCommand("Student", "Forbidden", "852369741", "student@first.pl");
+        new StudentCommand(
+            new UserCommand("Student", "Forbidden", "852369741", "student@first.pl"));
     // when
     mvc.perform(
             post("/v1/students")
@@ -52,7 +54,8 @@ public class StudentControllerAsStudentTest extends BaseIntegrationTestAsStudent
     // given
     final var studentId = 4786L;
     final var requestBody =
-        new StudentCommand("Updatable", "Student-student", "741982365", "updated@student.com.pl");
+        new StudentCommand(
+            new UserCommand("Updatable", "Student-student", "741982365", "updated@student.com.pl"));
     // when
     mvc.perform(
             put(format("/v1/students/%s", studentId))

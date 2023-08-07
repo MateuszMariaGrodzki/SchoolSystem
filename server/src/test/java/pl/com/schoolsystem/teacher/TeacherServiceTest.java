@@ -20,6 +20,7 @@ import pl.com.schoolsystem.mail.EmailSender;
 import pl.com.schoolsystem.security.user.ApplicationUserEntity;
 import pl.com.schoolsystem.security.user.ApplicationUserService;
 import pl.com.schoolsystem.security.user.PasswordService;
+import pl.com.schoolsystem.security.user.UserCommand;
 
 public class TeacherServiceTest {
 
@@ -38,10 +39,13 @@ public class TeacherServiceTest {
   void shouldRegisterNewTeacher() {
     // given
     final var command =
-        new TeacherCommand("Teacher", "Learner", "789456123", "teacher@learner.com");
+        new TeacherCommand(
+            new UserCommand("Teacher", "Learner", "789456123", "teacher@learner.com"));
     final var encodedPassword = "gjfhdgjfhdjgkhdfgkfjdhgkfdhgfdkghd";
-    final var applicationUserEntity = provideApplicationUserEntity(command, encodedPassword);
+    final var applicationUserEntity =
+        provideApplicationUserEntity(command.personalData(), encodedPassword);
     final var teacherEntity = provideTeacherEntity(132L, 158L);
+    final var personalData = command.personalData();
 
     given(applicationUserService.create(any())).willReturn(applicationUserEntity);
     given(teacherRepository.save(any())).willReturn(teacherEntity);
@@ -54,16 +58,16 @@ public class TeacherServiceTest {
     final var savedTeacher = teacherCaptor.getValue();
 
     assertThat(result.id()).isEqualTo(132L);
-    assertThat(result.email()).isEqualTo(command.email());
-    assertThat(result.firstName()).isEqualTo(command.firstName());
-    assertThat(result.lastName()).isEqualTo(command.lastName());
-    assertThat(result.phoneNumber()).isEqualTo(command.phoneNumber());
+    assertThat(result.email()).isEqualTo(personalData.email());
+    assertThat(result.firstName()).isEqualTo(personalData.firstName());
+    assertThat(result.lastName()).isEqualTo(personalData.lastName());
+    assertThat(result.phoneNumber()).isEqualTo(personalData.phoneNumber());
 
     final var savedApplicationUser = savedTeacher.getApplicationUser();
-    assertThat(savedApplicationUser.getEmail()).isEqualTo(command.email());
-    assertThat(savedApplicationUser.getFirstName()).isEqualTo(command.firstName());
-    assertThat(savedApplicationUser.getLastName()).isEqualTo(command.lastName());
-    assertThat(savedApplicationUser.getPhoneNumber()).isEqualTo(command.phoneNumber());
+    assertThat(savedApplicationUser.getEmail()).isEqualTo(personalData.email());
+    assertThat(savedApplicationUser.getFirstName()).isEqualTo(personalData.firstName());
+    assertThat(savedApplicationUser.getLastName()).isEqualTo(personalData.lastName());
+    assertThat(savedApplicationUser.getPhoneNumber()).isEqualTo(personalData.phoneNumber());
     assertThat(savedApplicationUser.getRole()).isEqualTo(TEACHER);
   }
 
@@ -104,19 +108,21 @@ public class TeacherServiceTest {
     // given
     final var command =
         new TeacherCommand(
-            "UpdatedTeac", "Updatedher", "541236987", "updatedteacher@updated.com.pl");
+            new UserCommand(
+                "UpdatedTeac", "Updatedher", "541236987", "updatedteacher@updated.com.pl"));
     final var teacher = provideTeacherEntity(teacherId, 845L);
+    final var personalData = command.personalData();
 
     given(teacherRepository.findById(teacherId)).willReturn(of(teacher));
-    given(applicationUserService.existsByEmail(command.email())).willReturn(false);
+    given(applicationUserService.existsByEmail(command.personalData().email())).willReturn(false);
     // when
     final var result = teacherService.updateById(teacherId, command);
     // then
-    assertThat(result.phoneNumber()).isEqualTo(command.phoneNumber());
+    assertThat(result.phoneNumber()).isEqualTo(personalData.phoneNumber());
     assertThat(result.id()).isEqualTo(teacherId);
-    assertThat(result.email()).isEqualTo(command.email());
-    assertThat(result.firstName()).isEqualTo(command.firstName());
-    assertThat(result.lastName()).isEqualTo(command.lastName());
+    assertThat(result.email()).isEqualTo(personalData.email());
+    assertThat(result.firstName()).isEqualTo(personalData.firstName());
+    assertThat(result.lastName()).isEqualTo(personalData.lastName());
   }
 
   @Test
@@ -124,7 +130,8 @@ public class TeacherServiceTest {
     // given
     final var teacherId = 754L;
     final var command =
-        new TeacherCommand("Do not", "matter", "541236987", "updatedteacher@updated.com.pl");
+        new TeacherCommand(
+            new UserCommand("Do not", "matter", "541236987", "updatedteacher@updated.com.pl"));
 
     given(teacherRepository.findById(teacherId)).willReturn(empty());
     // when
@@ -142,18 +149,20 @@ public class TeacherServiceTest {
     // given
     final var teacherId = 745L;
     final var command =
-        new TeacherCommand("Updatable", "teacher", "741236985", "teacher@klek.com.pl");
+        new TeacherCommand(
+            new UserCommand("Updatable", "teacher", "741236985", "teacher@klek.com.pl"));
     final var teacher = provideTeacherEntity(teacherId, 854L);
+    final var personalData = command.personalData();
 
     given(teacherRepository.findById(teacherId)).willReturn(of(teacher));
     // when
     final var result = teacherService.updateById(teacherId, command);
     // then
-    assertThat(result.phoneNumber()).isEqualTo(command.phoneNumber());
+    assertThat(result.phoneNumber()).isEqualTo(personalData.phoneNumber());
     assertThat(result.id()).isEqualTo(teacherId);
-    assertThat(result.email()).isEqualTo(command.email());
-    assertThat(result.firstName()).isEqualTo(command.firstName());
-    assertThat(result.lastName()).isEqualTo(command.lastName());
+    assertThat(result.email()).isEqualTo(personalData.email());
+    assertThat(result.firstName()).isEqualTo(personalData.firstName());
+    assertThat(result.lastName()).isEqualTo(personalData.lastName());
     verifyNoInteractions(applicationUserService);
   }
 
@@ -162,11 +171,12 @@ public class TeacherServiceTest {
     // given
     final var teacherId = 45L;
     final var command =
-        new TeacherCommand("Updatable", "Teacher", "785412963", "already@existing.com.pl");
+        new TeacherCommand(
+            new UserCommand("Updatable", "Teacher", "785412963", "already@existing.com.pl"));
     final var teacher = provideTeacherEntity(teacherId, 3213L);
 
     given(teacherRepository.findById(teacherId)).willReturn(of(teacher));
-    given(applicationUserService.existsByEmail(command.email())).willReturn(true);
+    given(applicationUserService.existsByEmail(command.personalData().email())).willReturn(true);
     // when
     final var exception =
         assertThrows(

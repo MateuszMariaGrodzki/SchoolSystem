@@ -29,11 +29,11 @@ public class StudentService {
   private final ApplicationUserService applicationUserService;
 
   @Transactional
-  public StudentView create(StudentCommand studentCommand) {
+  public StudentView create(StudentCommand command) {
     final var password = generatePassword();
     final var applicationUserCommand =
         APPLICATION_USER_MAPPER.toApplicationUserCommand(
-            studentCommand, passwordService.encodePassword(password), STUDENT);
+            command.personalData(), passwordService.encodePassword(password), STUDENT);
     final var applicationUserEntity = applicationUserService.create(applicationUserCommand);
     final var studentEntity = STUDENT_MAPPER.toStudentEntity(applicationUserEntity);
     final var savedEntity = studentRepository.save(studentEntity);
@@ -59,15 +59,16 @@ public class StudentService {
     final var student =
         studentRepository.findById(id).orElseThrow(() -> new StudentNotFoundException(id));
     final var applicationUser = student.getApplicationUser();
-    if (isEmailValid(applicationUser, command.email())) {
-      applicationUser.setPhoneNumber(command.phoneNumber());
-      applicationUser.setFirstName(command.firstName());
-      applicationUser.setLastName(command.lastName());
-      applicationUser.setEmail(command.email());
+    if (isEmailValid(applicationUser, command.personalData().email())) {
+      final var personalData = command.personalData();
+      applicationUser.setPhoneNumber(personalData.phoneNumber());
+      applicationUser.setFirstName(personalData.firstName());
+      applicationUser.setLastName(personalData.lastName());
+      applicationUser.setEmail(personalData.email());
       log.info("Updated student with id {}", id);
       return STUDENT_MAPPER.toStudentView(id, applicationUser);
     }
-    throw new DuplicatedApplicationUserEmailException(command.email());
+    throw new DuplicatedApplicationUserEmailException(command.personalData().email());
   }
 
   private boolean isEmailValid(ApplicationUserEntity applicationUser, String email) {

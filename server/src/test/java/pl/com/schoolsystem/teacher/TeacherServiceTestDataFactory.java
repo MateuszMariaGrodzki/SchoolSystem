@@ -4,12 +4,12 @@ import static pl.com.schoolsystem.security.user.ApplicationRole.TEACHER;
 
 import lombok.experimental.UtilityClass;
 import pl.com.schoolsystem.security.user.ApplicationUserEntity;
+import pl.com.schoolsystem.security.user.UserCommand;
 
 @UtilityClass
 public class TeacherServiceTestDataFactory {
 
-  public ApplicationUserEntity provideApplicationUserEntity(
-      TeacherCommand command, String password) {
+  public ApplicationUserEntity provideApplicationUserEntity(UserCommand command, String password) {
     final var applicationUserEntity = new ApplicationUserEntity();
     applicationUserEntity.setEmail(command.email());
     applicationUserEntity.setPassword(password);

@@ -12,6 +12,7 @@ import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;
 import pl.com.schoolsystem.admin.BaseIntegrationTestAsAdministrator;
 import pl.com.schoolsystem.security.authentication.AuthCommand;
+import pl.com.schoolsystem.security.user.UserCommand;
 
 public class HeadmasterControllerAsAdministratorTest extends BaseIntegrationTestAsAdministrator {
 
@@ -20,7 +21,7 @@ public class HeadmasterControllerAsAdministratorTest extends BaseIntegrationTest
   public void shouldAddNewHeadmaster() {
     // given
     final var requestBody =
-        new HeadmasterCommand("Head", "Master", "874123695", "head@master.com.pl");
+        new HeadmasterCommand(new UserCommand("Head", "Master", "874123695", "head@master.com.pl"));
     // when
     mvc.perform(
             post("/v1/headmasters")
@@ -54,7 +55,8 @@ public class HeadmasterControllerAsAdministratorTest extends BaseIntegrationTest
   @SneakyThrows
   public void shouldNotAddHeadmasterWithExistingEmail() {
     // given
-    final var requestBody = new HeadmasterCommand("Już", "istnieje", "789123546", "Admin@admin.pl");
+    final var requestBody =
+        new HeadmasterCommand(new UserCommand("Już", "istnieje", "789123546", "admin@admin.pl"));
     // when
     mvc.perform(
             post("/v1/headmasters")
@@ -64,14 +66,14 @@ public class HeadmasterControllerAsAdministratorTest extends BaseIntegrationTest
         // then
         .andExpect(status().isBadRequest())
         .andExpect(jsonPath("$.code").value("DUPLICATED_EMAIL"))
-        .andExpect(jsonPath("$.message").value("Email: Admin@admin.pl already exists in system"));
+        .andExpect(jsonPath("$.message").value("Email: admin@admin.pl already exists in system"));
   }
 
   @Test
   @SneakyThrows
   public void shouldFailValidation() {
     // given
-    final var requestBody = new HeadmasterCommand("4564655", "", "78", "fkdjgkld");
+    final var requestBody = new HeadmasterCommand(new UserCommand("4564655", "", "78", "fkdjgkld"));
     // when
     mvc.perform(
             post("/v1/headmasters")
@@ -86,12 +88,34 @@ public class HeadmasterControllerAsAdministratorTest extends BaseIntegrationTest
             jsonPath(
                 "$.details",
                 hasEntry(
-                    "firstName", "Invalid characters. Name can have only letters, space and dash")))
-        .andExpect(jsonPath("$.details", hasEntry("lastName", "Last name is mandatory")))
+                    "personalData.firstName",
+                    "Invalid characters. Name can have only letters, space and dash")))
+        .andExpect(
+            jsonPath("$.details", hasEntry("personalData.lastName", "Last name is mandatory")))
         .andExpect(
             jsonPath(
-                "$.details", hasEntry("phoneNumber", "Phone number must have exactly 9 digits")))
-        .andExpect(jsonPath("$.details", hasEntry("email", "Email has bad format")));
+                "$.details",
+                hasEntry("personalData.phoneNumber", "Phone number must have exactly 9 digits")))
+        .andExpect(jsonPath("$.details", hasEntry("personalData.email", "Email has bad format")));
+  }
+
+  @Test
+  @SneakyThrows
+  public void shouldThrowValidationExceptionWhenUserCommandIsNotPresent() {
+    // given
+    final var requestBody = new HeadmasterCommand(null);
+    // when
+    mvc.perform(
+            post("/v1/headmasters")
+                .accept(APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(requestBody))
+                .contentType(APPLICATION_JSON))
+        // then
+        .andExpect(status().isBadRequest())
+        .andExpect(jsonPath("$.code").value("VALIDATION_ERROR"))
+        .andExpect(jsonPath("$.message").value("Invalid request"))
+        .andExpect(
+            jsonPath("$.details", hasEntry("personalData", "user personal data is mandatory")));
   }
 
   @Test
@@ -129,7 +153,8 @@ public class HeadmasterControllerAsAdministratorTest extends BaseIntegrationTest
     // given
     final var headmasterId = 321L;
     final var requestBody =
-        new HeadmasterCommand("UpdatedHead", "UpdatedMaster", "741236985", "UpdatedMaster@com.pl");
+        new HeadmasterCommand(
+            new UserCommand("UpdatedHead", "UpdatedMaster", "741236985", "UpdatedMaster@com.pl"));
     // when
     mvc.perform(
             put(format("/v1/headmasters/%s", headmasterId))
@@ -161,7 +186,8 @@ public class HeadmasterControllerAsAdministratorTest extends BaseIntegrationTest
   public void shouldFailValidationInUpdate() {
     // given
     final var headmasterId = 321L;
-    final var requestBody = new HeadmasterCommand("09323Ksa32!!", "    ", "145", "sd@a");
+    final var requestBody =
+        new HeadmasterCommand(new UserCommand("09323Ksa32!!", "    ", "145", "sd@a"));
 
     // when
     mvc.perform(
@@ -177,12 +203,15 @@ public class HeadmasterControllerAsAdministratorTest extends BaseIntegrationTest
             jsonPath(
                 "$.details",
                 hasEntry(
-                    "firstName", "Invalid characters. Name can have only letters, space and dash")))
-        .andExpect(jsonPath("$.details", hasEntry("lastName", "Last name is mandatory")))
+                    "personalData.firstName",
+                    "Invalid characters. Name can have only letters, space and dash")))
+        .andExpect(
+            jsonPath("$.details", hasEntry("personalData.lastName", "Last name is mandatory")))
         .andExpect(
             jsonPath(
-                "$.details", hasEntry("phoneNumber", "Phone number must have exactly 9 digits")))
-        .andExpect(jsonPath("$.details", hasEntry("email", "Email has bad format")));
+                "$.details",
+                hasEntry("personalData.phoneNumber", "Phone number must have exactly 9 digits")))
+        .andExpect(jsonPath("$.details", hasEntry("personalData.email", "Email has bad format")));
   }
 
   @Test
@@ -190,7 +219,8 @@ public class HeadmasterControllerAsAdministratorTest extends BaseIntegrationTest
   public void shouldNotUpdateHeadmasterWhenThereIsAnotherUserWithGivenEmailInDatabase() {
     // given
     final var headmasterId = 321L;
-    final var requestBody = new HeadmasterCommand("Wrong", "Email", "741236985", "Admin@admin.pl");
+    final var requestBody =
+        new HeadmasterCommand(new UserCommand("Wrong", "Email", "741236985", "admin@admin.pl"));
 
     // when
     mvc.perform(
@@ -201,7 +231,7 @@ public class HeadmasterControllerAsAdministratorTest extends BaseIntegrationTest
         // then
         .andExpect(status().isBadRequest())
         .andExpect(jsonPath("$.code").value("DUPLICATED_EMAIL"))
-        .andExpect(jsonPath("$.message").value("Email: Admin@admin.pl already exists in system"));
+        .andExpect(jsonPath("$.message").value("Email: admin@admin.pl already exists in system"));
 
     final var applicationUserEntity =
         jdbcTemplate.queryForMap("select * from application_user where id = 741");
@@ -221,7 +251,8 @@ public class HeadmasterControllerAsAdministratorTest extends BaseIntegrationTest
     // given
     final var headmasterId = 321L;
     final var requestBody =
-        new HeadmasterCommand("Update", "headmaster", "666666666", "head@master.pl");
+        new HeadmasterCommand(
+            new UserCommand("Update", "headmaster", "666666666", "head@master.pl"));
 
     // when
     mvc.perform(

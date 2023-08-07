@@ -25,16 +25,16 @@ public class ApplicationUserService {
   public ApplicationUserEntity getByEmailsOrElseThrowApplicationUserNotFoundException(
       String email) {
     return applicationUserRepository
-        .findByEmail(email)
+        .findByEmailIgnoreCase(email)
         .orElseThrow(() -> new ApplicationUserNotFoundException(email));
   }
 
   public boolean existsByEmail(String email) {
-    return applicationUserRepository.existsByEmail(email);
+    return applicationUserRepository.existsByEmailIgnoreCase(email);
   }
 
   public ApplicationUserEntity create(AddApplicationUserCommand command) {
-    if (applicationUserRepository.existsByEmail(command.email())) {
+    if (applicationUserRepository.existsByEmailIgnoreCase(command.email())) {
       throw new DuplicatedApplicationUserEmailException(command.email());
     }
     final var entity = APPLICATION_USER_MAPPER.toApplicationUserEntity(command);
@@ -59,7 +59,7 @@ public class ApplicationUserService {
 
   private Void changePassword(String email, String password) {
     applicationUserRepository
-        .findByEmail(email)
+        .findByEmailIgnoreCase(email)
         .ifPresentOrElse(
             user -> {
               user.setPassword(password);

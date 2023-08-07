@@ -33,7 +33,7 @@ public class HeadmasterService {
     final var password = generatePassword();
     final var applicationUserCommand =
         APPLICATION_USER_MAPPER.toApplicationUserCommand(
-            command, passwordService.encodePassword(password), HEADMASTER);
+            command.personalData(), passwordService.encodePassword(password), HEADMASTER);
     final var applicationUserEntity = applicationUserService.create(applicationUserCommand);
 
     final var headmasterEntity = HEADMASTER_MAPPER.toHeadmasterEntity(applicationUserEntity);
@@ -61,15 +61,16 @@ public class HeadmasterService {
     final var headmaster =
         headmasterRepository.findById(id).orElseThrow(() -> new HeadmasterNotFoundException(id));
     final var applicationUser = headmaster.getApplicationUser();
-    if (isEmailValid(applicationUser, command.email())) {
-      applicationUser.setPhoneNumber(command.phoneNumber());
-      applicationUser.setFirstName(command.firstName());
-      applicationUser.setLastName(command.lastName());
-      applicationUser.setEmail(command.email());
+    if (isEmailValid(applicationUser, command.personalData().email())) {
+      final var personalData = command.personalData();
+      applicationUser.setPhoneNumber(personalData.phoneNumber());
+      applicationUser.setFirstName(personalData.firstName());
+      applicationUser.setLastName(personalData.lastName());
+      applicationUser.setEmail(personalData.email());
       log.info("Updated headmaster with id {}", id);
       return HEADMASTER_MAPPER.toHeadmasterView(id, applicationUser);
     }
-    throw new DuplicatedApplicationUserEmailException(command.email());
+    throw new DuplicatedApplicationUserEmailException(command.personalData().email());
   }
 
   private boolean isEmailValid(ApplicationUserEntity applicationUser, String email) {
