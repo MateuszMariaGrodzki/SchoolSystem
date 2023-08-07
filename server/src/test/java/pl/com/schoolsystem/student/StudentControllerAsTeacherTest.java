@@ -109,6 +109,25 @@ public class StudentControllerAsTeacherTest extends BaseIntegrationTestAsTeacher
 
   @Test
   @SneakyThrows
+  public void shouldThrowValidationExceptionWhenUserCommandIsNotPresent() {
+    // given
+    final var requestBody = new StudentCommand(null);
+    // when
+    mvc.perform(
+            post("/v1/teachers")
+                .accept(APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(requestBody))
+                .contentType(APPLICATION_JSON))
+        // then
+        .andExpect(status().isBadRequest())
+        .andExpect(jsonPath("$.code").value("VALIDATION_ERROR"))
+        .andExpect(jsonPath("$.message").value("Invalid request"))
+        .andExpect(
+            jsonPath("$.details", hasEntry("personalData", "user personal data is mandatory")));
+  }
+
+  @Test
+  @SneakyThrows
   public void shouldFindUserInGetByIdMethod() {
     // given
     final var studentId = 4786L;

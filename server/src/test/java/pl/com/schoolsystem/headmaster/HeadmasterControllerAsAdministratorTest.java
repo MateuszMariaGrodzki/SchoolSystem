@@ -101,6 +101,25 @@ public class HeadmasterControllerAsAdministratorTest extends BaseIntegrationTest
 
   @Test
   @SneakyThrows
+  public void shouldThrowValidationExceptionWhenUserCommandIsNotPresent() {
+    // given
+    final var requestBody = new HeadmasterCommand(null);
+    // when
+    mvc.perform(
+            post("/v1/headmasters")
+                .accept(APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(requestBody))
+                .contentType(APPLICATION_JSON))
+        // then
+        .andExpect(status().isBadRequest())
+        .andExpect(jsonPath("$.code").value("VALIDATION_ERROR"))
+        .andExpect(jsonPath("$.message").value("Invalid request"))
+        .andExpect(
+            jsonPath("$.details", hasEntry("personalData", "user personal data is mandatory")));
+  }
+
+  @Test
+  @SneakyThrows
   public void shouldGetHeadmasterDataById() {
     // given
     final var headmasterId = 321L;

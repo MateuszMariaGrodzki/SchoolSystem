@@ -102,6 +102,25 @@ public class AdministratorControllerAsAdministratorTest extends BaseIntegrationT
 
   @Test
   @SneakyThrows
+  public void shouldThrowValidationExceptionWhenUserCommandIsNotPresent() {
+    // given
+    final var requestBody = new AdministratorCommand(null);
+    // when
+    mvc.perform(
+            post("/v1/administrators")
+                .accept(APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(requestBody))
+                .contentType(APPLICATION_JSON))
+        // then
+        .andExpect(status().isBadRequest())
+        .andExpect(jsonPath("$.code").value("VALIDATION_ERROR"))
+        .andExpect(jsonPath("$.message").value("Invalid request"))
+        .andExpect(
+            jsonPath("$.details", hasEntry("personalData", "user personal data is mandatory")));
+  }
+
+  @Test
+  @SneakyThrows
   public void shouldGetAdministratorData() {
     // given
     final var administratorId = 40532;
