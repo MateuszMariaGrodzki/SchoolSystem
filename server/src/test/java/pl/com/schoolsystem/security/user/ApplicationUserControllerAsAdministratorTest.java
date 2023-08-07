@@ -22,7 +22,7 @@ public class ApplicationUserControllerAsAdministratorTest
         new ChangePasswordCommand("Avocado1!", "Administrator1!", "Administrator1!");
     final var encryptedPasswordBeforeRequest =
         jdbcTemplate.queryForObject(
-            "Select password from application_user where email = 'Admin@admin.pl'", String.class);
+            "Select password from application_user where email = 'admin@admin.pl'", String.class);
 
     // when
     mvc.perform(
@@ -35,7 +35,7 @@ public class ApplicationUserControllerAsAdministratorTest
 
     final var encryptedPasswordAfterRequest =
         jdbcTemplate.queryForObject(
-            "select password from application_user where email = 'Admin@admin.pl'", String.class);
+            "select password from application_user where email = 'admin@admin.pl'", String.class);
     assertThat(encryptedPasswordBeforeRequest).isNotEqualTo(encryptedPasswordAfterRequest);
   }
 

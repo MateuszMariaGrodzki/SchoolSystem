@@ -21,6 +21,7 @@ import pl.com.schoolsystem.mail.EmailSender;
 import pl.com.schoolsystem.security.user.ApplicationUserEntity;
 import pl.com.schoolsystem.security.user.ApplicationUserService;
 import pl.com.schoolsystem.security.user.PasswordService;
+import pl.com.schoolsystem.security.user.UserCommand;
 
 public class AdministratorServiceTest {
 
@@ -41,12 +42,16 @@ public class AdministratorServiceTest {
   void shouldRegisterNewAdministrator() {
     // given
     final var command =
-        new AdministratorCommand("Admin", "Adminowski", "456987123", "admin@admin.pl");
+        new AdministratorCommand(
+            new UserCommand("Admin", "Adminowski", "456987123", "admin@admin.pl"));
     final var encodedPassword = "jkdsjflsdjflsdjfskldjfsldfjsldfj";
-    final var applicationUserEntity = provideApplicationUserEntity(command, encodedPassword);
+    final var applicationUserEntity =
+        provideApplicationUserEntity(command.personalData(), encodedPassword);
     final var administratorEntity = provideAdministratorEntity(123L, 245L);
+    final var personalData = command.personalData();
 
-    given(passwordService.encodePassword(command.phoneNumber())).willReturn(encodedPassword);
+    given(passwordService.encodePassword(command.personalData().phoneNumber()))
+        .willReturn(encodedPassword);
     given(applicationUserService.create(any())).willReturn(applicationUserEntity);
     given(administratorRepository.save(any())).willReturn(administratorEntity);
     doNothing().when(emailSender).sendNewUserEmail(any(), any());
@@ -59,16 +64,16 @@ public class AdministratorServiceTest {
     final var savedAdministrator = administratorCaptor.getValue();
 
     assertThat(result.id()).isEqualTo(123L);
-    assertThat(result.email()).isEqualTo(command.email());
-    assertThat(result.firstName()).isEqualTo(command.firstName());
-    assertThat(result.lastName()).isEqualTo(command.lastName());
-    assertThat(result.phoneNumber()).isEqualTo(command.phoneNumber());
+    assertThat(result.email()).isEqualTo(personalData.email());
+    assertThat(result.firstName()).isEqualTo(personalData.firstName());
+    assertThat(result.lastName()).isEqualTo(personalData.lastName());
+    assertThat(result.phoneNumber()).isEqualTo(personalData.phoneNumber());
 
     final var savedApplicationUser = savedAdministrator.getApplicationUser();
-    assertThat(savedApplicationUser.getEmail()).isEqualTo(command.email());
-    assertThat(savedApplicationUser.getFirstName()).isEqualTo(command.firstName());
-    assertThat(savedApplicationUser.getLastName()).isEqualTo(command.lastName());
-    assertThat(savedApplicationUser.getPhoneNumber()).isEqualTo(command.phoneNumber());
+    assertThat(savedApplicationUser.getEmail()).isEqualTo(personalData.email());
+    assertThat(savedApplicationUser.getFirstName()).isEqualTo(personalData.firstName());
+    assertThat(savedApplicationUser.getLastName()).isEqualTo(personalData.lastName());
+    assertThat(savedApplicationUser.getPhoneNumber()).isEqualTo(personalData.phoneNumber());
     assertThat(savedApplicationUser.getRole()).isEqualTo(ADMIN);
   }
 
@@ -113,19 +118,21 @@ public class AdministratorServiceTest {
     final var applicationUserId = 24L;
     final var command =
         new AdministratorCommand(
-            "UpdatedFirstName", "UpdatedLastName", "789635412", "updated.email@email.com");
+            new UserCommand(
+                "UpdatedFirstName", "UpdatedLastName", "789635412", "updated.email@email.com"));
     final var administrator = provideAdministratorEntity(administratorId, applicationUserId);
+    final var personalData = command.personalData();
 
     given(administratorRepository.findById(administratorId)).willReturn(of(administrator));
-    given(applicationUserService.existsByEmail(command.email())).willReturn(false);
+    given(applicationUserService.existsByEmail(command.personalData().email())).willReturn(false);
     // when
     final var result = administratorService.updateById(administratorId, command);
     // then
-    assertThat(result.email()).isEqualTo(command.email());
+    assertThat(result.email()).isEqualTo(personalData.email());
     assertThat(result.id()).isEqualTo(administratorId);
-    assertThat(result.firstName()).isEqualTo(command.firstName());
-    assertThat(result.lastName()).isEqualTo(command.lastName());
-    assertThat(result.phoneNumber()).isEqualTo(command.phoneNumber());
+    assertThat(result.firstName()).isEqualTo(personalData.firstName());
+    assertThat(result.lastName()).isEqualTo(personalData.lastName());
+    assertThat(result.phoneNumber()).isEqualTo(personalData.phoneNumber());
   }
 
   @Test
@@ -133,7 +140,8 @@ public class AdministratorServiceTest {
     // given
     final var administratorId = 10L;
     final var command =
-        new AdministratorCommand("FirstName", "LastName", "454545454", "email@onet.pl");
+        new AdministratorCommand(
+            new UserCommand("FirstName", "LastName", "454545454", "email@onet.pl"));
 
     given(administratorRepository.findById(administratorId)).willReturn(empty());
     // when
@@ -152,19 +160,21 @@ public class AdministratorServiceTest {
     final var administratorId = 325L;
     final var applicationUserId = 765L;
     final var command =
-        new AdministratorCommand("FirstName", "LastName", "454545454", "example@example.com.pl");
+        new AdministratorCommand(
+            new UserCommand("FirstName", "LastName", "454545454", "example@example.com.pl"));
     final var administrator = provideAdministratorEntity(administratorId, applicationUserId);
+    final var personalData = command.personalData();
 
     given(administratorRepository.findById(administratorId)).willReturn(of(administrator));
     // when
     final var result = administratorService.updateById(administratorId, command);
     // then
-    verify(applicationUserService, times(0)).existsByEmail(command.email());
-    assertThat(result.email()).isEqualTo(command.email());
+    verify(applicationUserService, times(0)).existsByEmail(personalData.email());
+    assertThat(result.email()).isEqualTo(personalData.email());
     assertThat(result.id()).isEqualTo(administratorId);
-    assertThat(result.firstName()).isEqualTo(command.firstName());
-    assertThat(result.lastName()).isEqualTo(command.lastName());
-    assertThat(result.phoneNumber()).isEqualTo(command.phoneNumber());
+    assertThat(result.firstName()).isEqualTo(personalData.firstName());
+    assertThat(result.lastName()).isEqualTo(personalData.lastName());
+    assertThat(result.phoneNumber()).isEqualTo(personalData.phoneNumber());
   }
 
   @Test
@@ -173,11 +183,12 @@ public class AdministratorServiceTest {
     final var administratorId = 14L;
     final var applicationUserId = 765L;
     final var command =
-        new AdministratorCommand("FirstName", "LastName", "478512369", "already.in@database.com");
+        new AdministratorCommand(
+            new UserCommand("FirstName", "LastName", "478512369", "already.in@database.com"));
     final var administrator = provideAdministratorEntity(administratorId, applicationUserId);
 
     given(administratorRepository.findById(administratorId)).willReturn(of(administrator));
-    given(applicationUserService.existsByEmail(command.email())).willReturn(true);
+    given(applicationUserService.existsByEmail(command.personalData().email())).willReturn(true);
     // when
     final var exception =
         assertThrows(
@@ -186,7 +197,7 @@ public class AdministratorServiceTest {
     // then
     assertThat(exception.getCode()).isEqualTo("DUPLICATED_EMAIL");
     assertThat(exception.getDisplayMessage())
-        .isEqualTo(format("Email: %s already exists in system", command.email()));
+        .isEqualTo(format("Email: %s already exists in system", command.personalData().email()));
   }
 
   @ParameterizedTest

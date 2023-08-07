@@ -20,6 +20,7 @@ import pl.com.schoolsystem.mail.EmailSender;
 import pl.com.schoolsystem.security.user.ApplicationUserEntity;
 import pl.com.schoolsystem.security.user.ApplicationUserService;
 import pl.com.schoolsystem.security.user.PasswordService;
+import pl.com.schoolsystem.security.user.UserCommand;
 
 public class HeadmasterServiceTest {
 
@@ -38,12 +39,16 @@ public class HeadmasterServiceTest {
   @Test
   void shouldRegisterNewHeadmaster() {
     // given
-    final var command = new HeadmasterCommand("Head", "Master", "794613285", "head@master.pl");
+    final var command =
+        new HeadmasterCommand(new UserCommand("Head", "Master", "794613285", "head@master.pl"));
     final var encodedPassword = "jkdsjflsdjflsdjfskldjfsldfjsldfj";
-    final var applicationUserEntity = provideApplicationUserEntity(command, encodedPassword);
+    final var applicationUserEntity =
+        provideApplicationUserEntity(command.personalData(), encodedPassword);
     final var headmasterEntity = provideHeadmasterEntity(123L, 245L);
+    final var personalData = command.personalData();
 
-    given(passwordService.encodePassword(command.phoneNumber())).willReturn(encodedPassword);
+    given(passwordService.encodePassword(command.personalData().phoneNumber()))
+        .willReturn(encodedPassword);
     given(applicationUserService.create(any())).willReturn(applicationUserEntity);
     given(headmasterRepository.save(any())).willReturn(headmasterEntity);
     doNothing().when(emailSender).sendNewUserEmail(any(), any());
@@ -55,16 +60,16 @@ public class HeadmasterServiceTest {
     final var savedAdministrator = headmasterCaptor.getValue();
 
     assertThat(result.id()).isEqualTo(123L);
-    assertThat(result.email()).isEqualTo(command.email());
-    assertThat(result.firstName()).isEqualTo(command.firstName());
-    assertThat(result.lastName()).isEqualTo(command.lastName());
-    assertThat(result.phoneNumber()).isEqualTo(command.phoneNumber());
+    assertThat(result.email()).isEqualTo(personalData.email());
+    assertThat(result.firstName()).isEqualTo(personalData.firstName());
+    assertThat(result.lastName()).isEqualTo(personalData.lastName());
+    assertThat(result.phoneNumber()).isEqualTo(personalData.phoneNumber());
 
     final var savedApplicationUser = savedAdministrator.getApplicationUser();
-    assertThat(savedApplicationUser.getEmail()).isEqualTo(command.email());
-    assertThat(savedApplicationUser.getFirstName()).isEqualTo(command.firstName());
-    assertThat(savedApplicationUser.getLastName()).isEqualTo(command.lastName());
-    assertThat(savedApplicationUser.getPhoneNumber()).isEqualTo(command.phoneNumber());
+    assertThat(savedApplicationUser.getEmail()).isEqualTo(personalData.email());
+    assertThat(savedApplicationUser.getFirstName()).isEqualTo(personalData.firstName());
+    assertThat(savedApplicationUser.getLastName()).isEqualTo(personalData.lastName());
+    assertThat(savedApplicationUser.getPhoneNumber()).isEqualTo(personalData.phoneNumber());
     assertThat(savedApplicationUser.getRole()).isEqualTo(HEADMASTER);
   }
 
@@ -106,18 +111,20 @@ public class HeadmasterServiceTest {
   void shouldUpdateHeadmaster(long headmasterId) {
     // given
     final var command =
-        new HeadmasterCommand("UpdatedHead", "UpdatedMaster", "75315991", "head@master.com.pl");
+        new HeadmasterCommand(
+            new UserCommand("UpdatedHead", "UpdatedMaster", "75315991", "head@master.com.pl"));
     final var headmaster = provideHeadmasterEntity(headmasterId, 147L);
+    final var personalData = command.personalData();
 
     given(headmasterRepository.findById(headmasterId)).willReturn(of(headmaster));
     // when
     final var result = headmasterService.updateById(headmasterId, command);
     // then
-    assertThat(result.phoneNumber()).isEqualTo(command.phoneNumber());
+    assertThat(result.phoneNumber()).isEqualTo(personalData.phoneNumber());
     assertThat(result.id()).isEqualTo(headmasterId);
-    assertThat(result.email()).isEqualTo(command.email());
-    assertThat(result.firstName()).isEqualTo(command.firstName());
-    assertThat(result.lastName()).isEqualTo(command.lastName());
+    assertThat(result.email()).isEqualTo(personalData.email());
+    assertThat(result.firstName()).isEqualTo(personalData.firstName());
+    assertThat(result.lastName()).isEqualTo(personalData.lastName());
   }
 
   @Test
@@ -125,7 +132,8 @@ public class HeadmasterServiceTest {
     // given
     final var headmasterId = 134L;
     final var command =
-        new HeadmasterCommand("Not", "Existing", "789456123", "not@existing.com.pl");
+        new HeadmasterCommand(
+            new UserCommand("Not", "Existing", "789456123", "not@existing.com.pl"));
 
     given(headmasterRepository.findById(headmasterId)).willReturn(empty());
     // when
@@ -142,18 +150,21 @@ public class HeadmasterServiceTest {
   void shouldNotMakeAnotherCallToDatabaseWhenEmailIsTheSame() {
     // given
     final var headmasterId = 145L;
-    final var command = new HeadmasterCommand("Not", "The same", "741236985", "head@master.com.pl");
+    final var command =
+        new HeadmasterCommand(
+            new UserCommand("Not", "The same", "741236985", "head@master.com.pl"));
     final var headmaster = provideHeadmasterEntity(145L, 234L);
+    final var personalData = command.personalData();
 
     given(headmasterRepository.findById(headmasterId)).willReturn(of(headmaster));
     // when
     final var result = headmasterService.updateById(headmasterId, command);
     // then
-    assertThat(result.phoneNumber()).isEqualTo(command.phoneNumber());
+    assertThat(result.phoneNumber()).isEqualTo(personalData.phoneNumber());
     assertThat(result.id()).isEqualTo(headmasterId);
-    assertThat(result.email()).isEqualTo(command.email());
-    assertThat(result.firstName()).isEqualTo(command.firstName());
-    assertThat(result.lastName()).isEqualTo(command.lastName());
+    assertThat(result.email()).isEqualTo(personalData.email());
+    assertThat(result.firstName()).isEqualTo(personalData.firstName());
+    assertThat(result.lastName()).isEqualTo(personalData.lastName());
     verifyNoInteractions(applicationUserService);
   }
 
@@ -162,11 +173,12 @@ public class HeadmasterServiceTest {
     // given
     final var headmasterId = 157L;
     final var command =
-        new HeadmasterCommand("Duplicated", "Email", "741236985", "duplicated@email.com.pl");
+        new HeadmasterCommand(
+            new UserCommand("Duplicated", "Email", "741236985", "duplicated@email.com.pl"));
     final var headMaster = provideHeadmasterEntity(headmasterId, 345L);
 
     given(headmasterRepository.findById(headmasterId)).willReturn(of(headMaster));
-    given(applicationUserService.existsByEmail(command.email())).willReturn(true);
+    given(applicationUserService.existsByEmail(command.personalData().email())).willReturn(true);
     // when
     final var exception =
         assertThrows(

@@ -22,7 +22,7 @@ public class AuthenticationService {
   public String authenticate(AuthCommand command) {
     log.info("Authenticating user: {}", command.email());
     authenticationManager.authenticate(
-        new UsernamePasswordAuthenticationToken(command.email(), command.password()));
+        new UsernamePasswordAuthenticationToken(command.email().toLowerCase(), command.password()));
     log.info("Authentication successful for user with email {}", command.email());
     final var user =
         applicationUserService.getByEmailsOrElseThrowApplicationUserNotFoundException(
