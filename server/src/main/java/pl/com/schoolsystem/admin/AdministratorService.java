@@ -76,7 +76,7 @@ public class AdministratorService {
 
   private boolean isEmailValid(ApplicationUserEntity applicationUser, String email) {
     if (!isEmailFromRequestEqualToEmailFromDatabase(email, applicationUser.getEmail())) {
-      return !applicationUserService.existsByEmail(email);
+      return !applicationUserService.existsByEmailIgnoreCase(email);
     }
     return true;
   }

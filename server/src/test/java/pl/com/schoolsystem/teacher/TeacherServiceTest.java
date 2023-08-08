@@ -114,7 +114,8 @@ public class TeacherServiceTest {
     final var personalData = command.personalData();
 
     given(teacherRepository.findById(teacherId)).willReturn(of(teacher));
-    given(applicationUserService.existsByEmail(command.personalData().email())).willReturn(false);
+    given(applicationUserService.existsByEmailIgnoreCase(command.personalData().email()))
+        .willReturn(false);
     // when
     final var result = teacherService.updateById(teacherId, command);
     // then
@@ -176,7 +177,8 @@ public class TeacherServiceTest {
     final var teacher = provideTeacherEntity(teacherId, 3213L);
 
     given(teacherRepository.findById(teacherId)).willReturn(of(teacher));
-    given(applicationUserService.existsByEmail(command.personalData().email())).willReturn(true);
+    given(applicationUserService.existsByEmailIgnoreCase(command.personalData().email()))
+        .willReturn(true);
     // when
     final var exception =
         assertThrows(

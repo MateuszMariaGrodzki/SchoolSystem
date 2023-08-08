@@ -1,6 +1,7 @@
 package pl.com.schoolsystem.security.user;
 
 import static pl.com.schoolsystem.security.user.ApplicationUserMapper.APPLICATION_USER_MAPPER;
+import static pl.com.schoolsystem.security.user.ApplicationUserSpecification.*;
 
 import io.vavr.control.Either;
 import java.util.Map;
@@ -25,16 +26,16 @@ public class ApplicationUserService {
   public ApplicationUserEntity getByEmailsOrElseThrowApplicationUserNotFoundException(
       String email) {
     return applicationUserRepository
-        .findByEmailIgnoreCase(email)
+        .findOne(emailEqualsIgnoreCase(email))
         .orElseThrow(() -> new ApplicationUserNotFoundException(email));
   }
 
-  public boolean existsByEmail(String email) {
-    return applicationUserRepository.existsByEmailIgnoreCase(email);
+  public boolean existsByEmailIgnoreCase(String email) {
+    return applicationUserRepository.exists(emailEqualsIgnoreCase(email));
   }
 
   public ApplicationUserEntity create(AddApplicationUserCommand command) {
-    if (applicationUserRepository.existsByEmailIgnoreCase(command.email())) {
+    if (existsByEmailIgnoreCase(command.email())) {
       throw new DuplicatedApplicationUserEmailException(command.email());
     }
     final var entity = APPLICATION_USER_MAPPER.toApplicationUserEntity(command);
@@ -59,7 +60,7 @@ public class ApplicationUserService {
 
   private Void changePassword(String email, String password) {
     applicationUserRepository
-        .findByEmailIgnoreCase(email)
+        .findOne(emailEqualsIgnoreCase(email))
         .ifPresentOrElse(
             user -> {
               user.setPassword(password);
