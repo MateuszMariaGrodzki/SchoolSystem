@@ -124,7 +124,8 @@ public class AdministratorServiceTest {
     final var personalData = command.personalData();
 
     given(administratorRepository.findById(administratorId)).willReturn(of(administrator));
-    given(applicationUserService.existsByEmail(command.personalData().email())).willReturn(false);
+    given(applicationUserService.existsByEmailIgnoreCase(command.personalData().email()))
+        .willReturn(false);
     // when
     final var result = administratorService.updateById(administratorId, command);
     // then
@@ -169,7 +170,7 @@ public class AdministratorServiceTest {
     // when
     final var result = administratorService.updateById(administratorId, command);
     // then
-    verify(applicationUserService, times(0)).existsByEmail(personalData.email());
+    verify(applicationUserService, times(0)).existsByEmailIgnoreCase(personalData.email());
     assertThat(result.email()).isEqualTo(personalData.email());
     assertThat(result.id()).isEqualTo(administratorId);
     assertThat(result.firstName()).isEqualTo(personalData.firstName());
@@ -188,7 +189,8 @@ public class AdministratorServiceTest {
     final var administrator = provideAdministratorEntity(administratorId, applicationUserId);
 
     given(administratorRepository.findById(administratorId)).willReturn(of(administrator));
-    given(applicationUserService.existsByEmail(command.personalData().email())).willReturn(true);
+    given(applicationUserService.existsByEmailIgnoreCase(command.personalData().email()))
+        .willReturn(true);
     // when
     final var exception =
         assertThrows(
