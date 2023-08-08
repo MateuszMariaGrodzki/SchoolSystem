@@ -178,7 +178,8 @@ public class HeadmasterServiceTest {
     final var headMaster = provideHeadmasterEntity(headmasterId, 345L);
 
     given(headmasterRepository.findById(headmasterId)).willReturn(of(headMaster));
-    given(applicationUserService.existsByEmail(command.personalData().email())).willReturn(true);
+    given(applicationUserService.existsByEmailIgnoreCase(command.personalData().email()))
+        .willReturn(true);
     // when
     final var exception =
         assertThrows(

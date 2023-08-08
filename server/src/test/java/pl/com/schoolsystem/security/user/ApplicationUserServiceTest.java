@@ -17,6 +17,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
 import org.mockito.ArgumentCaptor;
+import org.mockito.ArgumentMatchers;
+import org.springframework.data.jpa.domain.Specification;
 import pl.com.schoolsystem.common.exception.ApplicationUserNotFoundException;
 import pl.com.schoolsystem.common.exception.DuplicatedApplicationUserEmailException;
 
@@ -34,7 +36,10 @@ public class ApplicationUserServiceTest {
   void shouldThrowApplicationUserNotFoundExceptionOnGetByEmailMethod() {
     // given
     final var email = "qwerty@onet.pl";
-    given(applicationUserRepository.findByEmailIgnoreCase(email)).willReturn(empty());
+    given(
+            applicationUserRepository.findOne(
+                ArgumentMatchers.<Specification<ApplicationUserEntity>>any()))
+        .willReturn(empty());
     // when
     final var exception =
         assertThrows(
@@ -51,7 +56,9 @@ public class ApplicationUserServiceTest {
   void shouldGetApplicationUserByEmail() {
     // given
     final var email = "qwerty@onet.pl";
-    given(applicationUserRepository.findByEmailIgnoreCase(email))
+    given(
+            applicationUserRepository.findOne(
+                ArgumentMatchers.<Specification<ApplicationUserEntity>>any()))
         .willReturn(Optional.of(new ApplicationUserEntity()));
     // when
     // then
@@ -74,7 +81,10 @@ public class ApplicationUserServiceTest {
             "qwerty@onet.pl",
             "dsadasgjdkjghsfgfdkgbfdkgd",
             userRole);
-    given(applicationUserRepository.existsByEmailIgnoreCase(command.email())).willReturn(true);
+    given(
+            applicationUserRepository.exists(
+                ArgumentMatchers.<Specification<ApplicationUserEntity>>any()))
+        .willReturn(true);
     // when
     final var exception =
         assertThrows(
@@ -103,7 +113,10 @@ public class ApplicationUserServiceTest {
     given(applicationUser.getEmail()).willReturn("aaa");
 
     given(applicationUserRepository.save(any())).willReturn(applicationUser);
-    given(applicationUserRepository.existsByEmailIgnoreCase(command.email())).willReturn(false);
+    given(
+            applicationUserRepository.exists(
+                ArgumentMatchers.<Specification<ApplicationUserEntity>>any()))
+        .willReturn(false);
     // when
     applicationUserService.create(command);
     // then
@@ -157,7 +170,9 @@ public class ApplicationUserServiceTest {
     final var encryptedPassword = "encryptedAlamaKota123!";
 
     given(authenticationFacade.getAuthenticatedUser()).willReturn(applicationUser);
-    given(applicationUserRepository.findByEmailIgnoreCase(applicationUser.getEmail()))
+    given(
+            applicationUserRepository.findOne(
+                ArgumentMatchers.<Specification<ApplicationUserEntity>>any()))
         .willReturn(Optional.of(applicationUser));
     given(passwordService.changePassword(command, applicationUser))
         .willReturn(Either.right(encryptedPassword));
@@ -180,7 +195,9 @@ public class ApplicationUserServiceTest {
     given(authenticationFacade.getAuthenticatedUser()).willReturn(applicationUser);
     given(passwordService.changePassword(command, applicationUser))
         .willReturn(Either.right(encryptedPassword));
-    given(applicationUserRepository.findByEmailIgnoreCase(applicationUser.getEmail()))
+    given(
+            applicationUserRepository.findOne(
+                ArgumentMatchers.<Specification<ApplicationUserEntity>>any()))
         .willReturn(empty());
     // when
     final var exception =

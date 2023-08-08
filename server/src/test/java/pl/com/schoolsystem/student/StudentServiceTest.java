@@ -113,7 +113,8 @@ public class StudentServiceTest {
     final var personalData = command.personalData();
 
     given(studentRepository.findById(studentId)).willReturn(of(student));
-    given(applicationUserService.existsByEmail(command.personalData().email())).willReturn(false);
+    given(applicationUserService.existsByEmailIgnoreCase(command.personalData().email()))
+        .willReturn(false);
     // when
     final var result = studentService.updateById(studentId, command);
     // then
@@ -175,7 +176,8 @@ public class StudentServiceTest {
     final var teacher = provideStudentEntity(studentId, 3213L);
 
     given(studentRepository.findById(studentId)).willReturn(of(teacher));
-    given(applicationUserService.existsByEmail(command.personalData().email())).willReturn(true);
+    given(applicationUserService.existsByEmailIgnoreCase(command.personalData().email()))
+        .willReturn(true);
     // when
     final var exception =
         assertThrows(
