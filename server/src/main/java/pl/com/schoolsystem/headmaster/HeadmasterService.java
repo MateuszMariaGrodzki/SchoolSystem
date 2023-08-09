@@ -3,7 +3,6 @@ package pl.com.schoolsystem.headmaster;
 import static pl.com.schoolsystem.headmaster.HeadmasterMapper.HEADMASTER_MAPPER;
 import static pl.com.schoolsystem.security.user.ApplicationRole.HEADMASTER;
 import static pl.com.schoolsystem.security.user.ApplicationUserMapper.APPLICATION_USER_MAPPER;
-import static pl.com.schoolsystem.security.user.PasswordGenerator.generatePassword;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -30,7 +29,7 @@ public class HeadmasterService {
 
   @Transactional
   public HeadmasterView create(HeadmasterCommand command) {
-    final var password = generatePassword();
+    final var password = passwordService.generateNewRandomPassword();
     final var applicationUserCommand =
         APPLICATION_USER_MAPPER.toApplicationUserCommand(
             command.personalData(), passwordService.encodePassword(password), HEADMASTER);

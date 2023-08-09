@@ -3,6 +3,7 @@ package pl.com.schoolsystem.headmaster;
 import static pl.com.schoolsystem.security.user.ApplicationRole.HEADMASTER;
 
 import lombok.experimental.UtilityClass;
+import pl.com.schoolsystem.security.user.AddApplicationUserCommand;
 import pl.com.schoolsystem.security.user.ApplicationUserEntity;
 import pl.com.schoolsystem.security.user.UserCommand;
 
@@ -37,5 +38,15 @@ public class HeadmasterServiceTestDataFactory {
     applicationUser.setLastName("LastName");
     applicationUser.setPhoneNumber("88148814");
     return applicationUser;
+  }
+
+  public AddApplicationUserCommand provideApplicationUserCommandForCreateMethod() {
+    return new AddApplicationUserCommand(
+        "Head",
+        "Master",
+        "794613285",
+        "head@master.pl",
+        "jkdsjflsdjflsdjfskldjfsldfjsldfj",
+        HEADMASTER);
   }
 }

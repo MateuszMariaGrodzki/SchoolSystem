@@ -41,13 +41,17 @@ public class TeacherServiceTest {
     final var command =
         new TeacherCommand(
             new UserCommand("Teacher", "Learner", "789456123", "teacher@learner.com"));
+    final var randomPassword = "jghfdjghdfjgfddf";
     final var encodedPassword = "gjfhdgjfhdjgkhdfgkfjdhgkfdhgfdkghd";
+    final var applicationUserCommand = provideApplicationUserCommandForCreateMethod();
     final var applicationUserEntity =
         provideApplicationUserEntity(command.personalData(), encodedPassword);
     final var teacherEntity = provideTeacherEntity(132L, 158L);
     final var personalData = command.personalData();
 
-    given(applicationUserService.create(any())).willReturn(applicationUserEntity);
+    given(passwordService.generateNewRandomPassword()).willReturn(randomPassword);
+    given(passwordService.encodePassword(randomPassword)).willReturn(encodedPassword);
+    given(applicationUserService.create(applicationUserCommand)).willReturn(applicationUserEntity);
     given(teacherRepository.save(any())).willReturn(teacherEntity);
     doNothing().when(emailSender).sendNewUserEmail(any(), any());
     // when
