@@ -2,7 +2,6 @@ package pl.com.schoolsystem.teacher;
 
 import static pl.com.schoolsystem.security.user.ApplicationRole.TEACHER;
 import static pl.com.schoolsystem.security.user.ApplicationUserMapper.APPLICATION_USER_MAPPER;
-import static pl.com.schoolsystem.security.user.PasswordGenerator.generatePassword;
 import static pl.com.schoolsystem.teacher.TeacherMapper.TEACHER_MAPPER;
 
 import lombok.RequiredArgsConstructor;
@@ -30,7 +29,7 @@ public class TeacherService {
 
   @Transactional
   public TeacherView create(TeacherCommand teacherCommand) {
-    final var password = generatePassword();
+    final var password = passwordService.generateNewRandomPassword();
     final var applicationUserCommand =
         APPLICATION_USER_MAPPER.toApplicationUserCommand(
             teacherCommand.personalData(), passwordService.encodePassword(password), TEACHER);
