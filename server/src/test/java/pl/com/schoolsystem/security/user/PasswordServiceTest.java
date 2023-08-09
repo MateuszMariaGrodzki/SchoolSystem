@@ -60,4 +60,12 @@ public class PasswordServiceTest {
     final var extractedEither = result.get();
     assertThat(extractedEither).isEqualTo(encryptedPassword);
   }
+
+  @Test
+  void shouldGenerateRandomPassword() {
+    // given //when
+    final var password = passwordService.generateNewRandomPassword();
+    // then
+    assertThat(password.length()).isEqualTo(10);
+  }
 }
