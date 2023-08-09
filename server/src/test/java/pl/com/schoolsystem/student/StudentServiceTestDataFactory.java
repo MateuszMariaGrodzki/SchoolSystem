@@ -3,6 +3,7 @@ package pl.com.schoolsystem.student;
 import static pl.com.schoolsystem.security.user.ApplicationRole.STUDENT;
 
 import lombok.experimental.UtilityClass;
+import pl.com.schoolsystem.security.user.AddApplicationUserCommand;
 import pl.com.schoolsystem.security.user.ApplicationUserEntity;
 import pl.com.schoolsystem.security.user.UserCommand;
 
@@ -37,5 +38,15 @@ public class StudentServiceTestDataFactory {
     applicationUser.setLastName("LastName");
     applicationUser.setPhoneNumber("789654123");
     return applicationUser;
+  }
+
+  public AddApplicationUserCommand provideApplicationUserCommandForCreateMethod() {
+    return new AddApplicationUserCommand(
+        "Student",
+        "Studenciacki",
+        "745981236",
+        "student@student.com.pl",
+        "gjkfhklgjhdflghfdljjghfdlgjhfdljkghd",
+        STUDENT);
   }
 }
