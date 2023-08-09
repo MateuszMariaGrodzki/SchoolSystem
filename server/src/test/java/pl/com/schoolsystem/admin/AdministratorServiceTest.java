@@ -48,12 +48,13 @@ public class AdministratorServiceTest {
     final var encodedPassword = "jkdsjflsdjflsdjfskldjfsldfjsldfj";
     final var applicationUserEntity =
         provideApplicationUserEntity(command.personalData(), encodedPassword);
+    final var applicationUserCommand = provideApplicationUserCommandForCreateMethod();
     final var administratorEntity = provideAdministratorEntity(123L, 245L);
     final var personalData = command.personalData();
 
     given(passwordService.generateNewRandomPassword()).willReturn(randomPassword);
     given(passwordService.encodePassword(randomPassword)).willReturn(encodedPassword);
-    given(applicationUserService.create(any())).willReturn(applicationUserEntity);
+    given(applicationUserService.create(applicationUserCommand)).willReturn(applicationUserEntity);
     given(administratorRepository.save(any())).willReturn(administratorEntity);
     doNothing().when(emailSender).sendNewUserEmail(any(), any());
     // when

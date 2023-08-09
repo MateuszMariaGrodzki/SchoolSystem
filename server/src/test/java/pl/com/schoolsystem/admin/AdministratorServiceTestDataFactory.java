@@ -3,6 +3,7 @@ package pl.com.schoolsystem.admin;
 import static pl.com.schoolsystem.security.user.ApplicationRole.ADMIN;
 
 import lombok.experimental.UtilityClass;
+import pl.com.schoolsystem.security.user.AddApplicationUserCommand;
 import pl.com.schoolsystem.security.user.ApplicationUserEntity;
 import pl.com.schoolsystem.security.user.UserCommand;
 
@@ -38,5 +39,15 @@ public class AdministratorServiceTestDataFactory {
     applicationUser.setLastName("LastName");
     applicationUser.setPhoneNumber("147896325");
     return applicationUser;
+  }
+
+  public AddApplicationUserCommand provideApplicationUserCommandForCreateMethod() {
+    return new AddApplicationUserCommand(
+        "Admin",
+        "Adminowski",
+        "456987123",
+        "admin@admin.pl",
+        "jkdsjflsdjflsdjfskldjfsldfjsldfj",
+        ADMIN);
   }
 }

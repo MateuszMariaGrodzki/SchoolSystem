@@ -43,6 +43,7 @@ public class StudentServiceTest {
             new UserCommand("Student", "Studenciacki", "745981236", "student@student.com.pl"));
     final var randomPassword = "fjdgjfhdgjdfhgfjd";
     final var encodedPassword = "gjkfhklgjhdflghfdljjghfdlgjhfdljkghd";
+    final var applicationUserCommand = provideApplicationUserCommandForCreateMethod();
     final var applicationUserEntity =
         provideApplicationUserEntity(command.personalData(), encodedPassword);
     final var studentEntity = provideStudentEntity(875L, 7854L);
@@ -50,7 +51,7 @@ public class StudentServiceTest {
 
     given(passwordService.generateNewRandomPassword()).willReturn(randomPassword);
     given(passwordService.encodePassword(randomPassword)).willReturn(encodedPassword);
-    given(applicationUserService.create(any())).willReturn(applicationUserEntity);
+    given(applicationUserService.create(applicationUserCommand)).willReturn(applicationUserEntity);
     given(studentRepository.save(any())).willReturn(studentEntity);
     doNothing().when(emailSender).sendNewUserEmail(any(), any());
     // when

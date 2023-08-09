@@ -43,6 +43,7 @@ public class HeadmasterServiceTest {
         new HeadmasterCommand(new UserCommand("Head", "Master", "794613285", "head@master.pl"));
     final var randomPassword = "lkoiujkioljs";
     final var encodedPassword = "jkdsjflsdjflsdjfskldjfsldfjsldfj";
+    final var applicationUserCommand = provideApplicationUserCommandForCreateMethod();
     final var applicationUserEntity =
         provideApplicationUserEntity(command.personalData(), encodedPassword);
     final var headmasterEntity = provideHeadmasterEntity(123L, 245L);
@@ -50,7 +51,7 @@ public class HeadmasterServiceTest {
 
     given(passwordService.generateNewRandomPassword()).willReturn(randomPassword);
     given(passwordService.encodePassword(randomPassword)).willReturn(encodedPassword);
-    given(applicationUserService.create(any())).willReturn(applicationUserEntity);
+    given(applicationUserService.create(applicationUserCommand)).willReturn(applicationUserEntity);
     given(headmasterRepository.save(any())).willReturn(headmasterEntity);
     doNothing().when(emailSender).sendNewUserEmail(any(), any());
     // when
