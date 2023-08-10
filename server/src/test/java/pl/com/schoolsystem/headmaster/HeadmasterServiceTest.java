@@ -17,10 +17,7 @@ import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.ArgumentCaptor;
 import pl.com.schoolsystem.common.exception.DuplicatedApplicationUserEmailException;
 import pl.com.schoolsystem.mail.EmailSender;
-import pl.com.schoolsystem.security.user.ApplicationUserEntity;
-import pl.com.schoolsystem.security.user.ApplicationUserService;
-import pl.com.schoolsystem.security.user.PasswordService;
-import pl.com.schoolsystem.security.user.UserCommand;
+import pl.com.schoolsystem.security.user.*;
 
 public class HeadmasterServiceTest {
 
@@ -32,9 +29,15 @@ public class HeadmasterServiceTest {
 
   private final EmailSender emailSender = mock(EmailSender.class);
 
+  private final EmailValidator emailValidator = mock(EmailValidator.class);
+
   private final HeadmasterService headmasterService =
       new HeadmasterService(
-          applicationUserService, headmasterRepository, passwordService, emailSender);
+          applicationUserService,
+          headmasterRepository,
+          passwordService,
+          emailSender,
+          emailValidator);
 
   @Test
   void shouldRegisterNewHeadmaster() {
@@ -119,6 +122,10 @@ public class HeadmasterServiceTest {
     final var personalData = command.personalData();
 
     given(headmasterRepository.findById(headmasterId)).willReturn(of(headmaster));
+    given(
+            emailValidator.isEmailUniqueInDatabase(
+                headmaster.getApplicationUser(), personalData.email()))
+        .willReturn(true);
     // when
     final var result = headmasterService.updateById(headmasterId, command);
     // then
@@ -149,28 +156,6 @@ public class HeadmasterServiceTest {
   }
 
   @Test
-  void shouldNotMakeAnotherCallToDatabaseWhenEmailIsTheSame() {
-    // given
-    final var headmasterId = 145L;
-    final var command =
-        new HeadmasterCommand(
-            new UserCommand("Not", "The same", "741236985", "head@master.com.pl"));
-    final var headmaster = provideHeadmasterEntity(145L, 234L);
-    final var personalData = command.personalData();
-
-    given(headmasterRepository.findById(headmasterId)).willReturn(of(headmaster));
-    // when
-    final var result = headmasterService.updateById(headmasterId, command);
-    // then
-    assertThat(result.phoneNumber()).isEqualTo(personalData.phoneNumber());
-    assertThat(result.id()).isEqualTo(headmasterId);
-    assertThat(result.email()).isEqualTo(personalData.email());
-    assertThat(result.firstName()).isEqualTo(personalData.firstName());
-    assertThat(result.lastName()).isEqualTo(personalData.lastName());
-    verifyNoInteractions(applicationUserService);
-  }
-
-  @Test
   void shouldThrowDuplicatedEmailException() {
     // given
     final var headmasterId = 157L;
@@ -180,8 +165,10 @@ public class HeadmasterServiceTest {
     final var headMaster = provideHeadmasterEntity(headmasterId, 345L);
 
     given(headmasterRepository.findById(headmasterId)).willReturn(of(headMaster));
-    given(applicationUserService.existsByEmailIgnoreCase(command.personalData().email()))
-        .willReturn(true);
+    given(
+            emailValidator.isEmailUniqueInDatabase(
+                headMaster.getApplicationUser(), command.personalData().email()))
+        .willReturn(false);
     // when
     final var exception =
         assertThrows(
