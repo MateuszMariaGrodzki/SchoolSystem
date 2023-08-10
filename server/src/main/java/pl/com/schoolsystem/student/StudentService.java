@@ -10,8 +10,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pl.com.schoolsystem.common.exception.DuplicatedApplicationUserEmailException;
 import pl.com.schoolsystem.mail.EmailSender;
-import pl.com.schoolsystem.security.user.ApplicationUserEntity;
 import pl.com.schoolsystem.security.user.ApplicationUserService;
+import pl.com.schoolsystem.security.user.EmailValidator;
 import pl.com.schoolsystem.security.user.PasswordService;
 
 @Service
@@ -26,6 +26,8 @@ public class StudentService {
   private final EmailSender emailSender;
 
   private final ApplicationUserService applicationUserService;
+
+  private final EmailValidator emailValidator;
 
   @Transactional
   public StudentView create(StudentCommand command) {
@@ -58,7 +60,7 @@ public class StudentService {
     final var student =
         studentRepository.findById(id).orElseThrow(() -> new StudentNotFoundException(id));
     final var applicationUser = student.getApplicationUser();
-    if (isEmailValid(applicationUser, command.personalData().email())) {
+    if (emailValidator.isEmailUniqueInDatabase(applicationUser, command.personalData().email())) {
       final var personalData = command.personalData();
       applicationUser.setPhoneNumber(personalData.phoneNumber());
       applicationUser.setFirstName(personalData.firstName());
@@ -68,18 +70,6 @@ public class StudentService {
       return STUDENT_MAPPER.toStudentView(id, applicationUser);
     }
     throw new DuplicatedApplicationUserEmailException(command.personalData().email());
-  }
-
-  private boolean isEmailValid(ApplicationUserEntity applicationUser, String email) {
-    if (!isEmailFromRequestEqualToEmailFromDatabase(email, applicationUser.getEmail())) {
-      return !applicationUserService.existsByEmailIgnoreCase(email);
-    }
-    return true;
-  }
-
-  private boolean isEmailFromRequestEqualToEmailFromDatabase(
-      String requestEmail, String databaseEmail) {
-    return requestEmail.equals(databaseEmail);
   }
 
   @Transactional

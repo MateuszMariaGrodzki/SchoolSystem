@@ -18,10 +18,7 @@ import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.ArgumentCaptor;
 import pl.com.schoolsystem.common.exception.DuplicatedApplicationUserEmailException;
 import pl.com.schoolsystem.mail.EmailSender;
-import pl.com.schoolsystem.security.user.ApplicationUserEntity;
-import pl.com.schoolsystem.security.user.ApplicationUserService;
-import pl.com.schoolsystem.security.user.PasswordService;
-import pl.com.schoolsystem.security.user.UserCommand;
+import pl.com.schoolsystem.security.user.*;
 
 public class AdministratorServiceTest {
 
@@ -34,9 +31,15 @@ public class AdministratorServiceTest {
 
   private final EmailSender emailSender = mock(EmailSender.class);
 
+  private final EmailValidator emailValidator = mock(EmailValidator.class);
+
   private final AdministratorService administratorService =
       new AdministratorService(
-          applicationUserService, administratorRepository, passwordService, emailSender);
+          applicationUserService,
+          administratorRepository,
+          passwordService,
+          emailSender,
+          emailValidator);
 
   @Test
   void shouldRegisterNewAdministrator() {
@@ -126,8 +129,10 @@ public class AdministratorServiceTest {
     final var personalData = command.personalData();
 
     given(administratorRepository.findById(administratorId)).willReturn(of(administrator));
-    given(applicationUserService.existsByEmailIgnoreCase(command.personalData().email()))
-        .willReturn(false);
+    given(
+            emailValidator.isEmailUniqueInDatabase(
+                administrator.getApplicationUser(), personalData.email()))
+        .willReturn(true);
     // when
     final var result = administratorService.updateById(administratorId, command);
     // then
@@ -158,29 +163,6 @@ public class AdministratorServiceTest {
   }
 
   @Test
-  public void shouldNotMakeAnotherCallToDatabaseWhenEmailIsTheSame() {
-    // given
-    final var administratorId = 325L;
-    final var applicationUserId = 765L;
-    final var command =
-        new AdministratorCommand(
-            new UserCommand("FirstName", "LastName", "454545454", "example@example.com.pl"));
-    final var administrator = provideAdministratorEntity(administratorId, applicationUserId);
-    final var personalData = command.personalData();
-
-    given(administratorRepository.findById(administratorId)).willReturn(of(administrator));
-    // when
-    final var result = administratorService.updateById(administratorId, command);
-    // then
-    verify(applicationUserService, times(0)).existsByEmailIgnoreCase(personalData.email());
-    assertThat(result.email()).isEqualTo(personalData.email());
-    assertThat(result.id()).isEqualTo(administratorId);
-    assertThat(result.firstName()).isEqualTo(personalData.firstName());
-    assertThat(result.lastName()).isEqualTo(personalData.lastName());
-    assertThat(result.phoneNumber()).isEqualTo(personalData.phoneNumber());
-  }
-
-  @Test
   public void shouldThrowDuplicatedApplicationUserEmailExceptionInUpdateMethod() {
     // given
     final var administratorId = 14L;
@@ -191,8 +173,10 @@ public class AdministratorServiceTest {
     final var administrator = provideAdministratorEntity(administratorId, applicationUserId);
 
     given(administratorRepository.findById(administratorId)).willReturn(of(administrator));
-    given(applicationUserService.existsByEmailIgnoreCase(command.personalData().email()))
-        .willReturn(true);
+    given(
+            emailValidator.isEmailUniqueInDatabase(
+                administrator.getApplicationUser(), command.personalData().email()))
+        .willReturn(false);
     // when
     final var exception =
         assertThrows(
