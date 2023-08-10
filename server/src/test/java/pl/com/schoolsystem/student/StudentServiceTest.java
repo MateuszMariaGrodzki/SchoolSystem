@@ -17,10 +17,7 @@ import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.ArgumentCaptor;
 import pl.com.schoolsystem.common.exception.DuplicatedApplicationUserEmailException;
 import pl.com.schoolsystem.mail.EmailSender;
-import pl.com.schoolsystem.security.user.ApplicationUserEntity;
-import pl.com.schoolsystem.security.user.ApplicationUserService;
-import pl.com.schoolsystem.security.user.PasswordService;
-import pl.com.schoolsystem.security.user.UserCommand;
+import pl.com.schoolsystem.security.user.*;
 
 public class StudentServiceTest {
 
@@ -32,8 +29,11 @@ public class StudentServiceTest {
 
   private final ApplicationUserService applicationUserService = mock(ApplicationUserService.class);
 
+  private final EmailValidator emailValidator = mock(EmailValidator.class);
+
   private final StudentService studentService =
-      new StudentService(studentRepository, passwordService, emailSender, applicationUserService);
+      new StudentService(
+          studentRepository, passwordService, emailSender, applicationUserService, emailValidator);
 
   @Test
   void shouldCreateNewStudent() {
@@ -117,8 +117,11 @@ public class StudentServiceTest {
     final var personalData = command.personalData();
 
     given(studentRepository.findById(studentId)).willReturn(of(student));
-    given(applicationUserService.existsByEmailIgnoreCase(command.personalData().email()))
-        .willReturn(false);
+    given(
+            emailValidator.isEmailUniqueInDatabase(
+                student.getApplicationUser(), personalData.email()))
+        .willReturn(true);
+
     // when
     final var result = studentService.updateById(studentId, command);
     // then
@@ -149,28 +152,6 @@ public class StudentServiceTest {
   }
 
   @Test
-  void shouldNotMakeAnotherCallToDatabaseWhenEmailIsTheSameInUpdateMethod() {
-    // given
-    final var studentId = 745L;
-    final var command =
-        new StudentCommand(
-            new UserCommand("Updatable", "student", "502188864", "trzezwy@student.com.pl"));
-    final var student = provideStudentEntity(studentId, 854L);
-    final var personalData = command.personalData();
-
-    given(studentRepository.findById(studentId)).willReturn(of(student));
-    // when
-    final var result = studentService.updateById(studentId, command);
-    // then
-    assertThat(result.phoneNumber()).isEqualTo(personalData.phoneNumber());
-    assertThat(result.id()).isEqualTo(studentId);
-    assertThat(result.email()).isEqualTo(personalData.email());
-    assertThat(result.firstName()).isEqualTo(personalData.firstName());
-    assertThat(result.lastName()).isEqualTo(personalData.lastName());
-    verifyNoInteractions(applicationUserService);
-  }
-
-  @Test
   void shouldThrowDuplicatedEmailExceptionInUpdateMethod() {
     // given
     final var studentId = 7865L;
@@ -180,8 +161,10 @@ public class StudentServiceTest {
     final var teacher = provideStudentEntity(studentId, 3213L);
 
     given(studentRepository.findById(studentId)).willReturn(of(teacher));
-    given(applicationUserService.existsByEmailIgnoreCase(command.personalData().email()))
-        .willReturn(true);
+    given(
+            emailValidator.isEmailUniqueInDatabase(
+                teacher.getApplicationUser(), command.personalData().email()))
+        .willReturn(false);
     // when
     final var exception =
         assertThrows(
