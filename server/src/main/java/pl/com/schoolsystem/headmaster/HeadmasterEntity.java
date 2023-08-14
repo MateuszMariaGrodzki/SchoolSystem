@@ -3,6 +3,7 @@ package pl.com.schoolsystem.headmaster;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import pl.com.schoolsystem.school.SchoolEntity;
 import pl.com.schoolsystem.security.user.ApplicationUserEntity;
 
 @Entity
@@ -22,4 +23,7 @@ public class HeadmasterEntity {
   @OneToOne
   @JoinColumn(name = "application_user_id")
   private ApplicationUserEntity applicationUser;
+
+  @OneToOne(mappedBy = "headmaster")
+  private SchoolEntity school;
 }

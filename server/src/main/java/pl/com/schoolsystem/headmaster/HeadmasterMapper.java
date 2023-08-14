@@ -14,6 +14,7 @@ public interface HeadmasterMapper {
 
   @Mapping(target = "applicationUser", source = "applicationUser")
   @Mapping(target = "id", ignore = true)
+  @Mapping(target = "school", ignore = true)
   HeadmasterEntity toHeadmasterEntity(ApplicationUserEntity applicationUser);
 
   @Mapping(source = "id", target = "id")

@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pl.com.schoolsystem.common.exception.DuplicatedApplicationUserEmailException;
 import pl.com.schoolsystem.mail.EmailSender;
+import pl.com.schoolsystem.school.SchoolService;
 import pl.com.schoolsystem.security.user.ApplicationUserService;
 import pl.com.schoolsystem.security.user.EmailValidator;
 import pl.com.schoolsystem.security.user.PasswordService;
@@ -29,6 +30,8 @@ public class HeadmasterService {
 
   private final EmailValidator emailValidator;
 
+  private final SchoolService schoolService;
+
   @Transactional
   public HeadmasterView create(HeadmasterCommand command) {
     final var password = passwordService.generateNewRandomPassword();
@@ -45,6 +48,7 @@ public class HeadmasterService {
         "Created new headmaster with email: {} and id: {}",
         applicationUserEntity.getEmail(),
         headmasterId);
+    final var schoolEntity = schoolService.create(savedEntity, command.schoolData());
     emailSender.sendNewUserEmail(applicationUserEntity, password);
     return HEADMASTER_MAPPER.toHeadmasterView(headmasterId, applicationUserEntity);
   }
