@@ -51,7 +51,7 @@ public class HeadmasterService {
         HEADMASTER_MAPPER.toHeadmasterView(headmasterId, applicationUserEntity);
 
     emailSender.sendNewUserEmail(applicationUserEntity, password);
-    return new HeadmasterWithSchoolView(headmasterView, schoolView);
+    return HEADMASTER_MAPPER.toHeadmasterWithSchoolView(headmasterView, schoolView);
   }
 
   public HeadmasterView getById(long id) {

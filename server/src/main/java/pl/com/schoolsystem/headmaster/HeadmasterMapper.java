@@ -5,6 +5,7 @@ import static org.mapstruct.factory.Mappers.getMapper;
 
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+import pl.com.schoolsystem.school.SchoolView;
 import pl.com.schoolsystem.security.user.ApplicationUserEntity;
 
 @Mapper(unmappedTargetPolicy = ERROR)
@@ -19,4 +20,6 @@ public interface HeadmasterMapper {
 
   @Mapping(source = "id", target = "id")
   HeadmasterView toHeadmasterView(Long id, ApplicationUserEntity entity);
+
+  HeadmasterWithSchoolView toHeadmasterWithSchoolView(HeadmasterView headmaster, SchoolView school);
 }
