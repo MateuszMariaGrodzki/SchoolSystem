@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import pl.com.schoolsystem.headmaster.HeadmasterCommand;
 import pl.com.schoolsystem.headmaster.HeadmasterService;
 import pl.com.schoolsystem.headmaster.HeadmasterView;
+import pl.com.schoolsystem.headmaster.HeadmasterWithSchoolView;
 
 @RestController
 @PreAuthorize("hasAnyRole('ADMIN')")
@@ -21,7 +22,7 @@ public class HeadmasterController {
 
   @PostMapping
   @ResponseStatus(CREATED)
-  public HeadmasterView create(@RequestBody @Valid HeadmasterCommand command) {
+  public HeadmasterWithSchoolView create(@RequestBody @Valid HeadmasterCommand command) {
     return headmasterService.create(command);
   }
 

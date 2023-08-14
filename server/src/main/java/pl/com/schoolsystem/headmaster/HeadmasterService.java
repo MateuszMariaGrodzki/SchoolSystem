@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pl.com.schoolsystem.common.exception.DuplicatedApplicationUserEmailException;
 import pl.com.schoolsystem.mail.EmailSender;
+import pl.com.schoolsystem.school.SchoolService;
 import pl.com.schoolsystem.security.user.ApplicationUserService;
 import pl.com.schoolsystem.security.user.EmailValidator;
 import pl.com.schoolsystem.security.user.PasswordService;
@@ -29,24 +30,28 @@ public class HeadmasterService {
 
   private final EmailValidator emailValidator;
 
+  private final SchoolService schoolService;
+
   @Transactional
-  public HeadmasterView create(HeadmasterCommand command) {
+  public HeadmasterWithSchoolView create(HeadmasterCommand command) {
     final var password = passwordService.generateNewRandomPassword();
     final var applicationUserCommand =
         APPLICATION_USER_MAPPER.toApplicationUserCommand(
             command.personalData(), passwordService.encodePassword(password), HEADMASTER);
     final var applicationUserEntity = applicationUserService.create(applicationUserCommand);
-
     final var headmasterEntity = HEADMASTER_MAPPER.toHeadmasterEntity(applicationUserEntity);
-
     final var savedEntity = headmasterRepository.save(headmasterEntity);
     final var headmasterId = savedEntity.getId();
     log.info(
         "Created new headmaster with email: {} and id: {}",
         applicationUserEntity.getEmail(),
         headmasterId);
+    final var schoolView = schoolService.create(savedEntity, command.schoolData());
+    final var headmasterView =
+        HEADMASTER_MAPPER.toHeadmasterView(headmasterId, applicationUserEntity);
+
     emailSender.sendNewUserEmail(applicationUserEntity, password);
-    return HEADMASTER_MAPPER.toHeadmasterView(headmasterId, applicationUserEntity);
+    return HEADMASTER_MAPPER.toHeadmasterWithSchoolView(headmasterView, schoolView);
   }
 
   public HeadmasterView getById(long id) {
