@@ -33,24 +33,25 @@ public class HeadmasterService {
   private final SchoolService schoolService;
 
   @Transactional
-  public HeadmasterView create(HeadmasterCommand command) {
+  public HeadmasterWithSchoolView create(HeadmasterCommand command) {
     final var password = passwordService.generateNewRandomPassword();
     final var applicationUserCommand =
         APPLICATION_USER_MAPPER.toApplicationUserCommand(
             command.personalData(), passwordService.encodePassword(password), HEADMASTER);
     final var applicationUserEntity = applicationUserService.create(applicationUserCommand);
-
     final var headmasterEntity = HEADMASTER_MAPPER.toHeadmasterEntity(applicationUserEntity);
-
     final var savedEntity = headmasterRepository.save(headmasterEntity);
     final var headmasterId = savedEntity.getId();
     log.info(
         "Created new headmaster with email: {} and id: {}",
         applicationUserEntity.getEmail(),
         headmasterId);
-    final var schoolEntity = schoolService.create(savedEntity, command.schoolData());
+    final var schoolView = schoolService.create(savedEntity, command.schoolData());
+    final var headmasterView =
+        HEADMASTER_MAPPER.toHeadmasterView(headmasterId, applicationUserEntity);
+
     emailSender.sendNewUserEmail(applicationUserEntity, password);
-    return HEADMASTER_MAPPER.toHeadmasterView(headmasterId, applicationUserEntity);
+    return new HeadmasterWithSchoolView(headmasterView, schoolView);
   }
 
   public HeadmasterView getById(long id) {
