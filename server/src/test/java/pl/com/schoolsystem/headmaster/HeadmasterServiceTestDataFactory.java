@@ -1,8 +1,10 @@
 package pl.com.schoolsystem.headmaster;
 
+import static pl.com.schoolsystem.school.SchoolLevel.HIGH;
 import static pl.com.schoolsystem.security.user.ApplicationRole.HEADMASTER;
 
 import lombok.experimental.UtilityClass;
+import pl.com.schoolsystem.school.SchoolView;
 import pl.com.schoolsystem.security.user.AddApplicationUserCommand;
 import pl.com.schoolsystem.security.user.ApplicationUserEntity;
 import pl.com.schoolsystem.security.user.UserCommand;
@@ -26,6 +28,10 @@ public class HeadmasterServiceTestDataFactory {
     headmasterEntity.setId(headmasterId);
     headmasterEntity.setApplicationUser(provideExistingApplicationUser(applicationUserId));
     return headmasterEntity;
+  }
+
+  public SchoolView provideSchoolView() {
+    return new SchoolView(10L, "Liceum ogólnokształcące", HIGH, "Lublin", "Zana", "88-666", "8/1");
   }
 
   private ApplicationUserEntity provideExistingApplicationUser(long applicationUserId) {
