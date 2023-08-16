@@ -7,10 +7,13 @@ import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static pl.com.schoolsystem.school.SchoolLevel.HIGH;
 
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;
 import pl.com.schoolsystem.admin.BaseIntegrationTestAsAdministrator;
+import pl.com.schoolsystem.school.AddressCommand;
+import pl.com.schoolsystem.school.SchoolCommand;
 import pl.com.schoolsystem.security.authentication.AuthCommand;
 import pl.com.schoolsystem.security.user.UserCommand;
 
@@ -21,7 +24,10 @@ public class HeadmasterControllerAsAdministratorTest extends BaseIntegrationTest
   public void shouldAddNewHeadmaster() {
     // given
     final var requestBody =
-        new HeadmasterCommand(new UserCommand("Head", "Master", "874123695", "head@master.com.pl"));
+        new HeadmasterCommand(
+            new UserCommand("Head", "Master", "874123695", "head@master.com.pl"),
+            new SchoolCommand(
+                "Liceum Kopernika", HIGH, new AddressCommand("Lublin", "Lipowa", "20-555", "8")));
     // when
     mvc.perform(
             post("/v1/headmasters")
@@ -30,10 +36,16 @@ public class HeadmasterControllerAsAdministratorTest extends BaseIntegrationTest
                 .contentType(APPLICATION_JSON))
         // then
         .andExpect(status().isCreated())
-        .andExpect(jsonPath("$.firstName").value("Head"))
-        .andExpect(jsonPath("$.lastName").value("Master"))
-        .andExpect(jsonPath("$.email").value("head@master.com.pl"))
-        .andExpect(jsonPath("$.phoneNumber").value("874123695"));
+        .andExpect(jsonPath("$.headmaster.firstName").value("Head"))
+        .andExpect(jsonPath("$.headmaster.lastName").value("Master"))
+        .andExpect(jsonPath("$.headmaster.email").value("head@master.com.pl"))
+        .andExpect(jsonPath("$.headmaster.phoneNumber").value("874123695"))
+        .andExpect(jsonPath("$.school.name").value("Liceum Kopernika"))
+        .andExpect(jsonPath("$.school.tier").value("HIGH"))
+        .andExpect(jsonPath("$.school.city").value("Lublin"))
+        .andExpect(jsonPath("$.school.street").value("Lipowa"))
+        .andExpect(jsonPath("$.school.postCode").value("20-555"))
+        .andExpect(jsonPath("$.school.building").value("8"));
 
     final var applicationUserEntity =
         jdbcTemplate.queryForMap("select * from application_user where id = 1");
@@ -46,6 +58,16 @@ public class HeadmasterControllerAsAdministratorTest extends BaseIntegrationTest
         .containsKey("password")
         .isNotNull();
 
+    final var schoolEntity = jdbcTemplate.queryForMap("select * from school where id = 1");
+    assertThat(schoolEntity)
+        .containsEntry("name", "Liceum Kopernika")
+        .containsEntry("tier", "HIGH")
+        .containsEntry("city", "Lublin")
+        .containsEntry("street", "Lipowa")
+        .containsEntry("post_code", "20-555")
+        .containsEntry("building", "8")
+        .containsEntry("headmaster_id", 1L);
+
     final var headmasterEntity =
         jdbcTemplate.queryForMap("select * from headmaster where application_user_id = 1");
     assertThat(headmasterEntity.containsKey("administrator_id")).isNotNull();
@@ -56,7 +78,10 @@ public class HeadmasterControllerAsAdministratorTest extends BaseIntegrationTest
   public void shouldNotAddHeadmasterWithExistingEmail() {
     // given
     final var requestBody =
-        new HeadmasterCommand(new UserCommand("Już", "istnieje", "789123546", "admin@admin.pl"));
+        new HeadmasterCommand(
+            new UserCommand("Już", "istnieje", "789123546", "admin@admin.pl"),
+            new SchoolCommand(
+                "Liceum kopernika", HIGH, new AddressCommand("Lublin", "Lipowa", "88-666", "81")));
     // when
     mvc.perform(
             post("/v1/headmasters")
@@ -73,7 +98,10 @@ public class HeadmasterControllerAsAdministratorTest extends BaseIntegrationTest
   @SneakyThrows
   public void shouldFailValidation() {
     // given
-    final var requestBody = new HeadmasterCommand(new UserCommand("4564655", "", "78", "fkdjgkld"));
+    final var requestBody =
+        new HeadmasterCommand(
+            new UserCommand("4564655", "", "78", "fkdjgkld"),
+            new SchoolCommand(null, null, new AddressCommand("", null, "dsaasd", "81")));
     // when
     mvc.perform(
             post("/v1/headmasters")
@@ -96,14 +124,23 @@ public class HeadmasterControllerAsAdministratorTest extends BaseIntegrationTest
             jsonPath(
                 "$.details",
                 hasEntry("personalData.phoneNumber", "Phone number must have exactly 9 digits")))
-        .andExpect(jsonPath("$.details", hasEntry("personalData.email", "Email has bad format")));
+        .andExpect(jsonPath("$.details", hasEntry("personalData.email", "Email has bad format")))
+        .andExpect(jsonPath("$.details", hasEntry("schoolData.name", "School name is mandatory")))
+        .andExpect(jsonPath("$.details", hasEntry("schoolData.tier", "School tier is mandatory")))
+        .andExpect(jsonPath("$.details", hasEntry("schoolData.address.city", "City is mandatory")))
+        .andExpect(
+            jsonPath("$.details", hasEntry("schoolData.address.street", "Street is mandatory")))
+        .andExpect(
+            jsonPath(
+                "$.details", hasEntry("schoolData.address.postCode", "Post code has bad pattern")));
   }
 
   @Test
   @SneakyThrows
-  public void shouldThrowValidationExceptionWhenUserCommandIsNotPresent() {
+  public void
+      shouldThrowValidationExceptionWhenUserCommandIsNotPresentAndSchoolCommandIsNotPresent() {
     // given
-    final var requestBody = new HeadmasterCommand(null);
+    final var requestBody = new HeadmasterCommand(null, null);
     // when
     mvc.perform(
             post("/v1/headmasters")
@@ -115,7 +152,8 @@ public class HeadmasterControllerAsAdministratorTest extends BaseIntegrationTest
         .andExpect(jsonPath("$.code").value("VALIDATION_ERROR"))
         .andExpect(jsonPath("$.message").value("Invalid request"))
         .andExpect(
-            jsonPath("$.details", hasEntry("personalData", "user personal data is mandatory")));
+            jsonPath("$.details", hasEntry("personalData", "user personal data is mandatory")))
+        .andExpect(jsonPath("$.details", hasEntry("schoolData", "school data is mandatory")));
   }
 
   @Test
