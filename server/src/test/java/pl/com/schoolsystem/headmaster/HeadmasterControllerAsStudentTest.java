@@ -6,9 +6,12 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static pl.com.schoolsystem.school.SchoolLevel.HIGH;
 
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;
+import pl.com.schoolsystem.school.AddressCommand;
+import pl.com.schoolsystem.school.SchoolCommand;
 import pl.com.schoolsystem.security.user.UserCommand;
 import pl.com.schoolsystem.student.BaseIntegrationTestAsStudent;
 
@@ -19,7 +22,9 @@ public class HeadmasterControllerAsStudentTest extends BaseIntegrationTestAsStud
   public void shouldGetForbiddenOnPostMethod() {
     // given
     final var requestBody =
-        new HeadmasterCommand(new UserCommand("Head", "master", "789456132", "nowy@head.com"));
+        new HeadmasterCommand(
+            new UserCommand("Head", "master", "789456132", "nowy@head.com"),
+            new SchoolCommand("Liceum", HIGH, new AddressCommand("Lublin", "Zana", "88-666", "8")));
     // when
     mvc.perform(
             post("/v1/headmasters")
@@ -51,7 +56,9 @@ public class HeadmasterControllerAsStudentTest extends BaseIntegrationTestAsStud
     // given
     final var headmasterId = 321L;
     final var requestBody =
-        new HeadmasterCommand(new UserCommand("Head", "Updatable", "741258963", "head@master.com"));
+        new HeadmasterCommand(
+            new UserCommand("Head", "Updatable", "741258963", "head@master.com"),
+            new SchoolCommand("Liceum", HIGH, new AddressCommand("Lublin", "Zana", "88-666", "8")));
     // when
     mvc.perform(
             put(format("/v1/headmasters/%s", headmasterId))

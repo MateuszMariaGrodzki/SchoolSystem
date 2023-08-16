@@ -6,9 +6,12 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static pl.com.schoolsystem.school.SchoolLevel.HIGH;
 
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;
+import pl.com.schoolsystem.school.AddressCommand;
+import pl.com.schoolsystem.school.SchoolCommand;
 import pl.com.schoolsystem.security.user.UserCommand;
 import pl.com.schoolsystem.teacher.BaseIntegrationTestAsTeacher;
 
@@ -20,7 +23,8 @@ public class HeadmasterControllerAsTeacherTest extends BaseIntegrationTestAsTeac
     // given
     final var requestBody =
         new HeadmasterCommand(
-            new UserCommand("Head", "Master", "456731928", "nowy@headmaster.com"));
+            new UserCommand("Head", "Master", "456731928", "nowy@headmaster.com"),
+            new SchoolCommand("Liceum", HIGH, new AddressCommand("Lublin", "Zana", "88-666", "8")));
     // when
     mvc.perform(
             post("/v1/headmasters")
