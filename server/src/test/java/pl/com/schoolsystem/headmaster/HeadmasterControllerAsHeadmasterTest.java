@@ -58,9 +58,8 @@ public class HeadmasterControllerAsHeadmasterTest extends BaseIntegrationTestAsH
     // given
     final var headmasterId = 321L;
     final var requestBody =
-        new HeadmasterCommand(
-            new UserCommand("Update", "headmaster", "666666666", "head@master.pl"),
-            new SchoolCommand("Liceum", HIGH, new AddressCommand("Lublin", "Zana", "88-666", "8")));
+        new UpdateHeadmasterCommand(
+            new UserCommand("Update", "headmaster", "666666666", "head@master.pl"));
 
     // when
     mvc.perform(

@@ -63,7 +63,7 @@ public class HeadmasterService {
   }
 
   @Transactional
-  public HeadmasterView updateById(long id, HeadmasterCommand command) {
+  public HeadmasterView updateById(long id, UpdateHeadmasterCommand command) {
     final var headmaster =
         headmasterRepository.findById(id).orElseThrow(() -> new HeadmasterNotFoundException(id));
     final var applicationUser = headmaster.getApplicationUser();

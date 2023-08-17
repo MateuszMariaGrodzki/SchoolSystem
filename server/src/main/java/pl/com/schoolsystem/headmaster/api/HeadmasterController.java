@@ -7,10 +7,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-import pl.com.schoolsystem.headmaster.HeadmasterCommand;
-import pl.com.schoolsystem.headmaster.HeadmasterService;
-import pl.com.schoolsystem.headmaster.HeadmasterView;
-import pl.com.schoolsystem.headmaster.HeadmasterWithSchoolView;
+import pl.com.schoolsystem.headmaster.*;
 
 @RestController
 @PreAuthorize("hasAnyRole('ADMIN')")
@@ -35,7 +32,7 @@ public class HeadmasterController {
   @PutMapping("/{id}")
   @PreAuthorize("hasAnyRole('ADMIN','HEADMASTER')")
   public HeadmasterView updateById(
-      @PathVariable long id, @RequestBody @Valid HeadmasterCommand command) {
+      @PathVariable long id, @RequestBody @Valid UpdateHeadmasterCommand command) {
     return headmasterService.updateById(id, command);
   }
 
