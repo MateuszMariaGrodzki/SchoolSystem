@@ -49,7 +49,14 @@ public class HeadmasterControllerAsHeadmasterTest extends BaseIntegrationTestAsH
         .andExpect(jsonPath("$.headmaster.lastName").value("Master"))
         .andExpect(jsonPath("$.headmaster.email").value("head@master.pl"))
         .andExpect(jsonPath("$.headmaster.phoneNumber").value("111111111"))
-        .andExpect(jsonPath("$.headmaster.id").value(headmasterId));
+        .andExpect(jsonPath("$.headmaster.id").value(headmasterId))
+        .andExpect(jsonPath("$.school.id").value(headmasterId))
+        .andExpect(jsonPath("$.school.name").value("Liceum imienia Kopernika"))
+        .andExpect(jsonPath("$.school.tier").value("HIGH"))
+        .andExpect(jsonPath("$.school.city").value("Lublin"))
+        .andExpect(jsonPath("$.school.building").value("8/1"))
+        .andExpect(jsonPath("$.school.street").value("Mickiewicza"))
+        .andExpect(jsonPath("$.school.postCode").value("88-666"));
   }
 
   @Test
