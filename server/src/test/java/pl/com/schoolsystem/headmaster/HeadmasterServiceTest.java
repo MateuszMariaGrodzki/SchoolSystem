@@ -10,6 +10,7 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.*;
 import static pl.com.schoolsystem.headmaster.HeadmasterServiceTestDataFactory.*;
 import static pl.com.schoolsystem.school.SchoolLevel.HIGH;
+import static pl.com.schoolsystem.school.SchoolLevel.PRIMARY;
 import static pl.com.schoolsystem.security.user.ApplicationRole.HEADMASTER;
 
 import org.junit.jupiter.api.Test;
@@ -112,11 +113,20 @@ public class HeadmasterServiceTest {
     // when
     final var result = headmasterService.getById(headmasterId);
     // then
-    assertThat(result.headmaster().email()).isEqualTo("head@master.com.pl");
-    assertThat(result.headmaster().firstName()).isEqualTo("FirstName");
-    assertThat(result.headmaster().lastName()).isEqualTo("LastName");
-    assertThat(result.headmaster().id()).isEqualTo(headmasterId);
-    assertThat(result.headmaster().phoneNumber()).isEqualTo("88148814");
+    final var headmasterView = result.headmaster();
+    assertThat(headmasterView.email()).isEqualTo("head@master.com.pl");
+    assertThat(headmasterView.firstName()).isEqualTo("FirstName");
+    assertThat(headmasterView.lastName()).isEqualTo("LastName");
+    assertThat(headmasterView.id()).isEqualTo(headmasterId);
+    assertThat(headmasterView.phoneNumber()).isEqualTo("88148814");
+
+    final var schoolView = result.school();
+    assertThat(schoolView.name()).isEqualTo("Liceum kopernika");
+    assertThat(schoolView.tier()).isEqualTo(PRIMARY);
+    assertThat(schoolView.street()).isEqualTo("Wojciechowska");
+    assertThat(schoolView.postCode()).isEqualTo("88-666");
+    assertThat(schoolView.building()).isEqualTo("8/74");
+    assertThat(schoolView.city()).isEqualTo("Warszawa");
   }
 
   @Test
