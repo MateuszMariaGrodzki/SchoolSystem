@@ -45,11 +45,11 @@ public class HeadmasterControllerAsHeadmasterTest extends BaseIntegrationTestAsH
     mvc.perform(get(format("/v1/headmasters/%s", headmasterId)))
         // then
         .andExpect(status().isOk())
-        .andExpect(jsonPath("$.firstName").value("Head"))
-        .andExpect(jsonPath("$.lastName").value("Master"))
-        .andExpect(jsonPath("$.email").value("head@master.pl"))
-        .andExpect(jsonPath("$.phoneNumber").value("111111111"))
-        .andExpect(jsonPath("$.id").value(headmasterId));
+        .andExpect(jsonPath("$.headmaster.firstName").value("Head"))
+        .andExpect(jsonPath("$.headmaster.lastName").value("Master"))
+        .andExpect(jsonPath("$.headmaster.email").value("head@master.pl"))
+        .andExpect(jsonPath("$.headmaster.phoneNumber").value("111111111"))
+        .andExpect(jsonPath("$.headmaster.id").value(headmasterId));
   }
 
   @Test

@@ -112,11 +112,11 @@ public class HeadmasterServiceTest {
     // when
     final var result = headmasterService.getById(headmasterId);
     // then
-    assertThat(result.email()).isEqualTo("head@master.com.pl");
-    assertThat(result.firstName()).isEqualTo("FirstName");
-    assertThat(result.lastName()).isEqualTo("LastName");
-    assertThat(result.id()).isEqualTo(headmasterId);
-    assertThat(result.phoneNumber()).isEqualTo("88148814");
+    assertThat(result.headmaster().email()).isEqualTo("head@master.com.pl");
+    assertThat(result.headmaster().firstName()).isEqualTo("FirstName");
+    assertThat(result.headmaster().lastName()).isEqualTo("LastName");
+    assertThat(result.headmaster().id()).isEqualTo(headmasterId);
+    assertThat(result.headmaster().phoneNumber()).isEqualTo("88148814");
   }
 
   @Test

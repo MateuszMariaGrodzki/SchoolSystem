@@ -21,6 +21,6 @@ public class SchoolService {
         "Created new school entity with id {} for headmaster {}",
         savedEntity.getId(),
         headmaster.getId());
-    return SCHOOL_MAPPER.toSchoolView(savedEntity, savedEntity.getAddress());
+    return SCHOOL_MAPPER.toSchoolView(savedEntity);
   }
 }
