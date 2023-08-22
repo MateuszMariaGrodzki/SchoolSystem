@@ -8,6 +8,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import pl.com.schoolsystem.headmaster.*;
+import pl.com.schoolsystem.school.SchoolCommand;
+import pl.com.schoolsystem.school.SchoolView;
 
 @RestController
 @PreAuthorize("hasAnyRole('ADMIN')")
@@ -40,5 +42,12 @@ public class HeadmasterController {
   @ResponseStatus(NO_CONTENT)
   public void deleteById(@PathVariable long id) {
     headmasterService.deleteById(id);
+  }
+
+  @PutMapping("/school/{id}")
+  @PreAuthorize("hasAnyRole('HEADMASTER')")
+  public SchoolView updateSchool(
+      @Valid @RequestBody SchoolCommand command, @PathVariable long headmasterId) {
+    return headmasterService.updateSchoolByHeadmasterId(headmasterId, command);
   }
 }

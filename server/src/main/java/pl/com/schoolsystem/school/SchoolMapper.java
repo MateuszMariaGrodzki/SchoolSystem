@@ -5,6 +5,7 @@ import static org.mapstruct.factory.Mappers.getMapper;
 
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+import org.mapstruct.MappingTarget;
 import pl.com.schoolsystem.headmaster.HeadmasterEntity;
 
 @Mapper(unmappedTargetPolicy = ERROR)
@@ -21,4 +22,8 @@ public interface SchoolMapper {
   @Mapping(target = "building", source = "entity.address.building")
   @Mapping(target = "postCode", source = "entity.address.postCode")
   SchoolView toSchoolView(SchoolEntity entity);
+
+  @Mapping(target = "headmaster", ignore = true)
+  @Mapping(target = "id", ignore = true)
+  void update(@MappingTarget SchoolEntity entity, SchoolCommand command);
 }

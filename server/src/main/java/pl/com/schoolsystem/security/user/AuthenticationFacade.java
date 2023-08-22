@@ -19,4 +19,8 @@ public class AuthenticationFacade {
                 new UnexpectedBehaviourException(
                     "USER_NOT_IN_SECURITY_CONTEXT", "Nie znaleziono użytkownika w kontekście"));
   }
+
+  public long getAuthenticatedUserId() {
+    return getAuthenticatedUser().getId();
+  }
 }
