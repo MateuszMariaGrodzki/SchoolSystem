@@ -13,6 +13,9 @@ VALUES (741,'Head','Master','111111111','head@master.pl','$2a$10$vvUHLe0gPvQfa1g
 
 INSERT INTO headmaster(id, application_user_id) VALUES (321,741);
 
+INSERT INTO school(id,name,tier,city,street,post_code,building,headmaster_id)
+VALUES (321,'Liceum imienia Kopernika','HIGH','Lublin','Mickiewicza','88-666','8/1',321);
+
 INSERT INTO application_user(id, first_name , last_name , phone_number , email , password , role)
 VALUES (56 , 'Teacher' , 'Gruszka' , '222222222' , 'teacher@gruszka.pl' , '$2a$10$vvUHLe0gPvQfa1gDunO1WuRCAovr5HT34ebr1F79ZUBBkymt6Ztxi', 'TEACHER');
 

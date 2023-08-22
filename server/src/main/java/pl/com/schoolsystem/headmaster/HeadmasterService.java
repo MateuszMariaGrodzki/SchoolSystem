@@ -1,6 +1,7 @@
 package pl.com.schoolsystem.headmaster;
 
 import static pl.com.schoolsystem.headmaster.HeadmasterMapper.HEADMASTER_MAPPER;
+import static pl.com.schoolsystem.school.SchoolMapper.SCHOOL_MAPPER;
 import static pl.com.schoolsystem.security.user.ApplicationRole.HEADMASTER;
 import static pl.com.schoolsystem.security.user.ApplicationUserMapper.APPLICATION_USER_MAPPER;
 
@@ -54,11 +55,14 @@ public class HeadmasterService {
     return HEADMASTER_MAPPER.toHeadmasterWithSchoolView(headmasterView, schoolView);
   }
 
-  public HeadmasterView getById(long id) {
+  public HeadmasterWithSchoolView getById(long id) {
     return headmasterRepository
         .findById(id)
-        .map(HeadmasterEntity::getApplicationUser)
-        .map(user -> HEADMASTER_MAPPER.toHeadmasterView(id, user))
+        .map(
+            headmaster ->
+                HEADMASTER_MAPPER.toHeadmasterWithSchoolView(
+                    HEADMASTER_MAPPER.toHeadmasterView(id, headmaster.getApplicationUser()),
+                    SCHOOL_MAPPER.toSchoolView(headmaster.getSchool())))
         .orElseThrow(() -> new HeadmasterNotFoundException(id));
   }
 
