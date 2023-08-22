@@ -23,4 +23,9 @@ public class SchoolService {
         headmaster.getId());
     return SCHOOL_MAPPER.toSchoolView(savedEntity);
   }
+
+  public SchoolView update(SchoolEntity entity, SchoolCommand command) {
+    SCHOOL_MAPPER.update(entity, command);
+    return SCHOOL_MAPPER.toSchoolView(entity);
+  }
 }
