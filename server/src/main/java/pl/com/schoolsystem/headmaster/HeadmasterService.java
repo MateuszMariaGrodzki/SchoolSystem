@@ -11,7 +11,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pl.com.schoolsystem.common.exception.DuplicatedApplicationUserEmailException;
 import pl.com.schoolsystem.mail.EmailSender;
+import pl.com.schoolsystem.school.SchoolCommand;
 import pl.com.schoolsystem.school.SchoolService;
+import pl.com.schoolsystem.school.SchoolView;
 import pl.com.schoolsystem.security.user.ApplicationUserService;
 import pl.com.schoolsystem.security.user.EmailValidator;
 import pl.com.schoolsystem.security.user.PasswordService;
@@ -93,5 +95,17 @@ public class HeadmasterService {
               user.setExpired(true);
               log.info("Set isExpired to headmaster with id: {}", id);
             });
+  }
+
+  public SchoolView updateSchoolByHeadmasterId(long headmasterId, SchoolCommand command) {
+    final var school =
+        headmasterRepository
+            .findById(headmasterId)
+            .filter(
+                headmaster ->
+                    applicationUserService.isUserLogged(headmaster.getApplicationUser().getId()))
+            .map(HeadmasterEntity::getSchool)
+            .orElseThrow(() -> new HeadmasterNotFoundException(headmasterId));
+    return schoolService.update(school, command);
   }
 }
