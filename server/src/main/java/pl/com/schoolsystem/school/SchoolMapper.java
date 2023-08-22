@@ -16,5 +16,9 @@ public interface SchoolMapper {
   @Mapping(target = "id", ignore = true)
   SchoolEntity toSchoolEntity(HeadmasterEntity headmaster, SchoolCommand schoolCommand);
 
-  SchoolView toSchoolView(SchoolEntity entity, AddressEmbeddable address);
+  @Mapping(target = "street", source = "entity.address.street")
+  @Mapping(target = "city", source = "entity.address.city")
+  @Mapping(target = "building", source = "entity.address.building")
+  @Mapping(target = "postCode", source = "entity.address.postCode")
+  SchoolView toSchoolView(SchoolEntity entity);
 }

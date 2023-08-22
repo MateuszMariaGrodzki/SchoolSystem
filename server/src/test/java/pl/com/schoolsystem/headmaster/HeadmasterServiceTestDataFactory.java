@@ -1,9 +1,12 @@
 package pl.com.schoolsystem.headmaster;
 
 import static pl.com.schoolsystem.school.SchoolLevel.HIGH;
+import static pl.com.schoolsystem.school.SchoolLevel.PRIMARY;
 import static pl.com.schoolsystem.security.user.ApplicationRole.HEADMASTER;
 
 import lombok.experimental.UtilityClass;
+import pl.com.schoolsystem.school.AddressEmbeddable;
+import pl.com.schoolsystem.school.SchoolEntity;
 import pl.com.schoolsystem.school.SchoolView;
 import pl.com.schoolsystem.security.user.AddApplicationUserCommand;
 import pl.com.schoolsystem.security.user.ApplicationUserEntity;
@@ -27,7 +30,26 @@ public class HeadmasterServiceTestDataFactory {
     final var headmasterEntity = new HeadmasterEntity();
     headmasterEntity.setId(headmasterId);
     headmasterEntity.setApplicationUser(provideExistingApplicationUser(applicationUserId));
+    headmasterEntity.setSchool(provideSchoolEntity(headmasterId));
     return headmasterEntity;
+  }
+
+  private SchoolEntity provideSchoolEntity(long id) {
+    final var schoolEntity = new SchoolEntity();
+    schoolEntity.setId(id);
+    schoolEntity.setName("Liceum kopernika");
+    schoolEntity.setTier(PRIMARY);
+    schoolEntity.setAddress(provideAddressEmbeddable());
+    return schoolEntity;
+  }
+
+  private AddressEmbeddable provideAddressEmbeddable() {
+    final var addressEmbeddable = new AddressEmbeddable();
+    addressEmbeddable.setStreet("Wojciechowska");
+    addressEmbeddable.setCity("Warszawa");
+    addressEmbeddable.setBuilding("8/74");
+    addressEmbeddable.setPostCode("88-666");
+    return addressEmbeddable;
   }
 
   public SchoolView provideSchoolView() {

@@ -25,7 +25,7 @@ public class HeadmasterController {
 
   @GetMapping("/{id}")
   @PreAuthorize("hasAnyRole('ADMIN','HEADMASTER')")
-  public HeadmasterView getById(@PathVariable long id) {
+  public HeadmasterWithSchoolView getById(@PathVariable long id) {
     return headmasterService.getById(id);
   }
 
