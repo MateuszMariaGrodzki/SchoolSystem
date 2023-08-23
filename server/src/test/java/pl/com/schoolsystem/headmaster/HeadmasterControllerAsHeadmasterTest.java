@@ -143,4 +143,24 @@ public class HeadmasterControllerAsHeadmasterTest extends BaseIntegrationTestAsH
         .containsEntry("post_code", "00-000")
         .containsEntry("building", "88/14");
   }
+
+  @Test
+  @SneakyThrows
+  public void shouldThrowHeadmasterNotFoundExceptionWhenTryingToUpdateAnotherHeadmasterSchool() {
+    // given
+    final var headmasterId = 322L;
+    final var requestBody =
+        new SchoolCommand(
+            "Updated data", PRIMARY, new AddressCommand("Kraków", "Krakowska", "00-000", "88/14"));
+    // when
+    mvc.perform(
+            put(format("/v1/headmasters/%s/school", headmasterId))
+                .accept(APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(requestBody))
+                .contentType(APPLICATION_JSON))
+        // then
+        .andExpect(status().isNotFound())
+        .andExpect(jsonPath("$.code").value("USER_NOT_FOUND"))
+        .andExpect(jsonPath("$.message").value("Headmaster with id 322 not found"));
+  }
 }
