@@ -7,7 +7,7 @@ import lombok.experimental.UtilityClass;
 @UtilityClass
 public class SchoolServiceDataTestFactory {
 
-  public SchoolEntity provideSchoolEntityForPostMethod(long id) {
+  public SchoolEntity provideSchoolEntity(long id) {
     final var entity = new SchoolEntity();
     entity.setId(id);
     entity.setName("Liceum");
