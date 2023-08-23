@@ -8,6 +8,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static pl.com.schoolsystem.school.SchoolLevel.HIGH;
+import static pl.com.schoolsystem.school.SchoolLevel.PRIMARY;
 
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;
@@ -371,5 +372,24 @@ public class HeadmasterControllerAsAdministratorTest extends BaseIntegrationTest
         .andExpect(status().isForbidden())
         .andExpect(jsonPath("$.code").value("FORBIDDEN"))
         .andExpect(jsonPath("$.message").value("Account has been deleted"));
+  }
+
+  @Test
+  @SneakyThrows
+  public void shouldReturnForbiddenOnUpdateSchool() {
+    // given
+    final var headmasterId = 321L;
+    final var requestBody =
+        new SchoolCommand("Not", PRIMARY, new AddressCommand("Not", "Uodatable", "00-213", "784"));
+    // when
+    mvc.perform(
+            put(format("/v1/headmasters/%s/school", headmasterId))
+                .content(objectMapper.writeValueAsString(requestBody))
+                .contentType(APPLICATION_JSON)
+                .accept(APPLICATION_JSON))
+        // then
+        .andExpect(status().isForbidden())
+        .andExpect(jsonPath("$.code").value("ACCESS_DENIED"))
+        .andExpect(jsonPath("$.message").value("Access is denied"));
   }
 }

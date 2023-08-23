@@ -97,6 +97,7 @@ public class HeadmasterService {
             });
   }
 
+  @Transactional
   public SchoolView updateSchoolByHeadmasterId(long headmasterId, SchoolCommand command) {
     final var school =
         headmasterRepository

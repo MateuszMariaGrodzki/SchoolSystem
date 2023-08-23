@@ -44,10 +44,10 @@ public class HeadmasterController {
     headmasterService.deleteById(id);
   }
 
-  @PutMapping("/school/{id}")
+  @PutMapping("{id}/school")
   @PreAuthorize("hasAnyRole('HEADMASTER')")
   public SchoolView updateSchool(
-      @Valid @RequestBody SchoolCommand command, @PathVariable long headmasterId) {
+      @Valid @RequestBody SchoolCommand command, @PathVariable(name = "id") long headmasterId) {
     return headmasterService.updateSchoolByHeadmasterId(headmasterId, command);
   }
 }

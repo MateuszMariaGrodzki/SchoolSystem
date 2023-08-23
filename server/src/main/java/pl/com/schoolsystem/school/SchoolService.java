@@ -26,6 +26,7 @@ public class SchoolService {
 
   public SchoolView update(SchoolEntity entity, SchoolCommand command) {
     SCHOOL_MAPPER.update(entity, command);
+    log.info("Updated school id: {}", entity.getId());
     return SCHOOL_MAPPER.toSchoolView(entity);
   }
 }
