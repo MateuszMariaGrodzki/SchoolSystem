@@ -228,4 +228,21 @@ public class HeadmasterServiceTest {
     // then
     verify(applicationUserEntity, times(1)).setExpired(true);
   }
+
+  @ParameterizedTest
+  @ValueSource(longs = {432L, 321L})
+  void shouldUpdateHeadmasterSchool(long headmasterId) {
+    // given
+    final var command =
+        new SchoolCommand(
+            "Liceum ogólnokształcące", HIGH, new AddressCommand("Lublin", "Zana", "88-666", "8/1"));
+    final var headmasterEntity = provideHeadmasterEntity(headmasterId, 245L);
+
+    given(headmasterRepository.findById(headmasterId)).willReturn(of(headmasterEntity));
+    given(applicationUserService.isUserLogged(245L)).willReturn(true);
+    // when
+    headmasterService.updateSchoolByHeadmasterId(headmasterId, command);
+    // then
+    verify(schoolService).update(headmasterEntity.getSchool(), command);
+  }
 }
