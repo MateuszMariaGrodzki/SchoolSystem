@@ -6,6 +6,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static pl.com.schoolsystem.school.SchoolLevel.HIGH;
 import static pl.com.schoolsystem.school.SchoolLevel.PRIMARY;
 import static pl.com.schoolsystem.school.SchoolServiceDataTestFactory.*;
 
@@ -27,7 +28,7 @@ public class SchoolServiceTest {
         new SchoolCommand(
             "Liceum", PRIMARY, new AddressCommand("Lublin", "lubelskiego lipca", "80-666", "70"));
     final ArgumentCaptor<SchoolEntity> schoolCaptor = forClass(SchoolEntity.class);
-    final var entity = provideSchoolEntityForPostMethod(70L);
+    final var entity = provideSchoolEntity(70L);
 
     given(schoolRepository.save(any(SchoolEntity.class))).willReturn(entity);
     // when
@@ -51,5 +52,26 @@ public class SchoolServiceTest {
 
     final var addressFromSavedSchool = savedSchool.getAddress();
     assertThat(addressFromCommand).usingRecursiveComparison().isEqualTo(addressFromSavedSchool);
+  }
+
+  @Test
+  void shouldCorrectlyUpdateSchool() {
+    // given
+    final var entityToUpdate = provideSchoolEntity(100L);
+    final var command =
+        new SchoolCommand(
+            "Updated liceum", HIGH, new AddressCommand("Koszalin", "Koszalinska", "87-654", "74"));
+    // when
+    final var result = schoolService.update(entityToUpdate, command);
+    // then
+    final var addressFromCommand = command.address();
+
+    assertThat(result.id()).isEqualTo(100L);
+    assertThat(result.name()).isEqualTo(command.name());
+    assertThat(result.tier()).isEqualTo(command.tier());
+    assertThat(result.city()).isEqualTo(addressFromCommand.city());
+    assertThat(result.street()).isEqualTo(addressFromCommand.street());
+    assertThat(result.postCode()).isEqualTo(addressFromCommand.postCode());
+    assertThat(result.building()).isEqualTo(addressFromCommand.building());
   }
 }
