@@ -7,6 +7,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static pl.com.schoolsystem.school.SchoolLevel.HIGH;
+import static pl.com.schoolsystem.school.SchoolLevel.PRIMARY;
 
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;
@@ -105,5 +106,41 @@ public class HeadmasterControllerAsHeadmasterTest extends BaseIntegrationTestAsH
         .andExpect(status().isForbidden())
         .andExpect(jsonPath("$.code").value("ACCESS_DENIED"))
         .andExpect(jsonPath("$.message").value("Access is denied"));
+  }
+
+  @Test
+  @SneakyThrows
+  public void shouldUpdateSchoolData() {
+    // given
+    final var headmasterId = 321L;
+    final var requestBody =
+        new SchoolCommand(
+            "Updated data", PRIMARY, new AddressCommand("Kraków", "Krakowska", "00-000", "88/14"));
+    // when
+    mvc.perform(
+            put(format("/v1/headmasters/%s/school", headmasterId))
+                .accept(APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(requestBody))
+                .contentType(APPLICATION_JSON))
+        // then
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.id").value(headmasterId))
+        .andExpect(jsonPath("$.name").value("Updated data"))
+        .andExpect(jsonPath("$.tier").value("PRIMARY"))
+        .andExpect(jsonPath("$.city").value("Kraków"))
+        .andExpect(jsonPath("$.building").value("88/14"))
+        .andExpect(jsonPath("$.street").value("Krakowska"))
+        .andExpect(jsonPath("$.postCode").value("00-000"));
+
+    final var schoolEntity =
+        jdbcTemplate.queryForMap(
+            format("select * from school where headmaster_id = %s", headmasterId));
+    assertThat(schoolEntity)
+        .containsEntry("name", "Updated data")
+        .containsEntry("tier", "PRIMARY")
+        .containsEntry("city", "Kraków")
+        .containsEntry("street", "Krakowska")
+        .containsEntry("post_code", "00-000")
+        .containsEntry("building", "88/14");
   }
 }
