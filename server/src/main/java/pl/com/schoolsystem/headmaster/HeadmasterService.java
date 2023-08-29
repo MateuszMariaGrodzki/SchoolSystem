@@ -1,6 +1,7 @@
 package pl.com.schoolsystem.headmaster;
 
 import static pl.com.schoolsystem.headmaster.HeadmasterMapper.HEADMASTER_MAPPER;
+import static pl.com.schoolsystem.headmaster.HeadmasterSpecification.*;
 import static pl.com.schoolsystem.school.SchoolMapper.SCHOOL_MAPPER;
 import static pl.com.schoolsystem.security.user.ApplicationRole.HEADMASTER;
 import static pl.com.schoolsystem.security.user.ApplicationUserMapper.APPLICATION_USER_MAPPER;
@@ -59,7 +60,7 @@ public class HeadmasterService {
 
   public HeadmasterWithSchoolView getById(long id) {
     return headmasterRepository
-        .findById(id)
+        .findOne(withId(id).and(isAccountActive()))
         .map(
             headmaster ->
                 HEADMASTER_MAPPER.toHeadmasterWithSchoolView(
@@ -71,7 +72,9 @@ public class HeadmasterService {
   @Transactional
   public HeadmasterView updateById(long id, UpdateHeadmasterCommand command) {
     final var headmaster =
-        headmasterRepository.findById(id).orElseThrow(() -> new HeadmasterNotFoundException(id));
+        headmasterRepository
+            .findOne(withId(id).and(isAccountActive()))
+            .orElseThrow(() -> new HeadmasterNotFoundException(id));
     final var applicationUser = headmaster.getApplicationUser();
     if (emailValidator.isEmailUniqueInDatabase(applicationUser, command.personalData().email())) {
       final var personalData = command.personalData();
@@ -88,7 +91,7 @@ public class HeadmasterService {
   @Transactional
   public void deleteById(long id) {
     headmasterRepository
-        .findById(id)
+        .findOne(withId(id).and(isAccountActive()))
         .map(HeadmasterEntity::getApplicationUser)
         .ifPresent(
             user -> {
@@ -99,12 +102,10 @@ public class HeadmasterService {
 
   @Transactional
   public SchoolView updateSchoolByHeadmasterId(long headmasterId, SchoolCommand command) {
+    final var loggedUserId = applicationUserService.getAuthenticatedUserId();
     final var school =
         headmasterRepository
-            .findById(headmasterId)
-            .filter(
-                headmaster ->
-                    applicationUserService.isUserLogged(headmaster.getApplicationUser().getId()))
+            .findOne(withId(headmasterId).and(isAccountActive()).and(isLoggedUser(loggedUserId)))
             .map(HeadmasterEntity::getSchool)
             .orElseThrow(() -> new HeadmasterNotFoundException(headmasterId));
     return schoolService.update(school, command);

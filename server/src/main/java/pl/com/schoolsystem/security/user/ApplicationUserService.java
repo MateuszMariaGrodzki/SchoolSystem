@@ -58,8 +58,8 @@ public class ApplicationUserService {
         .orElse(() -> Either.left(eitherValidationErrorsOrEncryptedPassword.getLeft()));
   }
 
-  public boolean isUserLogged(long id) {
-    return id == authenticationFacade.getAuthenticatedUserId();
+  public long getAuthenticatedUserId() {
+    return authenticationFacade.getAuthenticatedUserId();
   }
 
   private Void changePassword(String email, String password) {
