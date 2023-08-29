@@ -195,6 +195,19 @@ public class HeadmasterControllerAsAdministratorTest extends BaseIntegrationTest
 
   @Test
   @SneakyThrows
+  public void shouldThrowHeadmasterNotFoundExceptionOnDeletedHeadmaster() {
+    // given
+    final var deletedHeadmasterId = 452L;
+    // when
+    mvc.perform(get(format("/v1/headmasters/%s", deletedHeadmasterId)))
+        // then
+        .andExpect(status().isNotFound())
+        .andExpect(jsonPath("$.code").value("USER_NOT_FOUND"))
+        .andExpect(jsonPath("$.message").value("Headmaster with id 452 not found"));
+  }
+
+  @Test
+  @SneakyThrows
   public void shouldUpdateHeadmaster() {
     // given
     final var headmasterId = 321L;
@@ -325,6 +338,26 @@ public class HeadmasterControllerAsAdministratorTest extends BaseIntegrationTest
         .containsEntry("role", "HEADMASTER")
         .containsKey("password")
         .isNotNull();
+  }
+
+  @Test
+  @SneakyThrows
+  public void shouldNotUpdateDeletedHeadmaster() {
+    // given
+    final var deletedHeadmasterId = 452L;
+    final var requestBody =
+        new UpdateHeadmasterCommand(
+            new UserCommand("Update", "headmaster", "666666666", "head@master.pl"));
+    // when
+    mvc.perform(
+            put(format("/v1/headmasters/%s", deletedHeadmasterId))
+                .accept(APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(requestBody))
+                .contentType(APPLICATION_JSON))
+        // then
+        .andExpect(status().isNotFound())
+        .andExpect(jsonPath("$.code").value("USER_NOT_FOUND"))
+        .andExpect(jsonPath("$.message").value("Headmaster with id 452 not found"));
   }
 
   @Test
