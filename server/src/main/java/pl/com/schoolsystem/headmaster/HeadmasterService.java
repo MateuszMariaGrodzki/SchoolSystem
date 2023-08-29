@@ -102,7 +102,7 @@ public class HeadmasterService {
 
   @Transactional
   public SchoolView updateSchoolByHeadmasterId(long headmasterId, SchoolCommand command) {
-    final var loggedUserId = applicationUserService.getLoggedUserId();
+    final var loggedUserId = applicationUserService.getAuthenticatedUserId();
     final var school =
         headmasterRepository
             .findOne(withId(headmasterId).and(isAccountActive()).and(isLoggedUser(loggedUserId)))

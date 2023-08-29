@@ -58,7 +58,7 @@ public class ApplicationUserService {
         .orElse(() -> Either.left(eitherValidationErrorsOrEncryptedPassword.getLeft()));
   }
 
-  public long getLoggedUserId() {
+  public long getAuthenticatedUserId() {
     return authenticationFacade.getAuthenticatedUserId();
   }
 
