@@ -8,6 +8,14 @@ VALUES (12054,'Administrator', 'Great', '555555555' , 'admin@test.pl', '$2a$10$v
 
 INSERT INTO administrator(id, application_user_id) VALUES (32145,12054);
 
+INSERT INTO application_user(id , first_name, last_name, phone_number, email, password, role, is_expired)
+VALUES (8796,'Deleted','Headmaster','111111111','deleted@master.pl','$2a$10$vvUHLe0gPvQfa1gDunO1WuRCAovr5HT34ebr1F79ZUBBkymt6Ztxi','HEADMASTER', true);
+
+INSERT INTO headmaster(id, application_user_id) VALUES (452,8796);
+
+INSERT INTO school(id,name,tier,city,street,post_code,building,headmaster_id)
+VALUES (452,'Liceum imienia usuniętego mastera','HIGH','Warszawa','Ogniowa','88-666','8/1',452);
+
 INSERT INTO application_user(id , first_name, last_name, phone_number, email, password, role)
 VALUES (741,'Head','Master','111111111','head@master.pl','$2a$10$vvUHLe0gPvQfa1gDunO1WuRCAovr5HT34ebr1F79ZUBBkymt6Ztxi','HEADMASTER');
 

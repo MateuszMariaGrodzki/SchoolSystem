@@ -17,6 +17,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.ArgumentCaptor;
+import org.mockito.ArgumentMatchers;
+import org.springframework.data.jpa.domain.Specification;
 import pl.com.schoolsystem.common.exception.DuplicatedApplicationUserEmailException;
 import pl.com.schoolsystem.mail.EmailSender;
 import pl.com.schoolsystem.school.AddressCommand;
@@ -109,7 +111,8 @@ public class HeadmasterServiceTest {
     final var applicationUserId = 67L;
     final var headmaster = provideHeadmasterEntity(headmasterId, applicationUserId);
 
-    given(headmasterRepository.findById(headmasterId)).willReturn(of(headmaster));
+    given(headmasterRepository.findOne(ArgumentMatchers.<Specification<HeadmasterEntity>>any()))
+        .willReturn(of(headmaster));
     // when
     final var result = headmasterService.getById(headmasterId);
     // then
@@ -134,7 +137,8 @@ public class HeadmasterServiceTest {
     // given
     final var headmasterId = 10L;
 
-    given(headmasterRepository.findById(headmasterId)).willReturn(empty());
+    given(headmasterRepository.findOne(ArgumentMatchers.<Specification<HeadmasterEntity>>any()))
+        .willReturn(empty());
     // when
     final var exception =
         assertThrows(
@@ -154,7 +158,8 @@ public class HeadmasterServiceTest {
     final var headmaster = provideHeadmasterEntity(headmasterId, 147L);
     final var personalData = command.personalData();
 
-    given(headmasterRepository.findById(headmasterId)).willReturn(of(headmaster));
+    given(headmasterRepository.findOne(ArgumentMatchers.<Specification<HeadmasterEntity>>any()))
+        .willReturn(of(headmaster));
     given(
             emailValidator.isEmailUniqueInDatabase(
                 headmaster.getApplicationUser(), personalData.email()))
@@ -177,7 +182,8 @@ public class HeadmasterServiceTest {
         new UpdateHeadmasterCommand(
             new UserCommand("Not", "Existing", "789456123", "not@existing.com.pl"));
 
-    given(headmasterRepository.findById(headmasterId)).willReturn(empty());
+    given(headmasterRepository.findOne(ArgumentMatchers.<Specification<HeadmasterEntity>>any()))
+        .willReturn(empty());
     // when
     final var exception =
         assertThrows(
@@ -197,7 +203,8 @@ public class HeadmasterServiceTest {
             new UserCommand("Duplicated", "Email", "741236985", "duplicated@email.com.pl"));
     final var headMaster = provideHeadmasterEntity(headmasterId, 345L);
 
-    given(headmasterRepository.findById(headmasterId)).willReturn(of(headMaster));
+    given(headmasterRepository.findOne(ArgumentMatchers.<Specification<HeadmasterEntity>>any()))
+        .willReturn(of(headMaster));
     given(
             emailValidator.isEmailUniqueInDatabase(
                 headMaster.getApplicationUser(), command.personalData().email()))
@@ -222,7 +229,8 @@ public class HeadmasterServiceTest {
     headmaster.setApplicationUser(applicationUserEntity);
     headmaster.setId(id);
 
-    given(headmasterRepository.findById(id)).willReturn(of(headmaster));
+    given(headmasterRepository.findOne(ArgumentMatchers.<Specification<HeadmasterEntity>>any()))
+        .willReturn(of(headmaster));
     // when
     headmasterService.deleteById(id);
     // then
@@ -238,8 +246,9 @@ public class HeadmasterServiceTest {
             "Liceum ogólnokształcące", HIGH, new AddressCommand("Lublin", "Zana", "88-666", "8/1"));
     final var headmasterEntity = provideHeadmasterEntity(headmasterId, 245L);
 
-    given(headmasterRepository.findById(headmasterId)).willReturn(of(headmasterEntity));
-    given(applicationUserService.isUserLogged(245L)).willReturn(true);
+    given(headmasterRepository.findOne(ArgumentMatchers.<Specification<HeadmasterEntity>>any()))
+        .willReturn(of(headmasterEntity));
+    given(applicationUserService.getAuthenticatedUserId()).willReturn(245L);
     // when
     headmasterService.updateSchoolByHeadmasterId(headmasterId, command);
     // then
