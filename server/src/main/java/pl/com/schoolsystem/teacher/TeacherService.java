@@ -3,6 +3,7 @@ package pl.com.schoolsystem.teacher;
 import static pl.com.schoolsystem.security.user.ApplicationRole.TEACHER;
 import static pl.com.schoolsystem.security.user.ApplicationUserMapper.APPLICATION_USER_MAPPER;
 import static pl.com.schoolsystem.teacher.TeacherMapper.TEACHER_MAPPER;
+import static pl.com.schoolsystem.teacher.TeacherSpecification.*;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -49,7 +50,7 @@ public class TeacherService {
 
   public TeacherView getById(long id) {
     return teacherRepository
-        .findById(id)
+        .findOne(withId(id).and(isAccountActive()))
         .map(TeacherEntity::getApplicationUser)
         .map(user -> TEACHER_MAPPER.toTeacherView(id, user))
         .orElseThrow(() -> new TeacherNotFoundException(id));
@@ -58,7 +59,9 @@ public class TeacherService {
   @Transactional
   public TeacherView updateById(long id, TeacherCommand command) {
     final var teacher =
-        teacherRepository.findById(id).orElseThrow(() -> new TeacherNotFoundException(id));
+        teacherRepository
+            .findOne(withId(id).and(isAccountActive()))
+            .orElseThrow(() -> new TeacherNotFoundException(id));
     final var applicationUser = teacher.getApplicationUser();
     if (emailValidator.isEmailUniqueInDatabase(applicationUser, command.personalData().email())) {
       final var personalData = command.personalData();
