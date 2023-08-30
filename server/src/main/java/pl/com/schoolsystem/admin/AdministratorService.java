@@ -1,6 +1,7 @@
 package pl.com.schoolsystem.admin;
 
 import static pl.com.schoolsystem.admin.AdministratorMapper.ADMINISTRATOR_MAPPER;
+import static pl.com.schoolsystem.admin.AdministratorSpecification.*;
 import static pl.com.schoolsystem.security.user.ApplicationRole.ADMIN;
 import static pl.com.schoolsystem.security.user.ApplicationUserMapper.APPLICATION_USER_MAPPER;
 
@@ -50,7 +51,7 @@ public class AdministratorService {
 
   public AdministratorView getById(long id) {
     return administratorRepository
-        .findById(id)
+        .findOne(withId(id).and(isAccountActive()))
         .map(AdministratorEntity::getApplicationUser)
         .map(user -> ADMINISTRATOR_MAPPER.toAdministratorView(id, user))
         .orElseThrow(() -> new AdministratorNotFoundException(id));
@@ -60,7 +61,7 @@ public class AdministratorService {
   public AdministratorView updateById(long id, AdministratorCommand command) {
     final var administrator =
         administratorRepository
-            .findById(id)
+            .findOne(withId(id).and(isAccountActive()))
             .orElseThrow(() -> new AdministratorNotFoundException(id));
     final var applicationUser = administrator.getApplicationUser();
     if (emailValidator.isEmailUniqueInDatabase(applicationUser, command.personalData().email())) {
