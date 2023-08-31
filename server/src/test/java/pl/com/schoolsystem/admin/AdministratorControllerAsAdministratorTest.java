@@ -136,6 +136,19 @@ public class AdministratorControllerAsAdministratorTest extends BaseIntegrationT
 
   @Test
   @SneakyThrows
+  public void shouldNotGetDeletedAdministratorData() {
+    // given
+    final var deletedAdministratorId = 78345;
+    // when
+    mvc.perform(get(format("/v1/administrators/%s", deletedAdministratorId)))
+        // then
+        .andExpect(status().isNotFound())
+        .andExpect(jsonPath("$.code").value("USER_NOT_FOUND"))
+        .andExpect(jsonPath("$.message").value("Administrator with id 78345 not found"));
+  }
+
+  @Test
+  @SneakyThrows
   public void shouldNotFindNotExistingAdministrator() {
     // given
     final var administratorId = 254564;
@@ -226,6 +239,26 @@ public class AdministratorControllerAsAdministratorTest extends BaseIntegrationT
         .andExpect(status().isBadRequest())
         .andExpect(jsonPath("$.code").value("DUPLICATED_EMAIL"))
         .andExpect(jsonPath("$.message").value("Email: admin@test.pl already exists in system"));
+  }
+
+  @Test
+  @SneakyThrows
+  public void shouldNotUpdateDeletedAdministrator() {
+    // given
+    final var deletedAdministratorId = 78345;
+    final var requestBody =
+        new AdministratorCommand(
+            new UserCommand("Administrator", "Deleted", "999999999", "admin@test.pl"));
+    // when
+    mvc.perform(
+            put(format("/v1/administrators/%s", deletedAdministratorId))
+                .accept(APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(requestBody))
+                .contentType(APPLICATION_JSON))
+        // then
+        .andExpect(status().isNotFound())
+        .andExpect(jsonPath("$.code").value("USER_NOT_FOUND"))
+        .andExpect(jsonPath("$.message").value("Administrator with id 78345 not found"));
   }
 
   @Test

@@ -16,6 +16,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.ArgumentCaptor;
+import org.mockito.ArgumentMatchers;
+import org.springframework.data.jpa.domain.Specification;
 import pl.com.schoolsystem.common.exception.DuplicatedApplicationUserEmailException;
 import pl.com.schoolsystem.mail.EmailSender;
 import pl.com.schoolsystem.security.user.*;
@@ -87,7 +89,10 @@ public class AdministratorServiceTest {
     // given
     final var administratorId = 100054L;
 
-    given(administratorRepository.findById(administratorId)).willReturn(empty());
+    given(
+            administratorRepository.findOne(
+                ArgumentMatchers.<Specification<AdministratorEntity>>any()))
+        .willReturn(empty());
     // when
     final var exception =
         assertThrows(
@@ -105,7 +110,10 @@ public class AdministratorServiceTest {
     final var applicationUserId = 1265L;
     final var administrator = provideAdministratorEntity(administratorId, applicationUserId);
 
-    given(administratorRepository.findById(administratorId)).willReturn(of(administrator));
+    given(
+            administratorRepository.findOne(
+                ArgumentMatchers.<Specification<AdministratorEntity>>any()))
+        .willReturn(of(administrator));
     // when
     final var result = administratorService.getById(administratorId);
     // then
@@ -128,7 +136,10 @@ public class AdministratorServiceTest {
     final var administrator = provideAdministratorEntity(administratorId, applicationUserId);
     final var personalData = command.personalData();
 
-    given(administratorRepository.findById(administratorId)).willReturn(of(administrator));
+    given(
+            administratorRepository.findOne(
+                ArgumentMatchers.<Specification<AdministratorEntity>>any()))
+        .willReturn(of(administrator));
     given(
             emailValidator.isEmailUniqueInDatabase(
                 administrator.getApplicationUser(), personalData.email()))
@@ -151,7 +162,10 @@ public class AdministratorServiceTest {
         new AdministratorCommand(
             new UserCommand("FirstName", "LastName", "454545454", "email@onet.pl"));
 
-    given(administratorRepository.findById(administratorId)).willReturn(empty());
+    given(
+            administratorRepository.findOne(
+                ArgumentMatchers.<Specification<AdministratorEntity>>any()))
+        .willReturn(empty());
     // when
     final var exception =
         assertThrows(
@@ -172,7 +186,10 @@ public class AdministratorServiceTest {
             new UserCommand("FirstName", "LastName", "478512369", "already.in@database.com"));
     final var administrator = provideAdministratorEntity(administratorId, applicationUserId);
 
-    given(administratorRepository.findById(administratorId)).willReturn(of(administrator));
+    given(
+            administratorRepository.findOne(
+                ArgumentMatchers.<Specification<AdministratorEntity>>any()))
+        .willReturn(of(administrator));
     given(
             emailValidator.isEmailUniqueInDatabase(
                 administrator.getApplicationUser(), command.personalData().email()))

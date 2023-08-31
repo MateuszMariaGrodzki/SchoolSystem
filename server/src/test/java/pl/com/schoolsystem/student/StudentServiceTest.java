@@ -15,6 +15,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.ArgumentCaptor;
+import org.mockito.ArgumentMatchers;
+import org.springframework.data.jpa.domain.Specification;
 import pl.com.schoolsystem.common.exception.DuplicatedApplicationUserEmailException;
 import pl.com.schoolsystem.mail.EmailSender;
 import pl.com.schoolsystem.security.user.*;
@@ -81,7 +83,8 @@ public class StudentServiceTest {
     // given
     final var student = provideStudentEntity(studentId, 654L);
 
-    given(studentRepository.findById(studentId)).willReturn(of(student));
+    given(studentRepository.findOne(ArgumentMatchers.<Specification<StudentEntity>>any()))
+        .willReturn(of(student));
     // when
     final var result = studentService.getById(studentId);
     // then
@@ -97,7 +100,8 @@ public class StudentServiceTest {
     // given
     final var studentId = 543L;
 
-    given(studentRepository.findById(studentId)).willReturn(empty());
+    given(studentRepository.findOne(ArgumentMatchers.<Specification<StudentEntity>>any()))
+        .willReturn(empty());
     // when
     final var exception =
         assertThrows(StudentNotFoundException.class, () -> studentService.getById(studentId));
@@ -116,7 +120,8 @@ public class StudentServiceTest {
     final var student = provideStudentEntity(studentId, 845L);
     final var personalData = command.personalData();
 
-    given(studentRepository.findById(studentId)).willReturn(of(student));
+    given(studentRepository.findOne(ArgumentMatchers.<Specification<StudentEntity>>any()))
+        .willReturn(of(student));
     given(
             emailValidator.isEmailUniqueInDatabase(
                 student.getApplicationUser(), personalData.email()))
@@ -140,7 +145,8 @@ public class StudentServiceTest {
         new StudentCommand(
             new UserCommand("Do not", "matter", "741296835", "sudent@updated.com.pl"));
 
-    given(studentRepository.findById(studentId)).willReturn(empty());
+    given(studentRepository.findOne(ArgumentMatchers.<Specification<StudentEntity>>any()))
+        .willReturn(empty());
     // when
     final var exception =
         assertThrows(
@@ -160,7 +166,8 @@ public class StudentServiceTest {
             new UserCommand("Updatable", "Student", "609325789", "already@existing.com.pl"));
     final var teacher = provideStudentEntity(studentId, 3213L);
 
-    given(studentRepository.findById(studentId)).willReturn(of(teacher));
+    given(studentRepository.findOne(ArgumentMatchers.<Specification<StudentEntity>>any()))
+        .willReturn(of(teacher));
     given(
             emailValidator.isEmailUniqueInDatabase(
                 teacher.getApplicationUser(), command.personalData().email()))
