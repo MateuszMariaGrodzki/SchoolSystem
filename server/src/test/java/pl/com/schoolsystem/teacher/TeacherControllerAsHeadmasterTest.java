@@ -151,6 +151,19 @@ public class TeacherControllerAsHeadmasterTest extends BaseIntegrationTestAsHead
 
   @Test
   @SneakyThrows
+  public void shouldNotGetDeletedTeacherData() {
+    // given
+    final var deletedTeacherId = 12;
+    // when
+    mvc.perform(get(format("/v1/teachers/%s", deletedTeacherId)))
+        // then
+        .andExpect(status().isNotFound())
+        .andExpect(jsonPath("$.code").value("USER_NOT_FOUND"))
+        .andExpect(jsonPath("$.message").value("Teacher with id 12 not found"));
+  }
+
+  @Test
+  @SneakyThrows
   public void shouldUpdateTeacher() {
     // given
     final var teacherId = 86L;
@@ -251,6 +264,26 @@ public class TeacherControllerAsHeadmasterTest extends BaseIntegrationTestAsHead
         .andExpect(status().isBadRequest())
         .andExpect(jsonPath("$.code").value("DUPLICATED_EMAIL"))
         .andExpect(jsonPath("$.message").value("Email: admin@admin.pl already exists in system"));
+  }
+
+  @Test
+  @SneakyThrows
+  public void shouldNotUpdateDeletedTeacherData() {
+    // given
+    final var deletedTeacherId = 12;
+    final var requestBody =
+        new TeacherCommand(
+            new UserCommand("Teacher", "Deleted", "741258963", "teacherdeleted@gruszka.pl"));
+    // when
+    mvc.perform(
+            put(format("/v1/teachers/%s", deletedTeacherId))
+                .accept(APPLICATION_JSON)
+                .contentType(APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(requestBody)))
+        // then
+        .andExpect(status().isNotFound())
+        .andExpect(jsonPath("$.code").value("USER_NOT_FOUND"))
+        .andExpect(jsonPath("$.message").value("Teacher with id 12 not found"));
   }
 
   @Test
