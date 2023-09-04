@@ -7,6 +7,9 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import pl.com.schoolsystem.classs.ClasssCommand;
+import pl.com.schoolsystem.classs.ClasssService;
+import pl.com.schoolsystem.classs.ClasssView;
 import pl.com.schoolsystem.teacher.TeacherCommand;
 import pl.com.schoolsystem.teacher.TeacherService;
 import pl.com.schoolsystem.teacher.TeacherView;
@@ -18,6 +21,8 @@ import pl.com.schoolsystem.teacher.TeacherView;
 public class TeacherController {
 
   private final TeacherService teacherService;
+
+  private final ClasssService classsService;
 
   @ResponseStatus(CREATED)
   @PostMapping
@@ -41,5 +46,12 @@ public class TeacherController {
   @ResponseStatus(NO_CONTENT)
   public void deleteById(@PathVariable long id) {
     teacherService.deleteById(id);
+  }
+
+  @PostMapping("/{id}/class")
+  @ResponseStatus(CREATED)
+  @PreAuthorize("hasAnyRole('TEACHER')")
+  public ClasssView createClass(@PathVariable long id, @RequestBody @Valid ClasssCommand command) {
+    return classsService.create(id, command);
   }
 }

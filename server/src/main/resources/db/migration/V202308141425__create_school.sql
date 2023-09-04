@@ -9,6 +9,3 @@ CREATE TABLE school
     building varchar(64) NOT NULL,
     headmaster_id bigint REFERENCES headmaster
 );
---
---ALTER TABLE headmaster ADD COLUMN "school_id" bigint;
---ALTER TABLE headmaster ADD CONSTRAINT fk_school FOREIGN KEY (school_id) REFERENCES school;
