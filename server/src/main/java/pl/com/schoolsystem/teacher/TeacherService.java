@@ -86,4 +86,8 @@ public class TeacherService {
               user.setExpired(true);
             });
   }
+
+  public TeacherEntity findById(long id) {
+    return teacherRepository.findById(id).get();
+  }
 }
