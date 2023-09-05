@@ -7,6 +7,8 @@ import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static pl.com.schoolsystem.teacher.TeacherSpecialization.FOREIGN_LANGUAGES;
+import static pl.com.schoolsystem.teacher.TeacherSpecialization.PHYSIC;
 
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;
@@ -21,8 +23,9 @@ public class TeacherControllerAsHeadmasterTest extends BaseIntegrationTestAsHead
   public void shouldAddNewTeacher() {
     // given
     final var requestBody =
-        new TeacherCommand(
-            new UserCommand("Teacher", "Teacherowski", "456123789", "teacher@onet.pl"));
+        new CreateTeacherCommand(
+            new UserCommand("Teacher", "Teacherowski", "456123789", "teacher@onet.pl"),
+            FOREIGN_LANGUAGES);
     // when
     mvc.perform(
             post("/v1/teachers")
@@ -34,7 +37,8 @@ public class TeacherControllerAsHeadmasterTest extends BaseIntegrationTestAsHead
         .andExpect(jsonPath("$.firstName").value("Teacher"))
         .andExpect(jsonPath("$.lastName").value("Teacherowski"))
         .andExpect(jsonPath("$.email").value("teacher@onet.pl"))
-        .andExpect(jsonPath("$.phoneNumber").value("456123789"));
+        .andExpect(jsonPath("$.phoneNumber").value("456123789"))
+        .andExpect(jsonPath("$.specialization").value("FOREIGN_LANGUAGES"));
 
     final var applicationUserEntity =
         jdbcTemplate.queryForMap("select * from application_user where id = 1");
@@ -47,9 +51,10 @@ public class TeacherControllerAsHeadmasterTest extends BaseIntegrationTestAsHead
         .containsKey("password")
         .isNotNull();
 
-    final var headmasterEntity =
+    final var teacherEntity =
         jdbcTemplate.queryForMap("select * from teacher where application_user_id = 1");
-    assertThat(headmasterEntity.containsKey("id")).isTrue();
+    assertThat(teacherEntity.containsKey("id")).isTrue();
+    assertThat(teacherEntity).containsEntry("specialization", "FOREIGN_LANGUAGES");
   }
 
   @Test
@@ -57,7 +62,8 @@ public class TeacherControllerAsHeadmasterTest extends BaseIntegrationTestAsHead
   public void shouldNotCreateTeacherWithExistingEmail() {
     // given
     final var requestBody =
-        new TeacherCommand(new UserCommand("Już", "istnieje", "789123546", "admin@admin.pl"));
+        new CreateTeacherCommand(
+            new UserCommand("Już", "istnieje", "789123546", "admin@admin.pl"), PHYSIC);
     // when
     mvc.perform(
             post("/v1/teachers")
@@ -75,7 +81,8 @@ public class TeacherControllerAsHeadmasterTest extends BaseIntegrationTestAsHead
   public void shouldFailValidationOnPostMethod() {
     // given
     final var requestBody =
-        new TeacherCommand(new UserCommand(null, "BOM\\uFeFF", "74136985a", "no nie wiem"));
+        new CreateTeacherCommand(
+            new UserCommand(null, "BOM\\uFeFF", "74136985a", "no nie wiem"), null);
     // when
     mvc.perform(
             post("/v1/teachers")
@@ -98,14 +105,17 @@ public class TeacherControllerAsHeadmasterTest extends BaseIntegrationTestAsHead
             jsonPath(
                 "$.details",
                 hasEntry("personalData.phoneNumber", "Phone number must have exactly 9 digits")))
-        .andExpect(jsonPath("$.details", hasEntry("personalData.email", "Email has bad format")));
+        .andExpect(jsonPath("$.details", hasEntry("personalData.email", "Email has bad format")))
+        .andExpect(
+            jsonPath(
+                "$.details", hasEntry("specialization", "teacher specialization is mandatory")));
   }
 
   @Test
   @SneakyThrows
   public void shouldThrowValidationExceptionWhenUserCommandIsNotPresent() {
     // given
-    final var requestBody = new TeacherCommand(null);
+    final var requestBody = new CreateTeacherCommand(null, null);
     // when
     mvc.perform(
             post("/v1/teachers")
@@ -117,7 +127,10 @@ public class TeacherControllerAsHeadmasterTest extends BaseIntegrationTestAsHead
         .andExpect(jsonPath("$.code").value("VALIDATION_ERROR"))
         .andExpect(jsonPath("$.message").value("Invalid request"))
         .andExpect(
-            jsonPath("$.details", hasEntry("personalData", "user personal data is mandatory")));
+            jsonPath("$.details", hasEntry("personalData", "user personal data is mandatory")))
+        .andExpect(
+            jsonPath(
+                "$.details", hasEntry("specialization", "teacher specialization is mandatory")));
   }
 
   @Test
@@ -168,7 +181,7 @@ public class TeacherControllerAsHeadmasterTest extends BaseIntegrationTestAsHead
     // given
     final var teacherId = 86L;
     final var requestBody =
-        new TeacherCommand(
+        new UpdateTeacherCommand(
             new UserCommand("UpdateTea", "Updatecher", "545454123", "massive@upgrade.com.pl"));
     // when
     mvc.perform(
@@ -202,7 +215,8 @@ public class TeacherControllerAsHeadmasterTest extends BaseIntegrationTestAsHead
     // given
     final var teacherId = 86L;
     final var requestBody =
-        new TeacherCommand(new UserCommand(null, "5834g3834-", "babajaga2", "@babajaga.kwejk.pl"));
+        new UpdateTeacherCommand(
+            new UserCommand(null, "5834g3834-", "babajaga2", "@babajaga.kwejk.pl"));
     // when
     mvc.perform(
             put(format("/v1/teachers/%s", teacherId))
@@ -234,7 +248,8 @@ public class TeacherControllerAsHeadmasterTest extends BaseIntegrationTestAsHead
     // given
     final var teacherId = 184L;
     final var requestBody =
-        new TeacherCommand(new UserCommand("Good", "Data", "789456123", "teacher@teacher.com.pl"));
+        new UpdateTeacherCommand(
+            new UserCommand("Good", "Data", "789456123", "teacher@teacher.com.pl"));
     // when
     mvc.perform(
             put(format("/v1/teachers/%s", teacherId))
@@ -253,7 +268,8 @@ public class TeacherControllerAsHeadmasterTest extends BaseIntegrationTestAsHead
     // given
     final var teacherId = 86L;
     final var requestBody =
-        new TeacherCommand(new UserCommand("Teacher", "ToUpdate", "741258963", "admin@admin.pl"));
+        new UpdateTeacherCommand(
+            new UserCommand("Teacher", "ToUpdate", "741258963", "admin@admin.pl"));
     // when
     mvc.perform(
             put(format("/v1/teachers/%s", teacherId))
@@ -272,7 +288,7 @@ public class TeacherControllerAsHeadmasterTest extends BaseIntegrationTestAsHead
     // given
     final var deletedTeacherId = 12;
     final var requestBody =
-        new TeacherCommand(
+        new UpdateTeacherCommand(
             new UserCommand("Teacher", "Deleted", "741258963", "teacherdeleted@gruszka.pl"));
     // when
     mvc.perform(

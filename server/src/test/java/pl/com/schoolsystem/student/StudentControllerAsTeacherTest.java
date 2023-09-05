@@ -14,7 +14,6 @@ import org.springframework.http.MediaType;
 import pl.com.schoolsystem.security.authentication.AuthCommand;
 import pl.com.schoolsystem.security.user.UserCommand;
 import pl.com.schoolsystem.teacher.BaseIntegrationTestAsTeacher;
-import pl.com.schoolsystem.teacher.TeacherCommand;
 
 public class StudentControllerAsTeacherTest extends BaseIntegrationTestAsTeacher {
 
@@ -77,7 +76,7 @@ public class StudentControllerAsTeacherTest extends BaseIntegrationTestAsTeacher
   public void shouldFailValidationOnPostMethod() {
     // given
     final var requestBody =
-        new TeacherCommand(new UserCommand("878451232", "--8-", "Student", "chyba niepoprawny"));
+        new StudentCommand(new UserCommand("878451232", "--8-", "Student", "chyba niepoprawny"));
     // when
     mvc.perform(
             post("/v1/students")

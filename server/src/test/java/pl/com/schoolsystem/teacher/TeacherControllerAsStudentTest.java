@@ -6,6 +6,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static pl.com.schoolsystem.teacher.TeacherSpecialization.ENGLISH;
 
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;
@@ -19,7 +20,8 @@ public class TeacherControllerAsStudentTest extends BaseIntegrationTestAsStudent
   public void shouldGetForbiddenOnPostMethod() {
     // given
     final var requestBody =
-        new TeacherCommand(new UserCommand("Tea", "cher", "789456132", "nowy@teacher.com"));
+        new CreateTeacherCommand(
+            new UserCommand("Tea", "cher", "789456132", "nowy@teacher.com"), ENGLISH);
     // when
     mvc.perform(
             post("/v1/teachers")
@@ -51,7 +53,7 @@ public class TeacherControllerAsStudentTest extends BaseIntegrationTestAsStudent
     // given
     final var teacherId = 86L;
     final var requestBody =
-        new TeacherCommand(new UserCommand("Tea", "cher", "789456132", "nowy@teacher.com"));
+        new UpdateTeacherCommand(new UserCommand("Tea", "cher", "789456132", "nowy@teacher.com"));
     // when
     mvc.perform(
             put(format("/v1/teachers/%s", teacherId))
