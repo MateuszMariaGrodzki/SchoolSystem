@@ -21,5 +21,9 @@ public class TeacherEntity {
   @JoinColumn(name = "application_user_id")
   private ApplicationUserEntity applicationUser;
 
-  @OneToOne @MapsId private ClasssEntity classs;
+  @OneToOne(mappedBy = "supervisingTeacher")
+  private ClasssEntity classs;
+
+  @Enumerated(value = EnumType.STRING)
+  private TeacherSpecialization specialization;
 }

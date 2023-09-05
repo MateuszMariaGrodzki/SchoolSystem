@@ -10,9 +10,10 @@ import org.springframework.web.bind.annotation.*;
 import pl.com.schoolsystem.classs.ClasssCommand;
 import pl.com.schoolsystem.classs.ClasssService;
 import pl.com.schoolsystem.classs.ClasssView;
-import pl.com.schoolsystem.teacher.TeacherCommand;
+import pl.com.schoolsystem.teacher.CreateTeacherCommand;
 import pl.com.schoolsystem.teacher.TeacherService;
 import pl.com.schoolsystem.teacher.TeacherView;
+import pl.com.schoolsystem.teacher.UpdateTeacherCommand;
 
 @RestController
 @RequiredArgsConstructor
@@ -26,7 +27,7 @@ public class TeacherController {
 
   @ResponseStatus(CREATED)
   @PostMapping
-  public TeacherView create(@RequestBody @Valid TeacherCommand command) {
+  public TeacherView create(@RequestBody @Valid CreateTeacherCommand command) {
     return teacherService.create(command);
   }
 
@@ -38,7 +39,8 @@ public class TeacherController {
 
   @PutMapping("/{id}")
   @PreAuthorize("hasAnyRole('HEADMASTER','TEACHER')")
-  public TeacherView updateById(@PathVariable long id, @RequestBody @Valid TeacherCommand command) {
+  public TeacherView updateById(
+      @PathVariable long id, @RequestBody @Valid UpdateTeacherCommand command) {
     return teacherService.updateById(id, command);
   }
 

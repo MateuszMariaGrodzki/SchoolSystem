@@ -22,7 +22,8 @@ public class ClasssEntity {
   @Enumerated(EnumType.STRING)
   private ClasssProfile profile;
 
-  @OneToOne(mappedBy = "classs")
+  @OneToOne
+  @JoinColumn(name = "teacher_id")
   private TeacherEntity supervisingTeacher;
 
   @OneToMany(mappedBy = "classs")
