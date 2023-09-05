@@ -10,6 +10,7 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.*;
 import static pl.com.schoolsystem.security.user.ApplicationRole.TEACHER;
 import static pl.com.schoolsystem.teacher.TeacherServiceTestDataFactory.*;
+import static pl.com.schoolsystem.teacher.TeacherSpecialization.MATHEMATICS;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -41,8 +42,8 @@ public class TeacherServiceTest {
   void shouldRegisterNewTeacher() {
     // given
     final var command =
-        new TeacherCommand(
-            new UserCommand("Teacher", "Learner", "789456123", "teacher@learner.com"));
+        new CreateTeacherCommand(
+            new UserCommand("Teacher", "Learner", "789456123", "teacher@learner.com"), MATHEMATICS);
     final var randomPassword = "jghfdjghdfjgfddf";
     final var encodedPassword = "gjfhdgjfhdjgkhdfgkfjdhgkfdhgfdkghd";
     final var applicationUserCommand = provideApplicationUserCommandForCreateMethod();
@@ -115,7 +116,7 @@ public class TeacherServiceTest {
   void shouldUpdateTeacher(long teacherId) {
     // given
     final var command =
-        new TeacherCommand(
+        new UpdateTeacherCommand(
             new UserCommand(
                 "UpdatedTeac", "Updatedher", "541236987", "updatedteacher@updated.com.pl"));
     final var teacher = provideTeacherEntity(teacherId, 845L);
@@ -142,7 +143,7 @@ public class TeacherServiceTest {
     // given
     final var teacherId = 754L;
     final var command =
-        new TeacherCommand(
+        new UpdateTeacherCommand(
             new UserCommand("Do not", "matter", "541236987", "updatedteacher@updated.com.pl"));
 
     given(teacherRepository.findOne(ArgumentMatchers.<Specification<TeacherEntity>>any()))
@@ -162,7 +163,7 @@ public class TeacherServiceTest {
     // given
     final var teacherId = 45L;
     final var command =
-        new TeacherCommand(
+        new UpdateTeacherCommand(
             new UserCommand("Updatable", "Teacher", "785412963", "already@existing.com.pl"));
     final var teacher = provideTeacherEntity(teacherId, 3213L);
 

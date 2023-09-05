@@ -6,5 +6,5 @@ import pl.com.schoolsystem.security.user.UserCommand;
 
 public record CreateTeacherCommand(
     @Valid @NotNull(message = "user personal data is mandatory") UserCommand personalData,
-    @NotNull(message = "teacher specialisation is mandatory")
+    @NotNull(message = "teacher specialization is mandatory")
         TeacherSpecialization specialization) {}

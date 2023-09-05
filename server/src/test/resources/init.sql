@@ -44,12 +44,12 @@ VALUES (322,'Liceum imienia Kopernika2','PRIMARY','Lublin','Kunickiego','88-666'
 INSERT INTO application_user(id, first_name , last_name , phone_number , email , password , role)
 VALUES (56 , 'Teacher' , 'Gruszka' , '222222222' , 'teacher@gruszka.pl' , '$2a$10$vvUHLe0gPvQfa1gDunO1WuRCAovr5HT34ebr1F79ZUBBkymt6Ztxi', 'TEACHER');
 
-INSERT INTO teacher(id, application_user_id) VALUES (86,56);
+INSERT INTO teacher(id, application_user_id,specialization) VALUES (86,56,'MATHEMATICS');
 
 INSERT INTO application_user(id, first_name , last_name , phone_number , email , password , role , is_expired)
 VALUES (598 , 'Deleted' , 'Student' , '222222222' , 'teacherdeleted@gruszka.pl' , '$2a$10$vvUHLe0gPvQfa1gDunO1WuRCAovr5HT34ebr1F79ZUBBkymt6Ztxi', 'TEACHER',true);
 
-INSERT INTO teacher(id, application_user_id) VALUES (12,598);
+INSERT INTO teacher(id, application_user_id,specialization) VALUES (12,598,'MUSIC');
 
 -- student
 INSERT INTO application_user(id, first_name, last_name, phone_number, email, password, role)

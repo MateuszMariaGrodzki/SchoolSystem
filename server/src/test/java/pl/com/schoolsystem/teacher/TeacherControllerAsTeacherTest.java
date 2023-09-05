@@ -6,9 +6,12 @@ import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static pl.com.schoolsystem.teacher.TeacherSpecialization.PHYSICAL_EDUCATION;
 
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;
+import pl.com.schoolsystem.classs.ClasssCommand;
+import pl.com.schoolsystem.classs.ClasssProfile;
 import pl.com.schoolsystem.security.user.UserCommand;
 
 public class TeacherControllerAsTeacherTest extends BaseIntegrationTestAsTeacher {
@@ -18,7 +21,8 @@ public class TeacherControllerAsTeacherTest extends BaseIntegrationTestAsTeacher
   public void shouldReturnForbiddenOnPostMethod() {
     // given
     final var requestBody =
-        new TeacherCommand(new UserCommand("Teacher", "Teacher", "741236985", "teb@com.pl"));
+        new CreateTeacherCommand(
+            new UserCommand("Teacher", "Teacher", "741236985", "teb@com.pl"), PHYSICAL_EDUCATION);
     // when
     mvc.perform(
             post("/v1/teachers")
@@ -53,7 +57,7 @@ public class TeacherControllerAsTeacherTest extends BaseIntegrationTestAsTeacher
     // given
     final var teacherId = 86L;
     final var requestBody =
-        new TeacherCommand(
+        new UpdateTeacherCommand(
             new UserCommand("UpTeacher", "Grade", "565656987", "upgraded@teacher.com.pl"));
     // when
     mvc.perform(
@@ -92,5 +96,26 @@ public class TeacherControllerAsTeacherTest extends BaseIntegrationTestAsTeacher
         .andExpect(status().isForbidden())
         .andExpect(jsonPath("$.code").value("ACCESS_DENIED"))
         .andExpect(jsonPath("$.message").value("Access is denied"));
+  }
+
+  @Test
+  @SneakyThrows
+  public void shouldCreateClassForTeacher() {
+    // given
+    final var requestBody = new ClasssCommand(ClasssProfile.MAT_FIZ);
+    final var teacherId = 86L;
+    // when
+    mvc.perform(
+            post(format("/v1/teachers/%s/class", teacherId))
+                .accept(APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(requestBody))
+                .contentType(APPLICATION_JSON))
+        // then
+        .andExpect(status().isCreated())
+        .andExpect(jsonPath("$.profile").value("MAT_FIZ"));
+
+    final var rs = jdbcTemplate.queryForMap("select * from classs where id = 1");
+    assertThat(rs.get("teacher_id")).isEqualTo(86L);
+    assertThat(rs.get("profile")).isEqualTo("MAT_FIZ");
   }
 }
