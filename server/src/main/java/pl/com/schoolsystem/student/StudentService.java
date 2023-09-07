@@ -55,9 +55,10 @@ public class StudentService {
               throw new ClassNotCreatedException();
             });
     log.info(
-        "Created new student with email: {} and id: {}",
+        "Created new student with email: {} and id: {} and assigned him to teacher id: {}",
         applicationUserEntity.getEmail(),
-        studentId);
+        studentId,
+        creatingTeacher.getId());
     emailSender.sendNewUserEmail(applicationUserEntity, password);
     return STUDENT_MAPPER.toStudentView(studentId, applicationUserEntity);
   }
