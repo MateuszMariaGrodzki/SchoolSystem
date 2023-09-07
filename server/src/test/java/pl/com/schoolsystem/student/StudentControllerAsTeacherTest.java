@@ -48,9 +48,10 @@ public class StudentControllerAsTeacherTest extends BaseIntegrationTestAsTeacher
         .containsKey("password")
         .isNotNull();
 
-    final var headmasterEntity =
+    final var studentEntity =
         jdbcTemplate.queryForMap("select * from student where application_user_id = 1");
-    assertThat(headmasterEntity.containsKey("id")).isTrue();
+
+    assertThat(studentEntity).containsEntry("classs_id", 27);
   }
 
   @Test

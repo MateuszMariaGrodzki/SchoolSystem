@@ -28,4 +28,9 @@ public class ClasssEntity {
 
   @OneToMany(mappedBy = "classs")
   private List<StudentEntity> students = new ArrayList<>();
+
+  public void addStudent(StudentEntity student) {
+    students.add(student);
+    student.setClasss(this);
+  }
 }

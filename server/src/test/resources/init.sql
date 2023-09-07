@@ -46,6 +46,8 @@ VALUES (56 , 'Teacher' , 'Gruszka' , '222222222' , 'teacher@gruszka.pl' , '$2a$1
 
 INSERT INTO teacher(id, application_user_id,specialization) VALUES (86,56,'MATHEMATICS');
 
+INSERT INTO classs(id, profile, teacher_id) VALUES (27,'MAT_FIZ',86);
+
 INSERT INTO application_user(id, first_name , last_name , phone_number , email , password , role , is_expired)
 VALUES (598 , 'Deleted' , 'Student' , '222222222' , 'teacherdeleted@gruszka.pl' , '$2a$10$vvUHLe0gPvQfa1gDunO1WuRCAovr5HT34ebr1F79ZUBBkymt6Ztxi', 'TEACHER',true);
 
