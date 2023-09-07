@@ -20,6 +20,7 @@ import org.springframework.data.jpa.domain.Specification;
 import pl.com.schoolsystem.common.exception.DuplicatedApplicationUserEmailException;
 import pl.com.schoolsystem.mail.EmailSender;
 import pl.com.schoolsystem.security.user.*;
+import pl.com.schoolsystem.teacher.TeacherService;
 
 public class StudentServiceTest {
 
@@ -33,9 +34,16 @@ public class StudentServiceTest {
 
   private final EmailValidator emailValidator = mock(EmailValidator.class);
 
+  private final TeacherService teacherService = mock(TeacherService.class);
+
   private final StudentService studentService =
       new StudentService(
-          studentRepository, passwordService, emailSender, applicationUserService, emailValidator);
+          studentRepository,
+          passwordService,
+          emailSender,
+          applicationUserService,
+          emailValidator,
+          teacherService);
 
   @Test
   void shouldCreateNewStudent() {
