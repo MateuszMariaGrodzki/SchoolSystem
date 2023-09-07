@@ -97,4 +97,9 @@ public class TeacherService {
     return teacherRepository.findOne(
         withId(id).and(isAccountActive()).and(isLoggedUser(loggedUserId)));
   }
+
+  public Optional<TeacherEntity> findAuthenticatedTeacher() {
+    final var loggedUserId = applicationUserService.getAuthenticatedUserId();
+    return teacherRepository.findOne(isAccountActive().and(isLoggedUser(loggedUserId)));
+  }
 }

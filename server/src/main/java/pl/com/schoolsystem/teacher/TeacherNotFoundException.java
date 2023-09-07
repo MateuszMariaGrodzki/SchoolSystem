@@ -8,4 +8,8 @@ public class TeacherNotFoundException extends NotFoundException {
   public TeacherNotFoundException(long id) {
     super("USER_NOT_FOUND", format("Teacher with id %s not found", id));
   }
+
+  public TeacherNotFoundException() {
+    super("USER_NOT_FOUND", "Teacher hasn't been found");
+  }
 }

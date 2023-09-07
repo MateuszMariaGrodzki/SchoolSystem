@@ -5,15 +5,19 @@ import static pl.com.schoolsystem.security.user.ApplicationUserMapper.APPLICATIO
 import static pl.com.schoolsystem.student.StudentMapper.STUDENT_MAPPER;
 import static pl.com.schoolsystem.student.StudentSpecification.*;
 
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import pl.com.schoolsystem.classs.ClassNotCreatedException;
 import pl.com.schoolsystem.common.exception.DuplicatedApplicationUserEmailException;
 import pl.com.schoolsystem.mail.EmailSender;
 import pl.com.schoolsystem.security.user.ApplicationUserService;
 import pl.com.schoolsystem.security.user.EmailValidator;
 import pl.com.schoolsystem.security.user.PasswordService;
+import pl.com.schoolsystem.teacher.TeacherNotFoundException;
+import pl.com.schoolsystem.teacher.TeacherService;
 
 @Service
 @RequiredArgsConstructor
@@ -30,6 +34,8 @@ public class StudentService {
 
   private final EmailValidator emailValidator;
 
+  private final TeacherService teacherService;
+
   @Transactional
   public StudentView create(StudentCommand command) {
     final var password = passwordService.generateNewRandomPassword();
@@ -40,6 +46,14 @@ public class StudentService {
     final var studentEntity = STUDENT_MAPPER.toStudentEntity(applicationUserEntity);
     final var savedEntity = studentRepository.save(studentEntity);
     final var studentId = savedEntity.getId();
+    final var creatingTeacher =
+        teacherService.findAuthenticatedTeacher().orElseThrow(TeacherNotFoundException::new);
+    Optional.ofNullable(creatingTeacher.getClasss())
+        .ifPresentOrElse(
+            classs -> classs.addStudent(studentEntity),
+            () -> {
+              throw new ClassNotCreatedException();
+            });
     log.info(
         "Created new student with email: {} and id: {}",
         applicationUserEntity.getEmail(),
