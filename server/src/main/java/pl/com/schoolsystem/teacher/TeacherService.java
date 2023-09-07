@@ -5,6 +5,7 @@ import static pl.com.schoolsystem.security.user.ApplicationUserMapper.APPLICATIO
 import static pl.com.schoolsystem.teacher.TeacherMapper.TEACHER_MAPPER;
 import static pl.com.schoolsystem.teacher.TeacherSpecification.*;
 
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -91,7 +92,9 @@ public class TeacherService {
             });
   }
 
-  public TeacherEntity findById(long id) {
-    return teacherRepository.findById(id).get();
+  public Optional<TeacherEntity> findByIdAndLoggedUser(long id) {
+    final var loggedUserId = applicationUserService.getAuthenticatedUserId();
+    return teacherRepository.findOne(
+        withId(id).and(isAccountActive()).and(isLoggedUser(loggedUserId)));
   }
 }

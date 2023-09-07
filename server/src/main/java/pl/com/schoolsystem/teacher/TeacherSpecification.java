@@ -17,4 +17,11 @@ public class TeacherSpecification {
       return cb.equal(applicationUser.get(ApplicationUserEntity_.isExpired), false);
     };
   }
+
+  public Specification<TeacherEntity> isLoggedUser(long loggedUserId) {
+    return (root, query, cb) -> {
+      final var applicationUser = root.get(TeacherEntity_.applicationUser);
+      return cb.equal(applicationUser.get(ApplicationUserEntity_.id), loggedUserId);
+    };
+  }
 }
