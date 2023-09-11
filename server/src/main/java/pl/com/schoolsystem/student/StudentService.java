@@ -45,7 +45,6 @@ public class StudentService {
     final var applicationUserEntity = applicationUserService.create(applicationUserCommand);
     final var studentEntity = STUDENT_MAPPER.toStudentEntity(applicationUserEntity);
     final var savedEntity = studentRepository.save(studentEntity);
-    final var studentId = savedEntity.getId();
     final var creatingTeacher =
         teacherService.findAuthenticatedTeacher().orElseThrow(TeacherNotFoundException::new);
     Optional.ofNullable(creatingTeacher.getClasss())
@@ -54,6 +53,7 @@ public class StudentService {
             () -> {
               throw new ClassNotCreatedException();
             });
+    final var studentId = savedEntity.getId();
     log.info(
         "Created new student with email: {} and id: {} and assigned him to teacher id: {}",
         applicationUserEntity.getEmail(),
