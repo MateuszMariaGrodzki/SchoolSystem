@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
+import pl.com.schoolsystem.classs.ClassNotCreatedException;
 import pl.com.schoolsystem.common.exception.NotFoundException;
 import pl.com.schoolsystem.common.exception.ValidationException;
 
@@ -93,5 +94,14 @@ public class CommonControllerAdvisor {
     log.warn("Access is denied: {}", ex.getMessage());
 
     return new ErrorResponse(ACCESS_DENIED.getCode(), ACCESS_DENIED.getMessage(), emptyMap());
+  }
+
+  @ExceptionHandler(ClassNotCreatedException.class)
+  @ResponseStatus(BAD_REQUEST)
+  public ErrorResponse handleClassNotCreatedException(
+      ClassNotCreatedException classNotCreatedException) {
+    log.warn("Trying to add student before creating class");
+    return new ErrorResponse(
+        CLASS_NOT_CREATED.getCode(), CLASS_NOT_CREATED.getMessage(), emptyMap());
   }
 }

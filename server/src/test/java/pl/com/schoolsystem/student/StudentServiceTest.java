@@ -17,9 +17,12 @@ import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.ArgumentCaptor;
 import org.mockito.ArgumentMatchers;
 import org.springframework.data.jpa.domain.Specification;
+import pl.com.schoolsystem.classs.ClassNotCreatedException;
 import pl.com.schoolsystem.common.exception.DuplicatedApplicationUserEmailException;
 import pl.com.schoolsystem.mail.EmailSender;
 import pl.com.schoolsystem.security.user.*;
+import pl.com.schoolsystem.teacher.TeacherEntity;
+import pl.com.schoolsystem.teacher.TeacherNotFoundException;
 import pl.com.schoolsystem.teacher.TeacherService;
 
 public class StudentServiceTest {
@@ -58,10 +61,12 @@ public class StudentServiceTest {
         provideApplicationUserEntity(command.personalData(), encodedPassword);
     final var studentEntity = provideStudentEntity(875L, 7854L);
     final var personalData = command.personalData();
+    final var teacherWithClass = provideTeacherWithClass();
 
     given(passwordService.generateNewRandomPassword()).willReturn(randomPassword);
     given(passwordService.encodePassword(randomPassword)).willReturn(encodedPassword);
     given(applicationUserService.create(applicationUserCommand)).willReturn(applicationUserEntity);
+    given(teacherService.findAuthenticatedTeacher()).willReturn(of(teacherWithClass));
     given(studentRepository.save(any())).willReturn(studentEntity);
     doNothing().when(emailSender).sendNewUserEmail(any(), any());
     // when
@@ -83,6 +88,55 @@ public class StudentServiceTest {
     assertThat(savedApplicationUser.getLastName()).isEqualTo(personalData.lastName());
     assertThat(savedApplicationUser.getPhoneNumber()).isEqualTo(personalData.phoneNumber());
     assertThat(savedApplicationUser.getRole()).isEqualTo(STUDENT);
+
+    assertThat(teacherWithClass.getClasss().getStudents()).hasSize(1);
+  }
+
+  @Test
+  public void shouldThrowTeacherNotFoundExceptionWhenCreatingNewStudent() {
+    // given
+    final var command =
+        new StudentCommand(
+            new UserCommand("Student", "Studenciacki", "745981236", "student@student.com.pl"));
+    final var randomPassword = "fjdgjfhdgjdfhgfjd";
+    final var encodedPassword = "gjkfhklgjhdflghfdljjghfdlgjhfdljkghd";
+    final var applicationUserCommand = provideApplicationUserCommandForCreateMethod();
+    final var applicationUserEntity =
+        provideApplicationUserEntity(command.personalData(), encodedPassword);
+
+    given(passwordService.generateNewRandomPassword()).willReturn(randomPassword);
+    given(passwordService.encodePassword(randomPassword)).willReturn(encodedPassword);
+    given(applicationUserService.create(applicationUserCommand)).willReturn(applicationUserEntity);
+    given(teacherService.findAuthenticatedTeacher()).willReturn(empty());
+    // when
+    final var exception =
+        assertThrows(TeacherNotFoundException.class, () -> studentService.create(command));
+    // then
+    assertThat(exception.getCode()).isEqualTo("USER_NOT_FOUND");
+    assertThat(exception.getMessage()).isEqualTo("Teacher hasn't been found");
+  }
+
+  @Test
+  public void shouldThrowClassNotCreatedException() {
+    // given
+    final var command =
+        new StudentCommand(
+            new UserCommand("Student", "Studenciacki", "745981236", "student@student.com.pl"));
+    final var randomPassword = "fjdgjfhdgjdfhgfjd";
+    final var encodedPassword = "gjkfhklgjhdflghfdljjghfdlgjhfdljkghd";
+    final var applicationUserCommand = provideApplicationUserCommandForCreateMethod();
+    final var applicationUserEntity =
+        provideApplicationUserEntity(command.personalData(), encodedPassword);
+
+    final var teacherWithoutClass = new TeacherEntity();
+
+    given(passwordService.generateNewRandomPassword()).willReturn(randomPassword);
+    given(passwordService.encodePassword(randomPassword)).willReturn(encodedPassword);
+    given(applicationUserService.create(applicationUserCommand)).willReturn(applicationUserEntity);
+    given(teacherService.findAuthenticatedTeacher()).willReturn(of(teacherWithoutClass));
+    // when
+    // then
+    assertThrows(ClassNotCreatedException.class, () -> studentService.create(command));
   }
 
   @ParameterizedTest
