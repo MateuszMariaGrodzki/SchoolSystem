@@ -3,9 +3,11 @@ package pl.com.schoolsystem.student;
 import static pl.com.schoolsystem.security.user.ApplicationRole.STUDENT;
 
 import lombok.experimental.UtilityClass;
+import pl.com.schoolsystem.classs.ClasssEntity;
 import pl.com.schoolsystem.security.user.AddApplicationUserCommand;
 import pl.com.schoolsystem.security.user.ApplicationUserEntity;
 import pl.com.schoolsystem.security.user.UserCommand;
+import pl.com.schoolsystem.teacher.TeacherEntity;
 
 @UtilityClass
 public class StudentServiceTestDataFactory {
@@ -26,6 +28,12 @@ public class StudentServiceTestDataFactory {
     studentEntity.setId(studentId);
     studentEntity.setApplicationUser(provideExistingApplicationUser(applicationUserId));
     return studentEntity;
+  }
+
+  public TeacherEntity provideTeacherWithClass() {
+    final var teacherEntity = new TeacherEntity();
+    teacherEntity.setClasss(new ClasssEntity());
+    return teacherEntity;
   }
 
   public ApplicationUserEntity provideExistingApplicationUser(long applicationUserId) {
