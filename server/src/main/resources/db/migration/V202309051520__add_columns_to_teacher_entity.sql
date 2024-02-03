@@ -1,0 +1,1 @@
+alter table teacher add column specialization varchar (64) not null

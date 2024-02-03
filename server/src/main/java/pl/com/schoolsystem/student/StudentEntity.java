@@ -3,6 +3,7 @@ package pl.com.schoolsystem.student;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import pl.com.schoolsystem.classs.ClasssEntity;
 import pl.com.schoolsystem.security.user.ApplicationUserEntity;
 
 @Entity
@@ -19,4 +20,8 @@ public class StudentEntity {
   @OneToOne
   @JoinColumn(name = "application_user_id")
   private ApplicationUserEntity applicationUser;
+
+  @ManyToOne
+  @JoinColumn(name = "classs_id")
+  private ClasssEntity classs;
 }

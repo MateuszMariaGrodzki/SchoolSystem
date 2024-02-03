@@ -5,6 +5,7 @@ import static pl.com.schoolsystem.security.user.ApplicationUserMapper.APPLICATIO
 import static pl.com.schoolsystem.teacher.TeacherMapper.TEACHER_MAPPER;
 import static pl.com.schoolsystem.teacher.TeacherSpecification.*;
 
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -31,13 +32,14 @@ public class TeacherService {
   private final EmailValidator emailValidator;
 
   @Transactional
-  public TeacherView create(TeacherCommand teacherCommand) {
+  public TeacherView create(CreateTeacherCommand teacherCommand) {
     final var password = passwordService.generateNewRandomPassword();
     final var applicationUserCommand =
         APPLICATION_USER_MAPPER.toApplicationUserCommand(
             teacherCommand.personalData(), passwordService.encodePassword(password), TEACHER);
     final var applicationUserEntity = applicationUserService.create(applicationUserCommand);
-    final var teacherEntity = TEACHER_MAPPER.toTeacherEntity(applicationUserEntity);
+    final var teacherEntity =
+        TEACHER_MAPPER.toTeacherEntity(applicationUserEntity, teacherCommand.specialization());
     final var savedEntity = teacherRepository.save(teacherEntity);
     final var teacherId = savedEntity.getId();
     log.info(
@@ -45,19 +47,22 @@ public class TeacherService {
         applicationUserEntity.getEmail(),
         teacherId);
     emailSender.sendNewUserEmail(applicationUserEntity, password);
-    return TEACHER_MAPPER.toTeacherView(teacherId, applicationUserEntity);
+    return TEACHER_MAPPER.toTeacherView(
+        teacherId, applicationUserEntity, teacherCommand.specialization());
   }
 
   public TeacherView getById(long id) {
     return teacherRepository
         .findOne(withId(id).and(isAccountActive()))
-        .map(TeacherEntity::getApplicationUser)
-        .map(user -> TEACHER_MAPPER.toTeacherView(id, user))
+        .map(
+            teacher ->
+                TEACHER_MAPPER.toTeacherView(
+                    id, teacher.getApplicationUser(), teacher.getSpecialization()))
         .orElseThrow(() -> new TeacherNotFoundException(id));
   }
 
   @Transactional
-  public TeacherView updateById(long id, TeacherCommand command) {
+  public TeacherView updateById(long id, UpdateTeacherCommand command) {
     final var teacher =
         teacherRepository
             .findOne(withId(id).and(isAccountActive()))
@@ -70,7 +75,7 @@ public class TeacherService {
       applicationUser.setLastName(personalData.lastName());
       applicationUser.setEmail(personalData.email());
       log.info("Updated teacher with id {}", id);
-      return TEACHER_MAPPER.toTeacherView(id, applicationUser);
+      return TEACHER_MAPPER.toTeacherView(id, applicationUser, teacher.getSpecialization());
     }
     throw new DuplicatedApplicationUserEmailException(command.personalData().email());
   }
@@ -85,5 +90,16 @@ public class TeacherService {
               log.info("Deleting teacher with id {}", id);
               user.setExpired(true);
             });
+  }
+
+  public Optional<TeacherEntity> findByIdAndLoggedUser(long id) {
+    final var loggedUserId = applicationUserService.getAuthenticatedUserId();
+    return teacherRepository.findOne(
+        withId(id).and(isAccountActive()).and(isLoggedUser(loggedUserId)));
+  }
+
+  public Optional<TeacherEntity> findAuthenticatedTeacher() {
+    final var loggedUserId = applicationUserService.getAuthenticatedUserId();
+    return teacherRepository.findOne(isAccountActive().and(isLoggedUser(loggedUserId)));
   }
 }

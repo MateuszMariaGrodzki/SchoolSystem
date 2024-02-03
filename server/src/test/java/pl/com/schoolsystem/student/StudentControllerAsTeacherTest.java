@@ -14,7 +14,6 @@ import org.springframework.http.MediaType;
 import pl.com.schoolsystem.security.authentication.AuthCommand;
 import pl.com.schoolsystem.security.user.UserCommand;
 import pl.com.schoolsystem.teacher.BaseIntegrationTestAsTeacher;
-import pl.com.schoolsystem.teacher.TeacherCommand;
 
 public class StudentControllerAsTeacherTest extends BaseIntegrationTestAsTeacher {
 
@@ -49,9 +48,10 @@ public class StudentControllerAsTeacherTest extends BaseIntegrationTestAsTeacher
         .containsKey("password")
         .isNotNull();
 
-    final var headmasterEntity =
+    final var studentEntity =
         jdbcTemplate.queryForMap("select * from student where application_user_id = 1");
-    assertThat(headmasterEntity.containsKey("id")).isTrue();
+
+    assertThat(studentEntity).containsEntry("classs_id", 27);
   }
 
   @Test
@@ -77,7 +77,7 @@ public class StudentControllerAsTeacherTest extends BaseIntegrationTestAsTeacher
   public void shouldFailValidationOnPostMethod() {
     // given
     final var requestBody =
-        new TeacherCommand(new UserCommand("878451232", "--8-", "Student", "chyba niepoprawny"));
+        new StudentCommand(new UserCommand("878451232", "--8-", "Student", "chyba niepoprawny"));
     // when
     mvc.perform(
             post("/v1/students")

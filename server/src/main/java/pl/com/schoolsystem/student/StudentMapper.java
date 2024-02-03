@@ -14,6 +14,7 @@ public interface StudentMapper {
 
   @Mapping(source = "applicationUser", target = "applicationUser")
   @Mapping(target = "id", ignore = true)
+  @Mapping(target = "classs", ignore = true)
   StudentEntity toStudentEntity(ApplicationUserEntity applicationUser);
 
   @Mapping(source = "id", target = "id")

@@ -14,8 +14,11 @@ public interface TeacherMapper {
 
   @Mapping(source = "applicationUser", target = "applicationUser")
   @Mapping(target = "id", ignore = true)
-  TeacherEntity toTeacherEntity(ApplicationUserEntity applicationUser);
+  @Mapping(target = "classs", ignore = true)
+  TeacherEntity toTeacherEntity(
+      ApplicationUserEntity applicationUser, TeacherSpecialization specialization);
 
   @Mapping(source = "id", target = "id")
-  TeacherView toTeacherView(Long id, ApplicationUserEntity entity);
+  TeacherView toTeacherView(
+      Long id, ApplicationUserEntity entity, TeacherSpecialization specialization);
 }

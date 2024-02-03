@@ -3,6 +3,7 @@ package pl.com.schoolsystem.teacher;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import pl.com.schoolsystem.classs.ClasssEntity;
 import pl.com.schoolsystem.security.user.ApplicationUserEntity;
 
 @Entity
@@ -19,4 +20,10 @@ public class TeacherEntity {
   @OneToOne
   @JoinColumn(name = "application_user_id")
   private ApplicationUserEntity applicationUser;
+
+  @OneToOne(mappedBy = "supervisingTeacher")
+  private ClasssEntity classs;
+
+  @Enumerated(value = EnumType.STRING)
+  private TeacherSpecialization specialization;
 }
